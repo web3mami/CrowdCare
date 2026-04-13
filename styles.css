@@ -1,35 +1,99 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&family=Outfit:wght@400;500;600;700&display=swap");
+
 :root {
-  --ash-deep: #141413;
-  --ash: #1e1e1c;
-  --ash-mid: #2a2a27;
-  --ash-raised: #353532;
-  --text: #e8e6e1;
-  --text-muted: #a9a69e;
+  --ash-deep: #121211;
+  --ash: #1a1a18;
+  --ash-mid: #252522;
+  --ash-raised: #32322e;
+  --text: #eeece6;
+  --text-muted: #a8a59c;
   --gold: #c9a227;
   --gold-bright: #e8c547;
   --gold-dim: #8a7020;
-  --border: rgba(201, 162, 39, 0.28);
-  --border-strong: rgba(201, 162, 39, 0.45);
+  --border: rgba(201, 162, 39, 0.26);
+  --border-strong: rgba(232, 197, 71, 0.35);
   --danger: #ff6b6b;
   --success: #7dd87d;
+  --shadow-soft: 0 18px 48px rgba(0, 0, 0, 0.45);
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.35);
 
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  line-height: 1.5;
+  font-family: "Outfit", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.55;
   color: var(--text);
-  background: var(--ash-deep);
+  background-color: var(--ash-deep);
 }
 
 body {
-  max-width: 40rem;
+  max-width: 42rem;
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 1.5rem 1.35rem 3rem;
   min-height: 100vh;
   box-sizing: border-box;
+  background-color: var(--ash-deep);
+  background-image:
+    radial-gradient(
+      ellipse 130% 70% at 50% -25%,
+      rgba(201, 162, 39, 0.16),
+      transparent 52%
+    ),
+    radial-gradient(
+      ellipse 70% 50% at 110% 90%,
+      rgba(201, 162, 39, 0.07),
+      transparent 42%
+    );
+}
+
+h1,
+.site-title,
+.brand-block,
+.top-nav .brand,
+.section-heading {
+  font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
 }
 
 h1 {
   font-size: 1.75rem;
-  line-height: 1.2;
+  line-height: 1.15;
+}
+
+.gate-screen {
+  padding: 0.5rem 0 2.5rem;
+}
+
+.gate-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 0 0 0.5rem;
+}
+
+.gate-title {
+  font-size: clamp(2.35rem, 8vw, 3.35rem);
+  font-weight: 700;
+  line-height: 1.05;
+  margin-bottom: 0.65rem;
+  background: linear-gradient(135deg, var(--gold-bright) 0%, var(--gold) 55%, #f0d875 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 40px rgba(201, 162, 39, 0.25);
+}
+
+.gate-screen .lead {
+  font-size: 1.0625rem;
+  max-width: 36ch;
+  line-height: 1.6;
+}
+
+.content-shell {
+  background: linear-gradient(165deg, rgba(37, 37, 34, 0.65) 0%, var(--ash) 100%);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.35rem 1.4rem 1.5rem;
+  margin-top: 0.25rem;
+  box-shadow: var(--shadow-soft);
 }
 
 .goal {
@@ -39,13 +103,14 @@ h1 {
 
 .address {
   word-break: break-all;
-  background: var(--ash);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
+  background: linear-gradient(145deg, var(--ash-mid), var(--ash));
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
   font-family: ui-monospace, "Cascadia Mono", monospace;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   color: var(--gold-bright);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .note {
@@ -74,16 +139,19 @@ h1 {
 button {
   font: inherit;
   cursor: pointer;
-  border: 1px solid var(--gold-dim);
-  background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+  border: 1px solid rgba(138, 112, 32, 0.9);
+  background: linear-gradient(175deg, #f0d875 0%, var(--gold-bright) 30%, var(--gold) 100%);
   color: var(--ash-deep);
-  border-radius: 8px;
-  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  padding: 0.55rem 1rem;
   font-weight: 600;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 16px rgba(201, 162, 39, 0.25);
 }
 
 button:hover {
-  filter: brightness(1.06);
+  filter: brightness(1.05);
+  box-shadow: 0 6px 20px rgba(201, 162, 39, 0.32);
 }
 
 button:focus-visible {
@@ -92,8 +160,9 @@ button:focus-visible {
 }
 
 .site-title {
-  font-size: 1.5rem;
-  margin: 0 0 0.25rem;
+  font-size: clamp(1.65rem, 4vw, 2rem);
+  font-weight: 700;
+  margin: 0 0 0.35rem;
   color: var(--text);
 }
 
@@ -120,18 +189,22 @@ button:focus-visible {
 
 .campaign-list a {
   display: block;
-  padding: 1rem;
-  background: var(--ash-mid);
+  padding: 1.15rem 1.2rem;
+  background: linear-gradient(160deg, var(--ash-mid) 0%, var(--ash) 100%);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 12px;
   text-decoration: none;
   color: inherit;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  box-shadow: var(--shadow-card);
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease,
+    box-shadow 0.2s ease;
 }
 
 .campaign-list a:hover {
   border-color: var(--border-strong);
-  background: var(--ash-raised);
+  background: linear-gradient(160deg, var(--ash-raised) 0%, var(--ash-mid) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(232, 197, 71, 0.12);
 }
 
 .campaign-list .card-title {
@@ -173,16 +246,17 @@ button:focus-visible {
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.75rem;
+  margin-bottom: 1.75rem;
+  padding: 0.35rem 0 1rem;
   border-bottom: 1px solid var(--border);
 }
 
 .top-nav .brand {
   font-weight: 700;
+  font-size: 1.35rem;
   color: var(--gold-bright);
   text-decoration: none;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
 }
 
 .top-nav .top-nav-links {
@@ -204,11 +278,13 @@ button:focus-visible {
 .user-bar {
   font-size: 0.8125rem;
   color: var(--text-muted);
-  background: var(--ash-mid);
+  background: rgba(37, 37, 34, 0.85);
+  backdrop-filter: blur(8px);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 0.65rem 0.85rem;
-  margin-bottom: 1.25rem;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.35rem;
+  box-shadow: var(--shadow-card);
 }
 
 .user-bar strong {
@@ -238,13 +314,15 @@ button:focus-visible {
 }
 
 .banner-warn {
-  background: rgba(201, 162, 39, 0.12);
+  background: rgba(201, 162, 39, 0.1);
   border: 1px solid var(--border-strong);
   color: var(--text);
-  border-radius: 8px;
-  padding: 0.85rem 1rem;
-  margin-bottom: 1.25rem;
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  margin-bottom: 1.15rem;
   font-size: 0.875rem;
+  line-height: 1.55;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2);
 }
 
 .banner-warn strong {
@@ -268,11 +346,19 @@ button:focus-visible {
   max-width: 100%;
   box-sizing: border-box;
   font: inherit;
-  padding: 0.5rem 0.65rem;
+  padding: 0.55rem 0.75rem;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 10px;
   background: var(--ash);
   color: var(--text);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-field input:focus,
+.form-field textarea:focus {
+  outline: none;
+  border-color: var(--gold-dim);
+  box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.15);
 }
 
 .form-field input::placeholder,
@@ -304,13 +390,17 @@ button:focus-visible {
   margin: 0 0 1rem;
 }
 
-#g-btn-wrap .g_id_signin {
+#g-btn-wrap .g_id_signin,
+#g-btn-wrap-gate .g_id_signin {
   margin-top: 0.5rem;
 }
 
+#g-btn-wrap-gate {
+  padding: 0.25rem 0 0.5rem;
+}
+
 .brand-block {
-  color: var(--gold-bright);
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
 }
 
 .gate-skip-wrap {
