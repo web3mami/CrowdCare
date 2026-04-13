@@ -1,127 +1,88 @@
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&family=Outfit:wght@400;500;600;700&display=swap");
-
 :root {
-  --ash-deep: #121211;
-  --ash: #1a1a18;
-  --ash-mid: #252522;
-  --ash-raised: #32322e;
-  --text: #eeece6;
-  --text-muted: #a8a59c;
+  --ash-deep: #141413;
+  --ash: #1c1c1a;
+  --ash-mid: #262624;
+  --text: #e8e6e1;
+  --text-muted: #9c9a94;
   --gold: #c9a227;
-  --gold-bright: #e8c547;
-  --gold-dim: #8a7020;
-  --border: rgba(201, 162, 39, 0.26);
-  --border-strong: rgba(232, 197, 71, 0.35);
-  --danger: #ff6b6b;
-  --success: #7dd87d;
-  --shadow-soft: 0 18px 48px rgba(0, 0, 0, 0.45);
-  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.35);
+  --gold-bright: #dfc04a;
+  --border: rgba(201, 162, 39, 0.22);
+  --border-focus: rgba(201, 162, 39, 0.45);
+  --danger: #e85d5d;
+  --success: #6ebf6e;
 
-  font-family: "Outfit", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  line-height: 1.55;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
   color: var(--text);
   background-color: var(--ash-deep);
 }
 
 body {
-  max-width: 42rem;
+  max-width: 38rem;
   margin: 0 auto;
-  padding: 1.5rem 1.35rem 3rem;
+  padding: 1.75rem 1.25rem 2.5rem;
   min-height: 100vh;
   box-sizing: border-box;
   background-color: var(--ash-deep);
-  background-image:
-    radial-gradient(
-      ellipse 130% 70% at 50% -25%,
-      rgba(201, 162, 39, 0.16),
-      transparent 52%
-    ),
-    radial-gradient(
-      ellipse 70% 50% at 110% 90%,
-      rgba(201, 162, 39, 0.07),
-      transparent 42%
-    );
-}
-
-h1,
-.site-title,
-.brand-block,
-.top-nav .brand,
-.section-heading {
-  font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
 }
 
 h1 {
-  font-size: 1.75rem;
-  line-height: 1.15;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  font-weight: 600;
 }
 
 .gate-screen {
-  padding: 0.5rem 0 2.5rem;
-}
-
-.gate-eyebrow {
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin: 0 0 0.5rem;
+  padding: 0.25rem 0 2rem;
 }
 
 .gate-title {
-  font-size: clamp(2.35rem, 8vw, 3.35rem);
-  font-weight: 700;
-  line-height: 1.05;
-  margin-bottom: 0.65rem;
-  background: linear-gradient(135deg, var(--gold-bright) 0%, var(--gold) 55%, #f0d875 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  text-shadow: 0 0 40px rgba(201, 162, 39, 0.25);
+  font-size: 1.875rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--gold-bright);
+  margin: 0 0 0.75rem;
 }
 
 .gate-screen .lead {
-  font-size: 1.0625rem;
-  max-width: 36ch;
-  line-height: 1.6;
+  font-size: 1rem;
+  max-width: 34ch;
 }
 
 .content-shell {
-  background: linear-gradient(165deg, rgba(37, 37, 34, 0.65) 0%, var(--ash) 100%);
+  background: var(--ash);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 1.35rem 1.4rem 1.5rem;
+  border-radius: 8px;
+  padding: 1.25rem 1.25rem 1.35rem;
   margin-top: 0.25rem;
-  box-shadow: var(--shadow-soft);
 }
 
 .goal {
-  font-size: 1.125rem;
+  font-size: 1.0625rem;
   margin: 1rem 0;
 }
 
 .address {
   word-break: break-all;
-  background: linear-gradient(145deg, var(--ash-mid), var(--ash));
-  border: 1px solid var(--border-strong);
-  border-radius: 10px;
-  padding: 0.85rem 1rem;
+  background: var(--ash-deep);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 0.85rem;
   font-family: ui-monospace, "Cascadia Mono", monospace;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   color: var(--gold-bright);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .note {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   color: var(--text-muted);
-  margin-top: 2rem;
+  margin-top: 1.75rem;
+  line-height: 1.5;
 }
 
 .note code {
   color: var(--gold-bright);
-  font-size: 0.85em;
+  font-size: 0.92em;
 }
 
 .address-row {
@@ -139,19 +100,17 @@ h1 {
 button {
   font: inherit;
   cursor: pointer;
-  border: 1px solid rgba(138, 112, 32, 0.9);
-  background: linear-gradient(175deg, #f0d875 0%, var(--gold-bright) 30%, var(--gold) 100%);
+  border: 1px solid var(--gold);
+  background: var(--gold);
   color: var(--ash-deep);
-  border-radius: 10px;
-  padding: 0.55rem 1rem;
+  border-radius: 6px;
+  padding: 0.45rem 0.85rem;
   font-weight: 600;
-  letter-spacing: 0.02em;
-  box-shadow: 0 4px 16px rgba(201, 162, 39, 0.25);
 }
 
 button:hover {
-  filter: brightness(1.05);
-  box-shadow: 0 6px 20px rgba(201, 162, 39, 0.32);
+  background: var(--gold-bright);
+  border-color: var(--gold-bright);
 }
 
 button:focus-visible {
@@ -160,8 +119,8 @@ button:focus-visible {
 }
 
 .site-title {
-  font-size: clamp(1.65rem, 4vw, 2rem);
-  font-weight: 700;
+  font-size: 1.375rem;
+  font-weight: 600;
   margin: 0 0 0.35rem;
   color: var(--text);
 }
@@ -172,9 +131,12 @@ button:focus-visible {
 }
 
 .section-heading {
-  font-size: 1.125rem;
-  margin: 1.5rem 0 0.5rem;
-  color: var(--gold);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 1.75rem 0 0.65rem;
+  color: var(--text-muted);
 }
 
 .campaign-list {
@@ -184,38 +146,34 @@ button:focus-visible {
 }
 
 .campaign-list li {
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .campaign-list a {
   display: block;
-  padding: 1.15rem 1.2rem;
-  background: linear-gradient(160deg, var(--ash-mid) 0%, var(--ash) 100%);
+  padding: 0.9rem 1rem;
+  background: transparent;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 6px;
   text-decoration: none;
   color: inherit;
-  box-shadow: var(--shadow-card);
-  transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease,
-    box-shadow 0.2s ease;
+  transition: border-color 0.12s ease;
 }
 
 .campaign-list a:hover {
-  border-color: var(--border-strong);
-  background: linear-gradient(160deg, var(--ash-raised) 0%, var(--ash-mid) 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(232, 197, 71, 0.12);
+  border-color: var(--border-focus);
 }
 
 .campaign-list .card-title {
   font-weight: 600;
   margin: 0;
+  font-size: 1rem;
 }
 
 .campaign-list .meta {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   color: var(--text-muted);
-  margin: 0.35rem 0 0;
+  margin: 0.3rem 0 0;
 }
 
 .back {
@@ -223,8 +181,9 @@ button:focus-visible {
 }
 
 .back a {
-  color: var(--gold);
+  color: var(--gold-bright);
   text-decoration: none;
+  font-size: 0.875rem;
 }
 
 .back a:hover {
@@ -238,6 +197,12 @@ button:focus-visible {
 .actions a {
   color: var(--gold-bright);
   font-weight: 600;
+  text-decoration: none;
+  font-size: 0.9375rem;
+}
+
+.actions a:hover {
+  text-decoration: underline;
 }
 
 .top-nav {
@@ -246,17 +211,16 @@ button:focus-visible {
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  margin-bottom: 1.75rem;
-  padding: 0.35rem 0 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.85rem;
   border-bottom: 1px solid var(--border);
 }
 
 .top-nav .brand {
-  font-weight: 700;
-  font-size: 1.35rem;
+  font-weight: 600;
+  font-size: 1.0625rem;
   color: var(--gold-bright);
   text-decoration: none;
-  letter-spacing: 0.04em;
 }
 
 .top-nav .top-nav-links {
@@ -268,23 +232,21 @@ button:focus-visible {
 .top-nav .top-nav-links a {
   color: var(--text-muted);
   text-decoration: none;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
 }
 
 .top-nav .top-nav-links a:hover {
-  color: var(--gold);
+  color: var(--text);
 }
 
 .user-bar {
   font-size: 0.8125rem;
   color: var(--text-muted);
-  background: rgba(37, 37, 34, 0.85);
-  backdrop-filter: blur(8px);
+  background: var(--ash);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 0.75rem 1rem;
-  margin-bottom: 1.35rem;
-  box-shadow: var(--shadow-card);
+  border-radius: 6px;
+  padding: 0.65rem 0.85rem;
+  margin-bottom: 1.15rem;
 }
 
 .user-bar strong {
@@ -300,7 +262,7 @@ button:focus-visible {
 .user-bar button.linkish {
   background: none;
   border: none;
-  color: var(--gold);
+  color: var(--gold-bright);
   padding: 0;
   font-weight: 600;
   text-decoration: underline;
@@ -310,19 +272,18 @@ button:focus-visible {
 
 .user-bar button.linkish:hover {
   filter: none;
-  color: var(--gold-bright);
+  color: var(--gold);
 }
 
 .banner-warn {
-  background: rgba(201, 162, 39, 0.1);
-  border: 1px solid var(--border-strong);
+  background: var(--ash-mid);
+  border: 1px solid var(--border);
   color: var(--text);
-  border-radius: 12px;
-  padding: 1rem 1.1rem;
-  margin-bottom: 1.15rem;
-  font-size: 0.875rem;
-  line-height: 1.55;
-  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 0.85rem 0.95rem;
+  margin-bottom: 1rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
 }
 
 .banner-warn strong {
@@ -336,8 +297,9 @@ button:focus-visible {
 .form-field label {
   display: block;
   font-weight: 600;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.3rem;
   color: var(--text);
+  font-size: 0.875rem;
 }
 
 .form-field input,
@@ -346,65 +308,59 @@ button:focus-visible {
   max-width: 100%;
   box-sizing: border-box;
   font: inherit;
-  padding: 0.55rem 0.75rem;
+  padding: 0.5rem 0.65rem;
   border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--ash);
+  border-radius: 6px;
+  background: var(--ash-deep);
   color: var(--text);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .form-field input:focus,
 .form-field textarea:focus {
   outline: none;
-  border-color: var(--gold-dim);
-  box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.15);
+  border-color: var(--border-focus);
 }
 
 .form-field input::placeholder,
 .form-field textarea::placeholder {
   color: var(--text-muted);
-  opacity: 0.8;
+  opacity: 0.85;
 }
 
 .form-field textarea {
-  min-height: 8rem;
+  min-height: 7rem;
   resize: vertical;
 }
 
 .form-hint {
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
   margin: 0.25rem 0 0;
 }
 
 .form-error {
   color: var(--danger);
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   margin: 0 0 1rem;
 }
 
 .form-success {
   color: var(--success);
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   margin: 0 0 1rem;
 }
 
 #g-btn-wrap .g_id_signin,
 #g-btn-wrap-gate .g_id_signin {
-  margin-top: 0.5rem;
+  margin-top: 0.35rem;
 }
 
 #g-btn-wrap-gate {
-  padding: 0.25rem 0 0.5rem;
-}
-
-.brand-block {
-  letter-spacing: 0.02em;
+  padding: 0.15rem 0 0.35rem;
 }
 
 .gate-skip-wrap {
-  margin-top: 1.75rem;
+  margin-top: 1.5rem;
 }
 
 button.bare {
@@ -416,10 +372,11 @@ button.bare {
   font-weight: 500;
   text-decoration: underline;
   cursor: pointer;
+  font-size: 0.875rem;
 }
 
 button.bare:hover {
-  color: var(--gold);
+  color: var(--gold-bright);
   filter: none;
 }
 
