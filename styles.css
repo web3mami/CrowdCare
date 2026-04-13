@@ -1719,9 +1719,85 @@ body.cc-motion-flow .my-campaigns-panel {
   animation: cc-rise-cinema 0.75s var(--ease-cinematic-out) 0.08s both;
 }
 
+/* Default: hub-style pages can still use centered panel if needed */
 .my-campaigns-panel {
   max-width: 52rem;
   margin: 0 auto;
+}
+
+/* My campaigns page: left-aligned, wider, larger type */
+body.my-campaigns-page .layout-content {
+  align-items: stretch;
+}
+
+body.my-campaigns-page .my-campaigns-panel {
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  padding: 1.35rem 1.35rem 1.5rem;
+  box-sizing: border-box;
+}
+
+body.my-campaigns-page .my-campaigns-panel > .note {
+  font-size: 0.9375rem;
+  margin-bottom: 1rem;
+}
+
+body.my-campaigns-page h1.site-title {
+  font-size: clamp(1.85rem, 4.5vw, 2.35rem);
+  text-align: left;
+  margin-bottom: 0.35rem;
+}
+
+body.my-campaigns-page .lead.lead--compact {
+  font-size: 1.0625rem;
+  text-align: left;
+  max-width: 40rem;
+}
+
+body.my-campaigns-page .campaign-list a {
+  padding: 1.2rem 1.25rem;
+  border-radius: 10px;
+}
+
+body.my-campaigns-page .campaign-list .card-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+body.my-campaigns-page .campaign-list .meta {
+  font-size: 0.9375rem;
+  margin-top: 0.45rem;
+}
+
+body.my-campaigns-page .campaign-card-funding-row {
+  font-size: 0.8125rem;
+}
+
+body.my-campaigns-page .campaign-card-pct {
+  font-size: 0.875rem;
+}
+
+body.my-campaigns-page .campaign-card-amt {
+  font-size: 0.8125rem;
+}
+
+body.my-campaigns-page .ft-progress-track--compact {
+  height: 8px;
+  margin-top: 0.55rem;
+}
+
+@media (min-width: 700px) {
+  body.my-campaigns-page .campaign-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
+    gap: 1rem;
+    justify-content: start;
+  }
+
+  body.my-campaigns-page .campaign-list li {
+    margin-bottom: 0;
+  }
 }
 
 body.cc-motion-flow .bare {
