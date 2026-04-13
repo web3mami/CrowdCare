@@ -1,29 +1,48 @@
+/**
+ * CrowdCare — ash + gold (clear contrast: layered grays + warm gold accents)
+ */
 :root {
-  --ash-deep: #141413;
-  --ash: #1c1c1a;
-  --ash-mid: #262624;
-  --text: #e8e6e1;
-  --text-muted: #9c9a94;
-  --gold: #c9a227;
-  --gold-bright: #dfc04a;
-  --border: rgba(201, 162, 39, 0.22);
-  --border-focus: rgba(201, 162, 39, 0.45);
-  --danger: #e85d5d;
-  --success: #6ebf6e;
+  /* Ash stack (warm undertone) */
+  --ash-void: #0e0e0c;
+  --ash-deep: #171715;
+  --ash: #1f1e1b;
+  --ash-panel: #2c2a26;
+  --ash-elevated: #38352f;
+
+  --text: #f0ede6;
+  --text-muted: #b0aba2;
+
+  /* Gold */
+  --gold: #c9a43a;
+  --gold-bright: #e4c76a;
+  --gold-deep: #8f7328;
+  --gold-faint: rgba(201, 164, 58, 0.12);
+  --gold-border: rgba(201, 164, 58, 0.38);
+  --gold-border-strong: rgba(228, 199, 106, 0.55);
+
+  --danger: #e07070;
+  --success: #7bc47b;
 
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   line-height: 1.5;
   color: var(--text);
-  background-color: var(--ash-deep);
+  background-color: var(--ash-void);
 }
 
 body {
-  max-width: 38rem;
+  max-width: 40rem;
   margin: 0 auto;
-  padding: 1.75rem 1.25rem 2.5rem;
+  padding: 1.75rem 1.35rem 3rem;
   min-height: 100vh;
   box-sizing: border-box;
-  background-color: var(--ash-deep);
+  background-color: var(--ash-void);
+  background-image:
+    radial-gradient(
+      ellipse 100% 55% at 50% -15%,
+      rgba(201, 164, 58, 0.14),
+      transparent 50%
+    ),
+    linear-gradient(180deg, var(--ash-deep) 0%, var(--ash-void) 45%, #0a0a09 100%);
 }
 
 h1 {
@@ -33,28 +52,47 @@ h1 {
 }
 
 .gate-screen {
-  padding: 0.25rem 0 2rem;
+  padding: 0.35rem 0 2.25rem;
 }
 
 .gate-title {
-  font-size: 1.875rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-size: clamp(2rem, 6vw, 2.65rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  margin: 0 0 0.85rem;
   color: var(--gold-bright);
-  margin: 0 0 0.75rem;
+  text-shadow: 0 0 42px rgba(201, 164, 58, 0.22);
+}
+
+.gate-title::after {
+  content: "";
+  display: block;
+  width: 3rem;
+  height: 2px;
+  margin-top: 0.75rem;
+  border-radius: 1px;
+  background: linear-gradient(90deg, var(--gold-bright), var(--gold-deep), transparent);
 }
 
 .gate-screen .lead {
-  font-size: 1rem;
-  max-width: 34ch;
+  font-size: 1.0625rem;
+  max-width: 36ch;
+  color: var(--text-muted);
+}
+
+.gate-screen .lead strong {
+  color: var(--gold-bright);
+  font-weight: 600;
 }
 
 .content-shell {
-  background: var(--ash);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1.25rem 1.25rem 1.35rem;
-  margin-top: 0.25rem;
+  background: var(--ash-panel);
+  border: 1px solid var(--gold-border);
+  border-radius: 10px;
+  padding: 1.35rem 1.35rem 1.45rem;
+  margin-top: 0.35rem;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35) inset;
 }
 
 .goal {
@@ -62,27 +100,35 @@ h1 {
   margin: 1rem 0;
 }
 
+.goal strong {
+  color: var(--gold-bright);
+}
+
 .address {
   word-break: break-all;
   background: var(--ash-deep);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--gold-border-strong);
+  border-radius: 8px;
+  padding: 0.8rem 0.95rem;
   font-family: ui-monospace, "Cascadia Mono", monospace;
   font-size: 0.8125rem;
   color: var(--gold-bright);
+  box-shadow: inset 0 1px 0 rgba(228, 199, 106, 0.06);
 }
 
 .note {
   font-size: 0.8125rem;
   color: var(--text-muted);
   margin-top: 1.75rem;
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 .note code {
   color: var(--gold-bright);
-  font-size: 0.92em;
+  font-size: 0.9em;
+  background: var(--gold-faint);
+  padding: 0.12em 0.35em;
+  border-radius: 4px;
 }
 
 .address-row {
@@ -100,17 +146,18 @@ h1 {
 button {
   font: inherit;
   cursor: pointer;
-  border: 1px solid var(--gold);
-  background: var(--gold);
-  color: var(--ash-deep);
-  border-radius: 6px;
-  padding: 0.45rem 0.85rem;
+  border: 1px solid var(--gold-deep);
+  background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 100%);
+  color: var(--ash-void);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
   font-weight: 600;
+  box-shadow: 0 2px 12px rgba(201, 164, 58, 0.2);
 }
 
 button:hover {
-  background: var(--gold-bright);
-  border-color: var(--gold-bright);
+  filter: brightness(1.06);
+  box-shadow: 0 3px 16px rgba(201, 164, 58, 0.28);
 }
 
 button:focus-visible {
@@ -119,10 +166,15 @@ button:focus-visible {
 }
 
 .site-title {
-  font-size: 1.375rem;
-  font-weight: 600;
-  margin: 0 0 0.35rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem;
   color: var(--text);
+}
+
+/* In-app page titles (not the gate hero, not campaign story headings) */
+h1.site-title:not(.gate-title) {
+  color: var(--gold-bright);
 }
 
 .lead {
@@ -130,13 +182,18 @@ button:focus-visible {
   margin: 0 0 1rem;
 }
 
-.section-heading {
-  font-size: 0.8125rem;
+.lead strong {
+  color: var(--gold-bright);
   font-weight: 600;
-  letter-spacing: 0.06em;
+}
+
+.section-heading {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  margin: 1.75rem 0 0.65rem;
-  color: var(--text-muted);
+  margin: 1.85rem 0 0.75rem;
+  color: var(--gold);
 }
 
 .campaign-list {
@@ -146,34 +203,37 @@ button:focus-visible {
 }
 
 .campaign-list li {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.65rem;
 }
 
 .campaign-list a {
   display: block;
-  padding: 0.9rem 1rem;
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  padding: 1rem 1.05rem;
+  background: var(--ash-panel);
+  border: 1px solid var(--gold-border);
+  border-radius: 8px;
   text-decoration: none;
   color: inherit;
-  transition: border-color 0.12s ease;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  box-shadow: 0 1px 0 rgba(228, 199, 106, 0.04) inset;
 }
 
 .campaign-list a:hover {
-  border-color: var(--border-focus);
+  border-color: var(--gold-border-strong);
+  background: var(--ash-elevated);
 }
 
 .campaign-list .card-title {
   font-weight: 600;
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.02rem;
+  color: var(--text);
 }
 
 .campaign-list .meta {
   font-size: 0.8125rem;
-  color: var(--text-muted);
-  margin: 0.3rem 0 0;
+  color: var(--gold);
+  margin: 0.35rem 0 0;
 }
 
 .back {
@@ -184,6 +244,7 @@ button:focus-visible {
   color: var(--gold-bright);
   text-decoration: none;
   font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .back a:hover {
@@ -191,7 +252,7 @@ button:focus-visible {
 }
 
 .actions {
-  margin: 1rem 0 0;
+  margin: 1.1rem 0 0;
 }
 
 .actions a {
@@ -211,22 +272,23 @@ button:focus-visible {
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.85rem;
-  border-bottom: 1px solid var(--border);
+  margin-bottom: 1.6rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--gold-border);
 }
 
 .top-nav .brand {
-  font-weight: 600;
-  font-size: 1.0625rem;
+  font-weight: 700;
+  font-size: 1.125rem;
   color: var(--gold-bright);
   text-decoration: none;
+  letter-spacing: 0.02em;
 }
 
 .top-nav .top-nav-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 1.1rem;
 }
 
 .top-nav .top-nav-links a {
@@ -236,17 +298,18 @@ button:focus-visible {
 }
 
 .top-nav .top-nav-links a:hover {
-  color: var(--text);
+  color: var(--gold-bright);
 }
 
 .user-bar {
   font-size: 0.8125rem;
   color: var(--text-muted);
-  background: var(--ash);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 0.65rem 0.85rem;
-  margin-bottom: 1.15rem;
+  background: var(--ash-panel);
+  border: 1px solid var(--gold-border);
+  border-left: 3px solid var(--gold);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
 }
 
 .user-bar strong {
@@ -276,14 +339,14 @@ button:focus-visible {
 }
 
 .banner-warn {
-  background: var(--ash-mid);
-  border: 1px solid var(--border);
+  background: var(--gold-faint);
+  border: 1px solid var(--gold-border);
   color: var(--text);
-  border-radius: 6px;
-  padding: 0.85rem 0.95rem;
+  border-radius: 8px;
+  padding: 0.95rem 1rem;
   margin-bottom: 1rem;
   font-size: 0.8125rem;
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 .banner-warn strong {
@@ -297,7 +360,7 @@ button:focus-visible {
 .form-field label {
   display: block;
   font-weight: 600;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.35rem;
   color: var(--text);
   font-size: 0.875rem;
 }
@@ -308,9 +371,9 @@ button:focus-visible {
   max-width: 100%;
   box-sizing: border-box;
   font: inherit;
-  padding: 0.5rem 0.65rem;
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--gold-border);
+  border-radius: 8px;
   background: var(--ash-deep);
   color: var(--text);
 }
@@ -318,13 +381,14 @@ button:focus-visible {
 .form-field input:focus,
 .form-field textarea:focus {
   outline: none;
-  border-color: var(--border-focus);
+  border-color: var(--gold-border-strong);
+  box-shadow: 0 0 0 3px rgba(201, 164, 58, 0.12);
 }
 
 .form-field input::placeholder,
 .form-field textarea::placeholder {
   color: var(--text-muted);
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
 .form-field textarea {
@@ -352,15 +416,15 @@ button:focus-visible {
 
 #g-btn-wrap .g_id_signin,
 #g-btn-wrap-gate .g_id_signin {
-  margin-top: 0.35rem;
+  margin-top: 0.4rem;
 }
 
 #g-btn-wrap-gate {
-  padding: 0.15rem 0 0.35rem;
+  padding: 0.2rem 0 0.4rem;
 }
 
 .gate-skip-wrap {
-  margin-top: 1.5rem;
+  margin-top: 1.65rem;
 }
 
 button.bare {
