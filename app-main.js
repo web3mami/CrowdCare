@@ -42,20 +42,17 @@
     browseHome.hidden = true;
 
     var slug = user.shareSlug || window.CROWDCARE_SESSION.ensureShareSlug();
-    var hubUrl = "app.html?hub=" + encodeURIComponent(slug);
-    try {
-      hubUrl = new URL(hubUrl, window.location.href).href;
-    } catch (e) {
-      /* relative */
-    }
+    /* Relative path keeps navigation in the same tab/window (some in-app browsers
+       open a new browser tab when href is a full https:// URL). */
+    var hubRel = "app.html?hub=" + encodeURIComponent(slug);
     var hint = document.getElementById("signed-in-hub-hint");
     if (hint) {
       hint.textContent = "";
       hint.appendChild(document.createTextNode("Hub "));
       var la = document.createElement("a");
       la.className = "mono-link mono-link--wrap";
-      la.href = hubUrl;
-      la.textContent = hubUrl;
+      la.href = hubRel;
+      la.textContent = hubRel;
       hint.appendChild(la);
     }
     return;

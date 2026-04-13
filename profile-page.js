@@ -19,7 +19,8 @@
     /* keep relative */
   }
   var hubCode = document.getElementById("profile-hub-url");
-  if (hubCode) hubCode.textContent = hubUrl;
+  /* Show relative link in the page; Copy still uses full URL for sharing. */
+  if (hubCode) hubCode.textContent = hubRel;
 
   var profileList = document.getElementById("profile-campaign-list");
   var profileEmpty = document.getElementById("profile-campaigns-empty");
