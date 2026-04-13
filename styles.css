@@ -29,20 +29,76 @@
   background-color: var(--ash-void);
 }
 
+html {
+  height: 100%;
+}
+
 body {
-  max-width: 40rem;
-  margin: 0 auto;
-  padding: 1.75rem 1.35rem 3rem;
+  margin: 0;
   min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  max-width: none;
+  padding: 0;
   box-sizing: border-box;
+  background-color: var(--ash-void);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Fixed full-viewport layer: background + future logo/watermarks */
+.layout-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
   background-color: var(--ash-void);
   background-image:
     radial-gradient(
-      ellipse 100% 55% at 50% -15%,
-      rgba(201, 164, 58, 0.14),
-      transparent 50%
+      ellipse 120% 60% at 50% -20%,
+      rgba(201, 164, 58, 0.16),
+      transparent 52%
     ),
-    linear-gradient(180deg, var(--ash-deep) 0%, var(--ash-void) 45%, #0a0a09 100%);
+    radial-gradient(
+      ellipse 55% 45% at 100% 85%,
+      rgba(201, 164, 58, 0.06),
+      transparent 45%
+    ),
+    linear-gradient(
+      180deg,
+      var(--ash-deep) 0%,
+      var(--ash-void) 50%,
+      #0a0a09 100%
+    );
+}
+
+/* Watermark hooks (fill in when you add logo assets) */
+.layout-backdrop::before,
+.layout-backdrop::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.layout-content {
+  position: relative;
+  z-index: 1;
+  flex: 1 0 auto;
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+  padding: clamp(1.25rem, 3vw, 2rem) clamp(1.25rem, 5vw, 4rem) 3rem;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.layout-content a {
+  color: var(--gold-bright);
+}
+
+.layout-content .campaign-list a {
+  color: inherit;
 }
 
 h1 {
@@ -77,7 +133,7 @@ h1 {
 
 .gate-screen .lead {
   font-size: 1.0625rem;
-  max-width: 36ch;
+  max-width: min(56ch, 100%);
   color: var(--text-muted);
 }
 
@@ -204,6 +260,18 @@ h1.site-title:not(.gate-title) {
 
 .campaign-list li {
   margin-bottom: 0.65rem;
+}
+
+@media (min-width: 700px) {
+  .campaign-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+    gap: 0.75rem;
+  }
+
+  .campaign-list li {
+    margin-bottom: 0;
+  }
 }
 
 .campaign-list a {
