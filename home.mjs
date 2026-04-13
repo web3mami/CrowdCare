@@ -177,12 +177,32 @@ if (user || browse) {
     );
   }
 
+  function playAuthEntrance() {
+    if (!auth) return;
+    auth.classList.remove("gate-auth--in");
+    void auth.offsetWidth;
+    auth.classList.add("gate-auth--in");
+  }
+
   function revealAuth() {
     sessionStorage.setItem(GATE_START_KEY, "1");
-    if (welcome) welcome.hidden = true;
-    if (auth) auth.hidden = false;
-    if (document.readyState === "complete") mountGoogleButton();
-    else window.addEventListener("load", mountGoogleButton);
+    if (welcome) {
+      welcome.classList.add("gate-welcome--exit");
+      window.setTimeout(function () {
+        welcome.hidden = true;
+        welcome.classList.remove("gate-welcome--exit");
+      }, 460);
+    }
+    if (auth) {
+      auth.hidden = false;
+      window.setTimeout(function () {
+        if (document.readyState === "complete") mountGoogleButton();
+        else window.addEventListener("load", mountGoogleButton);
+        requestAnimationFrame(function () {
+          requestAnimationFrame(playAuthEntrance);
+        });
+      }, 120);
+    }
   }
 
   if (welcome && auth && startBtn) {
@@ -191,6 +211,9 @@ if (user || browse) {
       auth.hidden = false;
       if (document.readyState === "complete") mountGoogleButton();
       else window.addEventListener("load", mountGoogleButton);
+      requestAnimationFrame(function () {
+        requestAnimationFrame(playAuthEntrance);
+      });
     } else {
       startBtn.addEventListener("click", revealAuth);
     }
