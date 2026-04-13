@@ -20,22 +20,18 @@
         </button>
       </div>
       <p class="note" id="campaign-note">
-        Campaign data comes from <code>campaigns.js</code>.
+        Campaigns may come from <code>campaigns.js</code> or from this browser’s
+        saved list (Start a campaign).
       </p>
     </article>
     <script src="campaigns.js"></script>
+    <script src="app.js"></script>
     <script>
       (function () {
-        var campaigns = window.CROWDCARE_CAMPAIGNS || [];
+        var app = window.CROWDCARE_APP;
         var params = new URLSearchParams(window.location.search);
         var id = params.get("id");
-        var c = null;
-        for (var i = 0; i < campaigns.length; i++) {
-          if (campaigns[i].id === id) {
-            c = campaigns[i];
-            break;
-          }
-        }
+        var c = id ? app.findCampaignById(id) : null;
         if (id && !c) {
           document.body.innerHTML =
             '<div style="max-width:40rem;margin:2rem auto;padding:0 1.5rem;font-family:system-ui,sans-serif">' +
@@ -43,7 +39,7 @@
             '<p><a href="index.html">← All campaigns</a></p></div>';
           return;
         }
-        if (!c) c = campaigns[0];
+        if (!c) c = app.getAllCampaigns()[0];
         if (!c) return;
 
         document.title = c.title + " — CrowdCare";

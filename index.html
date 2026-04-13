@@ -9,17 +9,20 @@
   <body>
     <h1 class="site-title">CrowdCare</h1>
     <p class="lead">Support someone directly—send crypto to their wallet.</p>
+    <p class="actions"><a href="create.html">Start a campaign</a></p>
     <h2 class="section-heading">Campaigns</h2>
     <ul class="campaign-list" id="campaign-list"></ul>
     <p class="note">
-      Campaigns are loaded from <code>campaigns.js</code>. Edit that file to add
-      or change listings.
+      Built-in campaigns come from <code>campaigns.js</code>. Campaigns you add
+      with “Start a campaign” are saved only in <strong>this browser</strong>
+      until you have a real backend.
     </p>
     <script src="campaigns.js"></script>
+    <script src="app.js"></script>
     <script>
       (function () {
         var list = document.getElementById("campaign-list");
-        var campaigns = window.CROWDCARE_CAMPAIGNS || [];
+        var campaigns = window.CROWDCARE_APP.getAllCampaigns();
         campaigns.forEach(function (c) {
           var li = document.createElement("li");
           var a = document.createElement("a");

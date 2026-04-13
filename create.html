@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Start a campaign — CrowdCare</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <p class="back"><a href="index.html">← All campaigns</a></p>
+    <h1 class="site-title">Start a campaign</h1>
+    <p class="lead">
+      This saves the campaign only in <strong>this browser</strong>. Other
+      people won’t see it on their phones or computers until you host real data
+      (for example a server and database).
+    </p>
+    <p id="form-error" class="form-error" hidden></p>
+    <form id="campaign-form" novalidate>
+      <div class="form-field">
+        <label for="slug">Campaign ID (URL)</label>
+        <input
+          id="slug"
+          name="slug"
+          type="text"
+          required
+          autocomplete="off"
+          placeholder="e.g. help-with-rent"
+          pattern="[a-z0-9]+(-[a-z0-9]+)*"
+        />
+        <p class="form-hint">
+          Lowercase letters, numbers, and hyphens only. Must be unique.
+        </p>
+      </div>
+      <div class="form-field">
+        <label for="title">Title</label>
+        <input
+          id="title"
+          name="title"
+          type="text"
+          required
+          maxlength="200"
+          placeholder="Short headline"
+        />
+      </div>
+      <div class="form-field">
+        <label for="goal">Goal</label>
+        <input
+          id="goal"
+          name="goal"
+          type="text"
+          required
+          placeholder="e.g. 3,000 USDC"
+        />
+      </div>
+      <div class="form-field">
+        <label for="wallet">Wallet address</label>
+        <input
+          id="wallet"
+          name="wallet"
+          type="text"
+          required
+          autocomplete="off"
+          placeholder="0x…"
+        />
+        <p class="form-hint">Ethereum-style 0x + 40 hex characters.</p>
+      </div>
+      <div class="form-field">
+        <label for="story">Story</label>
+        <textarea
+          id="story"
+          name="story"
+          required
+          placeholder="Each non-empty line becomes a paragraph."
+        ></textarea>
+      </div>
+      <button type="submit">Save and open campaign</button>
+    </form>
+    <p class="note">
+      Built-in IDs from <code>campaigns.js</code> cannot be reused (e.g.
+      <code>medical-bills</code>).
+    </p>
+    <script src="campaigns.js"></script>
+    <script src="app.js"></script>
+    <script>
+      (function () {
+        var form = document.getElementById("campaign-form");
+        var err = document.getElementById("form-error");
+        var app = window.CROWDCARE_APP;
+
+        function showError(msg) {
+          err.textContent = msg;
+          err.hidden = !msg;
+        }
+
+        function parseStory(text) {
+          return text
+            .split(/\r?\n/)
+            .map(function (line) {
+              return line.trim();
+            })
+            .filter(Boolean);
+        }
+
+        function looksLikeEthAddress(s) {
+          return /^0x[a-fA-F0-9]{40}$/.test(s.trim());
+        }
+
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+          showError("");
+
+          var slug = document.getElementById("slug").value.trim().toLowerCase();
+          var title = document.getElementById("title").value.trim();
+          var goal = document.getElementById("goal").value.trim();
+          var wallet = document.getElementById("wallet").value.trim();
+          var body = parseStory(document.getElementById("story").value);
+
+          if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) {
+            showError(
+              "Campaign ID must use lowercase letters, numbers, and hyphens only."
+            );
+            return;
+          }
+          if (app.idTaken(slug)) {
+            showError(
+              "That ID is already used. Pick a different Campaign ID."
+            );
+            return;
+          }
+          if (!body.length) {
+            showError("Add at least one line to your story.");
+            return;
+          }
+          if (!looksLikeEthAddress(wallet)) {
+            showError(
+              "Wallet must look like 0x followed by 40 hexadecimal characters."
+            );
+            return;
+          }
+
+          var ok = app.addExtraCampaign({
+            id: slug,
+            title: title,
+            goalLabel: goal,
+            wallet: wallet,
+            body: body,
+          });
+
+          if (!ok) {
+            showError("Could not save. Try again.");
+            return;
+          }
+
+          window.location.href =
+            "campaign.html?id=" + encodeURIComponent(slug);
+        });
+      })();
+    </script>
+  </body>
+</html>
