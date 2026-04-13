@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CrowdCare</title>
     <link rel="icon" href="assets/logo-mark.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=5" />
+    <link rel="stylesheet" href="styles.css?v=8" />
   </head>
   <body>
     <div class="layout-backdrop" aria-hidden="true"></div>
@@ -26,53 +26,80 @@
         }
       })();
     </script>
-    <!-- First screen: sign in (until user signs in or chooses to browse) -->
+    <!-- Gate: (1) welcome + Start (2) Google sign-in -->
     <div id="gate" class="gate-screen">
-      <div class="gate-brand">
+      <div id="gate-welcome" class="gate-welcome">
         <img
-          class="gate-logo"
+          class="gate-welcome-logo"
           src="assets/logo-mark.svg"
-          width="56"
-          height="56"
+          width="64"
+          height="64"
           alt=""
           decoding="async"
         />
-        <h1 class="site-title gate-title">CrowdCare</h1>
-      </div>
-      <p class="lead">
-        Crowdfunding on <strong>Solana</strong>. Sign in with Google to get a
-        <strong>demo receive address</strong> for this browser, then explore and
-        start campaigns.
-      </p>
-
-      <div id="gate-client-setup" class="banner-warn" hidden>
-        <strong>Set up Google Sign-In.</strong> Edit <code>config.js</code> and
-        paste your <strong>Web client ID</strong> from Google Cloud Console. Add
-        your site origin under <em>Authorized JavaScript origins</em>. Sign-in does
-        not work from <code>file://</code>—use GitHub Pages or a local server.
-      </div>
-
-      <div class="banner-warn">
-        <strong>Demo only.</strong> Your Solana public key here is derived in the
-        browser for prototyping—not a production wallet. Review before real funds.
-      </div>
-
-      <p id="gate-auth-error" class="form-error" hidden></p>
-
-      <div id="g-btn-wrap-gate">
-        <div id="g_id_signin_gate"></div>
-      </div>
-
-      <p class="gate-skip-wrap">
-        <button
-          type="button"
-          class="bare"
-          id="browse-skip"
-          onclick="sessionStorage.setItem('crowdcare_browse_only','1');location.reload();"
-        >
-          Browse campaigns without signing in
+        <p class="gate-welcome-name">CrowdCare</p>
+        <p class="gate-welcome-tagline">Crowdfunding on <strong>Solana</strong></p>
+        <button type="button" class="gate-start-btn" id="gate-start-btn">
+          Start CrowdCare
         </button>
-      </p>
+        <p class="gate-welcome-skip">
+          <button
+            type="button"
+            class="bare"
+            id="browse-skip-welcome"
+            onclick="sessionStorage.setItem('crowdcare_browse_only','1');location.reload();"
+          >
+            Browse without signing in
+          </button>
+        </p>
+      </div>
+
+      <div id="gate-auth" class="gate-auth" hidden>
+        <div class="gate-brand">
+          <img
+            class="gate-logo"
+            src="assets/logo-mark.svg"
+            width="56"
+            height="56"
+            alt=""
+            decoding="async"
+          />
+          <h1 class="site-title gate-title">CrowdCare</h1>
+        </div>
+        <p class="lead">
+          Sign in with Google to get a <strong>demo receive address</strong> for
+          this browser, then explore and start campaigns.
+        </p>
+
+        <div id="gate-client-setup" class="banner-warn" hidden>
+          <strong>Set up Google Sign-In.</strong> Edit <code>config.js</code> and
+          paste your <strong>Web client ID</strong> from Google Cloud Console. Add
+          your site origin under <em>Authorized JavaScript origins</em>. Sign-in does
+          not work from <code>file://</code>—use GitHub Pages or a local server.
+        </div>
+
+        <div class="banner-warn">
+          <strong>Demo only.</strong> Your Solana public key here is derived in the
+          browser for prototyping—not a production wallet. Review before real funds.
+        </div>
+
+        <p id="gate-auth-error" class="form-error" hidden></p>
+
+        <div id="g-btn-wrap-gate" class="gate-google-row">
+          <div id="g_id_signin_gate"></div>
+        </div>
+
+        <p class="gate-skip-wrap gate-skip-centered">
+          <button
+            type="button"
+            class="bare"
+            id="browse-skip"
+            onclick="sessionStorage.setItem('crowdcare_browse_only','1');location.reload();"
+          >
+            Browse campaigns without signing in
+          </button>
+        </p>
+      </div>
     </div>
 
     <!-- After sign-in or skip: full app -->

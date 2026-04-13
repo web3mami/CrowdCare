@@ -132,7 +132,86 @@ h1 {
 }
 
 .gate-screen {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100dvh - clamp(2.5rem, 6vw, 5rem));
   padding: 0.35rem 0 2.25rem;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.gate-welcome {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  text-align: left;
+  padding: 1.5rem 1rem 2.5rem;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+.gate-welcome-logo {
+  display: block;
+  filter: drop-shadow(0 0 20px rgba(201, 164, 58, 0.35));
+}
+
+.gate-welcome-name {
+  font-size: clamp(1.85rem, 5.5vw, 2.5rem);
+  font-weight: 700;
+  color: var(--gold-bright);
+  margin: 0.75rem 0 0.4rem;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.gate-welcome-tagline {
+  color: var(--text-muted);
+  margin: 0 0 1.85rem;
+  font-size: 1.0625rem;
+  max-width: 28ch;
+}
+
+.gate-welcome-tagline strong {
+  color: var(--gold-bright);
+  font-weight: 600;
+}
+
+.gate-start-btn {
+  font-size: 1.0625rem;
+  padding: 0.8rem 2rem;
+  min-width: 13.5rem;
+  border-radius: 10px;
+}
+
+.gate-welcome-skip {
+  margin: 1.5rem 0 0;
+}
+
+.gate-auth {
+  flex: 1;
+  width: 100%;
+  max-width: 40rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1.5rem 1rem 2.5rem;
+  box-sizing: border-box;
+}
+
+.gate-google-row {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 0.35rem 0 0.65rem;
+}
+
+.gate-skip-centered {
+  text-align: center;
 }
 
 .gate-brand {
@@ -560,6 +639,10 @@ h1.site-title:not(.gate-title) {
 
 #g-btn-wrap-gate {
   padding: 0.2rem 0 0.4rem;
+}
+
+#g-btn-wrap-gate.gate-google-row {
+  justify-content: center;
 }
 
 .gate-skip-wrap {

@@ -132,10 +132,12 @@ function tryInitGoogleAuth(attemptsLeft, runInit, errorElementId) {
 }
 
 var BROWSE_KEY = "crowdcare_browse_only";
+var GATE_START_KEY = "crowdcare_gate_started";
 
 var params = new URLSearchParams(window.location.search);
 if (params.get("signin") === "1") {
   sessionStorage.removeItem(BROWSE_KEY);
+  sessionStorage.removeItem(GATE_START_KEY);
   var u = new URL(window.location.href);
   u.search = "";
   history.replaceState({}, "", u.pathname + u.hash);
@@ -155,6 +157,7 @@ function populateMain() {
     document.getElementById("sign-out").addEventListener("click", function () {
       window.CROWDCARE_SESSION.signOut();
       sessionStorage.removeItem(BROWSE_KEY);
+      sessionStorage.removeItem(GATE_START_KEY);
       window.location.reload();
     });
   } else {
@@ -194,7 +197,12 @@ if (user || browse) {
 } else {
   gate.hidden = false;
   main.hidden = true;
-  window.addEventListener("load", function () {
+
+  var welcome = document.getElementById("gate-welcome");
+  var auth = document.getElementById("gate-auth");
+  var startBtn = document.getElementById("gate-start-btn");
+
+  function mountGoogleButton() {
     tryInitGoogleAuth(
       80,
       function () {
@@ -210,5 +218,24 @@ if (user || browse) {
       },
       "gate-auth-error"
     );
-  });
+  }
+
+  function revealAuth() {
+    sessionStorage.setItem(GATE_START_KEY, "1");
+    if (welcome) welcome.hidden = true;
+    if (auth) auth.hidden = false;
+    if (document.readyState === "complete") mountGoogleButton();
+    else window.addEventListener("load", mountGoogleButton);
+  }
+
+  if (welcome && auth && startBtn) {
+    if (sessionStorage.getItem(GATE_START_KEY) === "1") {
+      welcome.hidden = true;
+      auth.hidden = false;
+      if (document.readyState === "complete") mountGoogleButton();
+      else window.addEventListener("load", mountGoogleButton);
+    } else {
+      startBtn.addEventListener("click", revealAuth);
+    }
+  }
 }
