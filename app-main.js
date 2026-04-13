@@ -41,19 +41,6 @@
     signedInHome.hidden = false;
     browseHome.hidden = true;
 
-    var mine = app.getCampaignsByCreatorSub(user.sub);
-    var section = document.getElementById("your-campaigns");
-    var list = document.getElementById("campaign-list");
-    var emptyEl = document.getElementById("home-campaigns-empty");
-    section.hidden = false;
-    if (mine.length > 0) {
-      app.populateCampaignListEl(list, mine);
-      if (emptyEl) emptyEl.hidden = true;
-    } else {
-      if (list) list.innerHTML = "";
-      if (emptyEl) emptyEl.hidden = false;
-    }
-
     var slug = user.shareSlug || window.CROWDCARE_SESSION.ensureShareSlug();
     var hubUrl = "app.html?hub=" + encodeURIComponent(slug);
     try {

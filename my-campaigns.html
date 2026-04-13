@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>My campaigns — CrowdCare</title>
+    <link rel="icon" href="assets/logo-mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css?v=20" />
+  </head>
+  <body class="cc-motion-flow">
+    <div class="layout-backdrop" aria-hidden="true"></div>
+    <div class="layout-content">
+      <nav class="top-nav">
+        <a class="brand" href="app.html">
+          <img
+            class="brand-mark"
+            src="assets/logo-mark.svg"
+            width="32"
+            height="32"
+            alt=""
+            decoding="async"
+          />
+          <span class="brand-text">CrowdCare</span>
+        </a>
+        <div class="top-nav-links">
+          <a href="create.html">Create a campaign</a>
+          <a href="my-campaigns.html" aria-current="page">My campaigns</a>
+          <a href="profile.html" id="nav-profile" hidden>Profile</a>
+          <a href="index.html?signin=1" id="nav-signin">Sign in</a>
+        </div>
+      </nav>
+
+      <p class="back"><a href="app.html">← Home</a></p>
+      <h1 class="site-title">My campaigns</h1>
+      <p class="lead lead--compact">Saved in this browser only.</p>
+
+      <div class="content-shell ft-panel my-campaigns-panel">
+        <p id="my-campaigns-empty" class="note note--tight" hidden>
+          None yet. <a href="create.html">Create a campaign</a>.
+        </p>
+        <ul class="campaign-list" id="my-campaigns-list"></ul>
+      </div>
+    </div>
+
+    <script src="session.js"></script>
+    <script src="campaigns.js"></script>
+    <script src="app.js"></script>
+    <script src="nav-boot.js"></script>
+    <script src="my-campaigns.js"></script>
+  </body>
+</html>
