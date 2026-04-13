@@ -7,6 +7,22 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <script>
+      (function () {
+        if (location.protocol === "file:") {
+          document.addEventListener("DOMContentLoaded", function () {
+            var d = document.createElement("div");
+            d.className = "banner-warn";
+            d.style.marginBottom = "1rem";
+            d.innerHTML =
+              "<strong>You opened this as a file on your PC.</strong> The Google button usually will not work. Use your live link (GitHub Pages) or run a local server from the CrowdCare folder, e.g. <code>npx --yes serve .</code> then open the URL it prints.";
+            var g = document.getElementById("gate");
+            if (g) g.insertBefore(d, g.firstChild);
+            else document.body.insertBefore(d, document.body.firstChild);
+          });
+        }
+      })();
+    </script>
     <!-- First screen: sign in (until user signs in or chooses to browse) -->
     <div id="gate">
       <h1 class="site-title brand-block">CrowdCare</h1>
@@ -35,7 +51,12 @@
       </div>
 
       <p class="gate-skip-wrap">
-        <button type="button" class="bare" id="browse-skip">
+        <button
+          type="button"
+          class="bare"
+          id="browse-skip"
+          onclick="sessionStorage.setItem('crowdcare_browse_only','1');location.reload();"
+        >
           Browse campaigns without signing in
         </button>
       </p>
@@ -66,7 +87,9 @@
       <p class="note">
         Built-in rows come from <code>campaigns.js</code>. Rows you add from
         “Start a campaign” are stored only in <strong>this browser</strong> until
-        there is a backend.
+        there is a backend. To see the <strong>sign-in screen</strong> again, use
+        <strong>Sign in</strong> in the nav (or open
+        <code>index.html?signin=1</code>).
       </p>
     </div>
 
