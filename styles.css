@@ -1567,6 +1567,25 @@ button.secondary-btn:hover {
   font-weight: 600;
 }
 
+.signed-in-hero-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+  gap: 0.65rem 0.85rem;
+  margin: 0;
+  width: 100%;
+  max-width: 26rem;
+  padding: 0 0.25rem;
+  box-sizing: border-box;
+}
+
+.signed-in-hero-ctas .ft-create-cta {
+  flex: 1 1 10.5rem;
+  min-width: 0;
+  text-align: center;
+}
+
 /* Primary CTA: gold fill + near-black label (layout-content `a` color is overridden below) */
 .ft-create-cta {
   display: inline-flex;
@@ -1656,10 +1675,20 @@ body.cc-motion-flow #signed-in-home:not([hidden]) .signed-in-hero-lead {
   animation: cc-rise-cinema 0.95s var(--ease-cinematic-out) 0.26s both;
 }
 
-body.cc-motion-flow #signed-in-home:not([hidden]) .ft-create-cta {
+body.cc-motion-flow
+  #signed-in-home:not([hidden])
+  .signed-in-hero-ctas
+  .ft-create-cta:not(.ft-create-cta--secondary) {
   animation:
     cc-rise-cinema 0.9s var(--ease-cinematic-out) 0.38s both,
     cc-hero-cta-pulse 5s ease-in-out 1s infinite;
+}
+
+body.cc-motion-flow
+  #signed-in-home:not([hidden])
+  .signed-in-hero-ctas
+  .ft-create-cta--secondary {
+  animation: cc-rise-cinema 0.9s var(--ease-cinematic-out) 0.48s both;
 }
 
 body.cc-motion-flow #signed-in-home:not([hidden]) .signed-in-hero-sub {
@@ -1905,7 +1934,21 @@ body.cc-motion-flow .bare:hover {
     max-width: 100%;
   }
 
-  .ft-create-cta {
+  .signed-in-hero-ctas {
+    max-width: 100%;
+    gap: 0.5rem;
+    padding: 0;
+  }
+
+  .signed-in-hero-ctas .ft-create-cta {
+    flex: 1 1 calc(50% - 0.35rem);
+    padding-left: 0.65rem;
+    padding-right: 0.65rem;
+    font-size: 0.9375rem;
+    box-sizing: border-box;
+  }
+
+  .browse-hero .ft-create-cta {
     width: 100%;
     max-width: 20rem;
     box-sizing: border-box;

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CrowdCare</title>
     <link rel="icon" href="assets/logo-mark.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=18" />
+    <link rel="stylesheet" href="styles.css?v=19" />
   </head>
   <body class="cc-motion-flow">
     <div class="layout-backdrop" aria-hidden="true"></div>
@@ -57,10 +57,13 @@
           <p class="signed-in-hero-lead">
             Crowdfunding on <strong>Solana</strong>. Tap below to start.
           </p>
-          <a href="create.html" class="ft-create-cta">Create a campaign</a>
+          <div class="signed-in-hero-ctas">
+            <a href="create.html" class="ft-create-cta">Create a campaign</a>
+            <a href="#your-campaigns" class="ft-create-cta ft-create-cta--secondary"
+              >My Campaigns</a
+            >
+          </div>
           <p class="signed-in-hero-sub">
-            <a href="#your-campaigns">Your campaigns</a>
-            <span class="signed-in-dot">·</span>
             <a href="profile.html">Profile</a>
             <span class="signed-in-dot">·</span>
             <span id="signed-in-hub-hint" class="signed-in-hub-hint"></span>
