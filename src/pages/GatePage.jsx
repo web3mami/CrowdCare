@@ -133,19 +133,10 @@ export function GatePage() {
                 decoding="async"
               />
               <p className="gate-welcome-name">CrowdCare</p>
-              <p className="gate-welcome-tagline gate-signin-tagline">
-                Crowdfunding on <strong>Solana</strong>
-              </p>
 
               <h1 id="gate-connect-heading" className="gate-connect-title">
                 Sign in with X
               </h1>
-              <p className="gate-connect-lead">
-                Continue with your <strong>X</strong> account through{" "}
-                <strong>Privy</strong>. We&apos;ll create a{" "}
-                <strong>Solana</strong> wallet in the browser for demos—no
-                external wallet app required.
-              </p>
 
               <div
                 id="gate-client-setup"
@@ -156,32 +147,24 @@ export function GatePage() {
                 <code>.env</code> (see <code>PRIVY-SETUP.md</code>).
               </div>
 
-              <div className="banner-warn gate-modal-banner">
-                <strong>Demo</strong> — campaigns stay in this browser until you
-                add a backend.
-              </div>
-
               {waitingForWallet ? (
                 <p className="lead lead--compact">Finishing sign-in…</p>
               ) : (
-                <>
-                  <p className="gate-connect-label">Continue with X</p>
-                  <div className="gate-google-row gate-google-row--modal">
-                    <button
-                      type="button"
-                      className="ft-create-cta gate-signin-primary"
-                      style={{ width: "100%", maxWidth: 320 }}
-                      disabled={!ready || missingPrivy}
-                      onClick={() =>
-                        login({
-                          loginMethods: ["twitter"],
-                        })
-                      }
-                    >
-                      Log in with X
-                    </button>
-                  </div>
-                </>
+                <div className="gate-google-row gate-google-row--modal">
+                  <button
+                    type="button"
+                    className="ft-create-cta gate-signin-primary"
+                    style={{ width: "100%", maxWidth: 320 }}
+                    disabled={!ready || missingPrivy}
+                    onClick={() =>
+                      login({
+                        loginMethods: ["twitter"],
+                      })
+                    }
+                  >
+                    Continue with X
+                  </button>
+                </div>
               )}
 
               <p className="gate-welcome-skip gate-skip-centered">
