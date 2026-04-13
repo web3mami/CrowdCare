@@ -4,56 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Sign in — CrowdCare</title>
-    <link rel="stylesheet" href="styles.css" />
+    <meta http-equiv="refresh" content="0; url=index.html" />
+    <script>
+      location.replace("index.html");
+    </script>
   </head>
   <body>
-    <nav class="top-nav">
-      <a class="brand" href="index.html">CrowdCare</a>
-      <div class="top-nav-links">
-        <a href="index.html">Home</a>
-        <a href="create.html">Start a campaign</a>
-      </div>
-    </nav>
-
-    <h1 class="site-title">Sign in with Google</h1>
-    <p class="lead">
-      CrowdCare is <strong>Solana-first</strong>. After you sign in, we derive a
-      <strong>demo Solana public key</strong> from your Google account id so you
-      have a consistent address to receive funds in this prototype.
+    <p style="font-family: system-ui; padding: 1.5rem">
+      Opening <a href="index.html">CrowdCare</a>…
     </p>
-
-    <div id="client-setup-warning" class="banner-warn" hidden>
-      <strong>Set up Google Sign-In.</strong> Copy
-      <code>config.example.js</code> to <code>config.js</code> (or edit
-      <code>config.js</code>) and paste your <strong>Web client ID</strong> from
-      Google Cloud Console. Add your GitHub Pages origin and/or
-      <code>http://localhost:PORT</code> under <em>Authorized JavaScript origins</em>.
-      Google Sign-In does not work from a <code>file://</code>
-      URL—use a local server or your live site.
-    </div>
-
-    <div class="banner-warn">
-      <strong>Demo only.</strong> This key is produced in the browser from a
-      hash of your Google id plus a fixed app string. It is <em>not</em> a
-      custodial wallet, a standard seed phrase, or production key management.
-      Before real money, plan for a proper wallet (e.g. embedded-wallet provider
-      or user-owned wallet) and legal review.
-    </div>
-
-    <p id="auth-error" class="form-error" hidden></p>
-
-    <div id="g-btn-wrap">
-      <div id="g_id_signin"></div>
-    </div>
-
-    <p class="note">
-      After a successful sign-in you’ll return home with your Solana address
-      stored in this browser only.
-    </p>
-
-    <script src="config.js"></script>
-    <script src="session.js"></script>
-    <script src="https://accounts.google.com/gsi/client" defer></script>
-    <script type="module" src="auth.mjs"></script>
   </body>
 </html>

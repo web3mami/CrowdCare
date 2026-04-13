@@ -7,72 +7,74 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <nav class="top-nav">
-      <a class="brand" href="index.html">CrowdCare</a>
-      <div class="top-nav-links">
-        <a href="create.html">Start a campaign</a>
-        <a href="auth.html">Sign in</a>
+    <!-- First screen: sign in (until user signs in or chooses to browse) -->
+    <div id="gate">
+      <h1 class="site-title brand-block">CrowdCare</h1>
+      <p class="lead">
+        Crowdfunding on <strong>Solana</strong>. Sign in with Google to get a
+        <strong>demo receive address</strong> for this browser, then explore and
+        start campaigns.
+      </p>
+
+      <div id="gate-client-setup" class="banner-warn" hidden>
+        <strong>Set up Google Sign-In.</strong> Edit <code>config.js</code> and
+        paste your <strong>Web client ID</strong> from Google Cloud Console. Add
+        your site origin under <em>Authorized JavaScript origins</em>. Sign-in does
+        not work from <code>file://</code>—use GitHub Pages or a local server.
       </div>
-    </nav>
 
-    <div id="user-bar" class="user-bar" hidden></div>
+      <div class="banner-warn">
+        <strong>Demo only.</strong> Your Solana public key here is derived in the
+        browser for prototyping—not a production wallet. Review before real funds.
+      </div>
 
-    <h1 class="site-title">CrowdCare</h1>
-    <p class="lead">
-      Crowdfunding on <strong>Solana</strong>—share your story and receive
-      SOL or SPL tokens (e.g. USDC) straight to your wallet.
-    </p>
-    <p class="actions">
-      <a href="create.html">Start a campaign</a>
-      ·
-      <a href="auth.html">Sign in with Google</a>
-    </p>
-    <h2 class="section-heading">Campaigns</h2>
-    <ul class="campaign-list" id="campaign-list"></ul>
-    <p class="note">
-      Built-in rows come from <code>campaigns.js</code>. Rows you add from
-      “Start a campaign” are stored only in <strong>this browser</strong> until
-      there is a backend.
-    </p>
+      <p id="gate-auth-error" class="form-error" hidden></p>
+
+      <div id="g-btn-wrap-gate">
+        <div id="g_id_signin_gate"></div>
+      </div>
+
+      <p class="gate-skip-wrap">
+        <button type="button" class="bare" id="browse-skip">
+          Browse campaigns without signing in
+        </button>
+      </p>
+    </div>
+
+    <!-- After sign-in or skip: full app -->
+    <div id="main" hidden>
+      <nav class="top-nav">
+        <a class="brand" href="index.html">CrowdCare</a>
+        <div class="top-nav-links">
+          <a href="create.html">Start a campaign</a>
+          <a href="index.html?signin=1">Sign in</a>
+        </div>
+      </nav>
+
+      <div id="user-bar" class="user-bar" hidden></div>
+
+      <h1 class="site-title">CrowdCare</h1>
+      <p class="lead">
+        Crowdfunding on <strong>Solana</strong>—share your story and receive
+        SOL or SPL tokens (e.g. USDC) straight to your wallet.
+      </p>
+      <p class="actions">
+        <a href="create.html">Start a campaign</a>
+      </p>
+      <h2 class="section-heading">Campaigns</h2>
+      <ul class="campaign-list" id="campaign-list"></ul>
+      <p class="note">
+        Built-in rows come from <code>campaigns.js</code>. Rows you add from
+        “Start a campaign” are stored only in <strong>this browser</strong> until
+        there is a backend.
+      </p>
+    </div>
+
+    <script src="config.js"></script>
     <script src="session.js"></script>
     <script src="campaigns.js"></script>
     <script src="app.js"></script>
-    <script>
-      (function () {
-        var bar = document.getElementById("user-bar");
-        var u = window.CROWDCARE_SESSION.getUser();
-        if (u && u.publicKey) {
-          bar.hidden = false;
-          bar.innerHTML =
-            "Signed in as <strong>" +
-            (u.email || "Google user") +
-            '</strong>. Your demo Solana address: <span class="mono">' +
-            u.publicKey +
-            '</span> · <button type="button" class="linkish" id="sign-out">Sign out</button>';
-          document.getElementById("sign-out").addEventListener("click", function () {
-            window.CROWDCARE_SESSION.signOut();
-            window.location.reload();
-          });
-        }
-
-        var list = document.getElementById("campaign-list");
-        var campaigns = window.CROWDCARE_APP.getAllCampaigns();
-        campaigns.forEach(function (c) {
-          var li = document.createElement("li");
-          var a = document.createElement("a");
-          a.href = "campaign.html?id=" + encodeURIComponent(c.id);
-          var title = document.createElement("p");
-          title.className = "card-title";
-          title.textContent = c.title;
-          var meta = document.createElement("p");
-          meta.className = "meta";
-          meta.textContent = "Goal: " + c.goalLabel;
-          a.appendChild(title);
-          a.appendChild(meta);
-          li.appendChild(a);
-          list.appendChild(li);
-        });
-      })();
-    </script>
+    <script src="https://accounts.google.com/gsi/client" defer></script>
+    <script type="module" src="home.mjs"></script>
   </body>
 </html>
