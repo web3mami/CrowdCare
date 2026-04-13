@@ -1,8 +1,8 @@
 /**
- * CrowdCare — dark fintech: cool neutrals, muted brass accent, precise motion
+ * CrowdCare — dark fintech: ash neutrals, brass / gold accent, warm highlights
  */
 :root {
-  /* Neutrals (slight cool bias — reads “terminal / institutional”) */
+  /* Neutrals — ash scale */
   --ash-void: #0c0d10;
   --ash-deep: #13151a;
   --ash: #1a1c22;
@@ -12,16 +12,16 @@
   --text: #eceef2;
   --text-muted: #9aa3b2;
 
-  /* Accent — restrained brass + cool highlight for links */
+  /* Accent — gold & brass (links and highlights stay in-family, not cyan) */
   --gold: #b8923a;
   --gold-bright: #d4b45c;
   --gold-deep: #7a6228;
   --gold-faint: rgba(184, 146, 58, 0.1);
   --gold-border: rgba(184, 146, 58, 0.32);
   --gold-border-strong: rgba(212, 180, 92, 0.45);
-  --accent-link: #8ec5d4;
-  --accent-link-hover: #b0dae6;
-  --accent-mint: #6eb8c8;
+  --accent-link: #d4b45c;
+  --accent-link-hover: #e8cf80;
+  --accent-mint: #9a7b3a;
   --line-subtle: rgba(255, 255, 255, 0.06);
 
   --danger: #e07070;
@@ -90,7 +90,7 @@ body {
   to {
     opacity: 1;
     transform: scale(1) translate3d(0, 0, 0);
-    filter: drop-shadow(0 0 14px rgba(142, 197, 212, 0.18));
+    filter: drop-shadow(0 0 14px rgba(212, 180, 92, 0.22));
   }
 }
 
@@ -134,7 +134,7 @@ body {
   background-image:
     radial-gradient(
       ellipse 110% 55% at 50% -15%,
-      rgba(142, 197, 212, 0.07),
+      rgba(212, 180, 92, 0.06),
       transparent 50%
     ),
     radial-gradient(
@@ -249,7 +249,7 @@ h1 {
 
 .gate-welcome-logo {
   display: block;
-  filter: drop-shadow(0 0 12px rgba(142, 197, 212, 0.2));
+  filter: drop-shadow(0 0 12px rgba(212, 180, 92, 0.2));
   animation: cc-logo-reveal 0.65s var(--ease-standard) both;
 }
 
@@ -458,7 +458,7 @@ h1 {
   width: 56px;
   height: 56px;
   display: block;
-  filter: drop-shadow(0 0 10px rgba(142, 197, 212, 0.18));
+  filter: drop-shadow(0 0 10px rgba(212, 180, 92, 0.2));
 }
 
 .page-hero {
@@ -472,7 +472,7 @@ h1 {
   width: 40px;
   height: 40px;
   flex-shrink: 0;
-  filter: drop-shadow(0 0 8px rgba(142, 197, 212, 0.15));
+  filter: drop-shadow(0 0 8px rgba(212, 180, 92, 0.18));
 }
 
 .page-hero .site-title {
@@ -524,7 +524,7 @@ h1 {
 }
 
 .ft-campaign-hero {
-  border-left: 3px solid var(--accent-link);
+  border-left: 3px solid var(--gold-bright);
 }
 
 .ft-panel {
@@ -548,7 +548,7 @@ h1 {
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--accent-link);
+  color: var(--gold);
   margin: 0;
 }
 
@@ -594,7 +594,7 @@ h1 {
   font-family: ui-monospace, "Cascadia Mono", monospace;
   font-size: 1.125rem;
   font-weight: 600;
-  color: var(--accent-link);
+  color: var(--gold-bright);
 }
 
 .ft-stat-value--muted {
@@ -622,12 +622,12 @@ h1 {
   border-radius: 5px;
   background: linear-gradient(
     90deg,
-    var(--accent-mint),
-    var(--accent-link) 45%,
+    var(--gold-deep),
+    var(--gold) 45%,
     var(--gold-bright) 100%
   );
   transition: width 0.45s var(--ease-standard);
-  box-shadow: 0 0 12px rgba(142, 197, 212, 0.25);
+  box-shadow: 0 0 12px rgba(212, 180, 92, 0.22);
 }
 
 .ft-progress-caption {
@@ -674,7 +674,7 @@ h1 {
 }
 
 .ft-allocation-seg--primary {
-  background: linear-gradient(90deg, var(--accent-mint), var(--accent-link));
+  background: linear-gradient(90deg, var(--gold-deep), var(--gold-bright));
 }
 
 .ft-allocation-seg--other {
@@ -739,7 +739,7 @@ h1 {
 
 .campaign-card-pct {
   font-weight: 600;
-  color: var(--accent-link);
+  color: var(--gold-bright);
 }
 
 .campaign-card-amt {
@@ -797,7 +797,7 @@ h1 {
 .form-field select:focus {
   outline: none;
   border-color: var(--gold-border-strong);
-  box-shadow: 0 0 0 3px rgba(142, 197, 212, 0.12);
+  box-shadow: 0 0 0 3px rgba(212, 180, 92, 0.15);
 }
 
 .goal {
@@ -1015,7 +1015,7 @@ h1.site-title:not(.gate-title) {
 }
 
 .top-nav .brand:hover {
-  filter: drop-shadow(0 0 10px rgba(142, 197, 212, 0.2));
+  filter: drop-shadow(0 0 10px rgba(212, 180, 92, 0.22));
 }
 
 .top-nav .brand-mark {
@@ -1269,7 +1269,7 @@ button.secondary-btn:hover {
 .signed-in-hero-mark {
   display: block;
   margin-bottom: 0.75rem;
-  filter: drop-shadow(0 0 14px rgba(142, 197, 212, 0.22));
+  filter: drop-shadow(0 0 14px rgba(212, 180, 92, 0.25));
 }
 
 .signed-in-hero-title {
@@ -1293,6 +1293,7 @@ button.secondary-btn:hover {
   font-weight: 600;
 }
 
+/* Primary CTA: gold fill + near-black label (layout-content `a` color is overridden below) */
 .ft-create-cta {
   display: inline-flex;
   align-items: center;
@@ -1303,29 +1304,49 @@ button.secondary-btn:hover {
   border-radius: 10px;
   text-decoration: none;
   color: var(--ash-void);
-  background: linear-gradient(180deg, var(--accent-link) 0%, var(--accent-mint) 100%);
-  border: 1px solid rgba(142, 197, 212, 0.55);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 100%);
+  border: 1px solid var(--gold-deep);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(212, 180, 92, 0.25);
   transition:
     transform 0.2s var(--ease-standard),
-    box-shadow 0.2s var(--ease-standard);
+    box-shadow 0.2s var(--ease-standard),
+    filter 0.2s var(--ease-standard);
 }
 
 .ft-create-cta:hover {
   transform: translateY(-2px);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  filter: brightness(1.05);
   color: var(--ash-void);
 }
 
 .ft-create-cta--secondary {
   background: transparent;
-  color: var(--accent-link);
-  border: 2px solid var(--accent-link);
+  color: var(--gold-bright);
+  border: 2px solid var(--gold-border-strong);
   box-shadow: none;
+  filter: none;
 }
 
 .ft-create-cta--secondary:hover {
-  background: rgba(142, 197, 212, 0.1);
+  background: var(--gold-faint);
+  color: var(--accent-link-hover);
+  filter: none;
+}
+
+.layout-content a.ft-create-cta,
+.layout-content a.ft-create-cta:hover {
+  color: var(--ash-void);
+}
+
+.layout-content a.ft-create-cta--secondary,
+.layout-content a.ft-create-cta--secondary:hover {
+  color: var(--gold-bright);
+}
+
+.layout-content a.ft-create-cta--secondary:hover {
   color: var(--accent-link-hover);
 }
 
@@ -1419,14 +1440,14 @@ button.secondary-btn:hover {
 }
 
 .token-option:has(input:checked) {
-  border-color: var(--accent-link);
-  background: rgba(142, 197, 212, 0.08);
-  box-shadow: 0 0 0 1px rgba(142, 197, 212, 0.2);
+  border-color: var(--gold-border-strong);
+  background: var(--gold-faint);
+  box-shadow: 0 0 0 1px rgba(212, 180, 92, 0.28);
 }
 
 .token-option input {
   margin: 0.2rem 0 0;
-  accent-color: var(--accent-link);
+  accent-color: var(--gold-bright);
 }
 
 .token-option-body {
