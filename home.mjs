@@ -77,6 +77,7 @@ function initGoogleAuth(opts) {
     function () {
       window.location.replace("app.html");
     };
+  var buttonWidth = opts.buttonWidth || 320;
 
   if (needsGoogleClientSetup()) {
     if (setupWarn) show(setupWarn, false);
@@ -113,7 +114,7 @@ function initGoogleAuth(opts) {
       text: "continue_with",
       shape: "rectangular",
       logo_alignment: "left",
-      width: 320,
+      width: buttonWidth,
     });
   }
 }
@@ -160,6 +161,13 @@ if (user || browse) {
   var startBtn = document.getElementById("gate-start-btn");
 
   function mountGoogleButton() {
+    var modalEl = document.querySelector(".gate-auth-modal");
+    var bw = 320;
+    if (modalEl && modalEl.offsetWidth) {
+      bw = Math.min(400, Math.max(280, modalEl.offsetWidth - 32));
+    }
+    var mount = document.getElementById("g_id_signin_gate");
+    if (mount) mount.innerHTML = "";
     tryInitGoogleAuth(
       80,
       function () {
@@ -168,6 +176,7 @@ if (user || browse) {
           errorElementId: "gate-auth-error",
           setupWarningId: "gate-client-setup",
           buttonWrapId: "g-btn-wrap-gate",
+          buttonWidth: bw,
           onSignedIn: function () {
             window.location.replace("app.html");
           },
@@ -175,6 +184,17 @@ if (user || browse) {
       },
       "gate-auth-error"
     );
+  }
+
+  function closeAuthModal() {
+    sessionStorage.removeItem(GATE_START_KEY);
+    if (auth) {
+      auth.hidden = true;
+      auth.classList.remove("gate-auth--in");
+    }
+    var m = document.getElementById("g_id_signin_gate");
+    if (m) m.innerHTML = "";
+    if (welcome) welcome.hidden = false;
   }
 
   function playAuthEntrance() {
@@ -218,6 +238,22 @@ if (user || browse) {
       startBtn.addEventListener("click", revealAuth);
     }
   }
+
+  var authClose = document.getElementById("gate-auth-close");
+  if (authClose) {
+    authClose.addEventListener("click", function () {
+      closeAuthModal();
+    });
+  }
+  if (auth) {
+    auth.addEventListener("click", function (e) {
+      if (e.target === auth) closeAuthModal();
+    });
+  }
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && auth && !auth.hidden) closeAuthModal();
+  });
 
   function goBrowse() {
     sessionStorage.setItem(BROWSE_KEY, "1");

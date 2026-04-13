@@ -298,44 +298,131 @@ h1 {
   animation: cc-rise 0.45s var(--ease-standard) 0.24s both;
 }
 
-.gate-auth {
-  flex: 1;
-  width: 100%;
-  max-width: 40rem;
-  margin: 0 auto;
+/* Centered “Connect Google” modal over dimmed backdrop */
+.gate-auth-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
   display: flex;
-  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  padding: 1.5rem 1rem 2.5rem;
+  padding: clamp(1rem, 4vw, 2rem);
   box-sizing: border-box;
+  background: rgba(5, 6, 10, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  overflow-y: auto;
 }
 
-#gate-auth.gate-auth--in .gate-brand {
-  animation: cc-auth-panel 0.5s var(--ease-standard) both;
+.gate-auth-overlay[hidden] {
+  display: none !important;
 }
 
-#gate-auth.gate-auth--in .lead {
-  animation: cc-auth-panel 0.5s var(--ease-standard) 0.04s both;
+.gate-auth-modal {
+  width: 100%;
+  max-width: 26.5rem;
+  margin: auto;
+  position: relative;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
 }
 
-#gate-auth.gate-auth--in .banner-warn {
-  animation: cc-auth-panel 0.5s var(--ease-standard) 0.08s both;
+.gate-auth-modal.content-shell {
+  margin-top: 0;
 }
 
-#gate-auth.gate-auth--in .banner-warn ~ .banner-warn {
+.gate-auth-modal-head {
+  margin: -0.15rem 0 0.65rem;
+}
+
+.gate-auth-back {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.gate-auth-back:hover {
+  color: var(--accent-link);
+}
+
+.gate-connect-title {
+  font-size: clamp(1.35rem, 4vw, 1.65rem);
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.gate-connect-lead {
+  font-size: 0.9375rem;
+  color: var(--text-muted);
+  margin: 0 0 1rem;
+  line-height: 1.5;
+}
+
+.gate-connect-lead strong {
+  color: var(--gold-bright);
+  font-weight: 600;
+}
+
+.gate-modal-banner {
+  font-size: 0.78rem;
+  margin-bottom: 0.65rem;
+}
+
+.gate-connect-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0.85rem 0 0.5rem;
+}
+
+#gate-auth.gate-auth--in .gate-auth-modal {
+  animation: cc-modal-in 0.45s var(--ease-standard) both;
+}
+
+#gate-auth.gate-auth--in .gate-connect-title {
+  animation: cc-auth-panel 0.4s var(--ease-standard) 0.02s both;
+}
+
+#gate-auth.gate-auth--in .gate-connect-lead {
+  animation: cc-auth-panel 0.4s var(--ease-standard) 0.05s both;
+}
+
+#gate-auth.gate-auth--in .gate-modal-banner {
+  animation: cc-auth-panel 0.4s var(--ease-standard) 0.08s both;
+}
+
+#gate-auth.gate-auth--in .gate-modal-banner ~ .gate-modal-banner {
   animation-delay: 0.1s;
 }
 
 #gate-auth.gate-auth--in #gate-auth-error:not([hidden]) {
-  animation: cc-auth-panel 0.45s var(--ease-standard) 0.12s both;
+  animation: cc-auth-panel 0.35s var(--ease-standard) 0.11s both;
 }
 
-#gate-auth.gate-auth--in .gate-google-row {
-  animation: cc-auth-panel 0.5s var(--ease-standard) 0.14s both;
+#gate-auth.gate-auth--in .gate-connect-label {
+  animation: cc-auth-panel 0.4s var(--ease-standard) 0.12s both;
+}
+
+#gate-auth.gate-auth--in .gate-google-row--modal {
+  animation: cc-auth-panel 0.4s var(--ease-standard) 0.14s both;
 }
 
 #gate-auth.gate-auth--in .gate-skip-wrap {
-  animation: cc-auth-panel 0.5s var(--ease-standard) 0.18s both;
+  animation: cc-auth-panel 0.4s var(--ease-standard) 0.16s both;
+}
+
+@keyframes cc-modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translate3d(0, 12px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translate3d(0, 0, 0);
+  }
 }
 
 .gate-google-row {
@@ -343,6 +430,12 @@ h1 {
   justify-content: center;
   flex-wrap: wrap;
   margin: 0.35rem 0 0.65rem;
+}
+
+.gate-google-row--modal {
+  justify-content: center;
+  margin: 0 0 0.35rem;
+  width: 100%;
 }
 
 .gate-skip-centered {
@@ -763,6 +856,10 @@ h1.site-title:not(.gate-title) {
   margin-top: 1.65rem;
 }
 
+.gate-auth-modal .gate-skip-wrap {
+  margin-top: 1rem;
+}
+
 button.bare {
   background: none;
   border: none;
@@ -884,5 +981,10 @@ button.secondary-btn:hover {
   .gate-start-btn:hover,
   .campaign-list a:hover {
     transform: none;
+  }
+
+  .gate-auth-overlay {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 }
