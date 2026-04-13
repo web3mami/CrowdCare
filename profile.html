@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Profile — CrowdCare</title>
+    <link rel="icon" href="assets/logo-mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css?v=9" />
+  </head>
+  <body>
+    <div class="layout-backdrop" aria-hidden="true"></div>
+    <div class="layout-content">
+      <nav class="top-nav">
+        <a class="brand" href="app.html">
+          <img
+            class="brand-mark"
+            src="assets/logo-mark.svg"
+            width="32"
+            height="32"
+            alt=""
+            decoding="async"
+          />
+          <span class="brand-text">CrowdCare</span>
+        </a>
+        <div class="top-nav-links">
+          <a href="create.html">Start a campaign</a>
+          <a href="profile.html" id="nav-profile" aria-current="page" hidden>Profile</a>
+          <a href="index.html?signin=1" id="nav-signin">Sign in</a>
+        </div>
+      </nav>
+
+      <p class="back"><a href="app.html">← Home</a></p>
+
+      <article class="content-shell profile-shell">
+        <h1 class="site-title">Your profile</h1>
+        <p class="lead">
+          This profile is stored in <strong>this browser</strong> with your
+          account. Add a display name and optional photo—more fields can go here
+          later.
+        </p>
+
+        <p id="profile-error" class="form-error" hidden></p>
+        <p id="profile-saved" class="form-success" hidden>Profile saved.</p>
+
+        <form id="profile-form" class="profile-form" novalidate>
+          <div class="profile-avatar-row">
+            <div class="profile-avatar-preview-wrap">
+              <img
+                id="profile-avatar-preview"
+                class="profile-avatar-preview"
+                src=""
+                alt=""
+                width="120"
+                height="120"
+                hidden
+              />
+              <div id="profile-avatar-placeholder" class="profile-avatar-placeholder">
+                No photo
+              </div>
+            </div>
+            <div class="profile-avatar-actions">
+              <div class="form-field">
+                <label for="profile-avatar">Profile picture</label>
+                <input
+                  id="profile-avatar"
+                  name="avatar"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                />
+                <p class="form-hint">JPEG, PNG, WebP, or GIF. About 512×512 or smaller is ideal.</p>
+              </div>
+              <button type="button" class="secondary-btn" id="profile-remove-avatar">
+                Remove photo
+              </button>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="profile-username">Display name</label>
+            <input
+              id="profile-username"
+              name="username"
+              type="text"
+              maxlength="40"
+              autocomplete="nickname"
+              placeholder="How you want to appear on CrowdCare"
+            />
+          </div>
+
+          <div class="profile-readonly-block">
+            <p class="profile-readonly-label">Email (from Google)</p>
+            <p id="profile-email" class="profile-readonly-value"></p>
+          </div>
+          <div class="profile-readonly-block">
+            <p class="profile-readonly-label">Demo Solana address</p>
+            <p id="profile-address" class="profile-readonly-value mono"></p>
+          </div>
+
+          <button type="submit">Save profile</button>
+        </form>
+      </article>
+    </div>
+
+    <script src="session.js"></script>
+    <script src="campaigns.js"></script>
+    <script src="app.js"></script>
+    <script src="nav-boot.js"></script>
+    <script src="profile-page.js"></script>
+  </body>
+</html>

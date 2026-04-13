@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Campaign — CrowdCare</title>
     <link rel="icon" href="assets/logo-mark.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=5" />
+    <link rel="stylesheet" href="styles.css?v=9" />
   </head>
   <body>
     <div class="layout-backdrop" aria-hidden="true"></div>
     <div class="layout-content">
     <nav class="top-nav">
-      <a class="brand" href="index.html">
+      <a class="brand" href="app.html">
         <img
           class="brand-mark"
           src="assets/logo-mark.svg"
@@ -24,11 +24,12 @@
       </a>
       <div class="top-nav-links">
         <a href="create.html">Start a campaign</a>
-        <a href="index.html?signin=1">Sign in</a>
+        <a href="profile.html" id="nav-profile" hidden>Profile</a>
+        <a href="index.html?signin=1" id="nav-signin">Sign in</a>
       </div>
     </nav>
 
-    <p class="back"><a href="index.html">← All campaigns</a></p>
+    <p class="back"><a href="app.html">← All campaigns</a></p>
     <article id="campaign-article" class="content-shell">
       <h1 id="campaign-title"></h1>
       <div id="campaign-story"></div>
@@ -47,8 +48,10 @@
       </p>
     </article>
     </div>
+    <script src="session.js"></script>
     <script src="campaigns.js"></script>
     <script src="app.js"></script>
+    <script src="nav-boot.js"></script>
     <script>
       (function () {
         var app = window.CROWDCARE_APP;
@@ -59,7 +62,7 @@
           document.body.innerHTML =
             '<div class="layout-backdrop" aria-hidden="true"></div><div class="layout-content">' +
             "<p>Campaign not found.</p>" +
-            '<p><a href="index.html">← All campaigns</a></p></div>';
+            '<p><a href="app.html">← All campaigns</a></p></div>';
           return;
         }
         if (!c) c = app.getAllCampaigns()[0];

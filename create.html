@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Start a campaign — CrowdCare</title>
     <link rel="icon" href="assets/logo-mark.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=5" />
+    <link rel="stylesheet" href="styles.css?v=9" />
   </head>
   <body>
     <div class="layout-backdrop" aria-hidden="true"></div>
     <div class="layout-content">
     <nav class="top-nav">
-      <a class="brand" href="index.html">
+      <a class="brand" href="app.html">
         <img
           class="brand-mark"
           src="assets/logo-mark.svg"
@@ -23,11 +23,13 @@
         <span class="brand-text">CrowdCare</span>
       </a>
       <div class="top-nav-links">
-        <a href="index.html?signin=1">Sign in</a>
+        <a href="app.html">Home</a>
+        <a href="profile.html" id="nav-profile" hidden>Profile</a>
+        <a href="index.html?signin=1" id="nav-signin">Sign in</a>
       </div>
     </nav>
 
-    <p class="back"><a href="index.html">← All campaigns</a></p>
+    <p class="back"><a href="app.html">← All campaigns</a></p>
     <h1 class="site-title">Start a campaign</h1>
     <p class="lead">
       Campaigns are funded on <strong>Solana</strong>. The address below must be
@@ -108,6 +110,7 @@
     <script src="session.js"></script>
     <script src="campaigns.js"></script>
     <script src="app.js"></script>
+    <script src="nav-boot.js"></script>
     <script type="module">
       import { PublicKey } from "https://esm.sh/@solana/web3.js@1.95.8";
 

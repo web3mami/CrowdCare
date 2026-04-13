@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CrowdCare</title>
+    <link rel="icon" href="assets/logo-mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css?v=9" />
+  </head>
+  <body>
+    <div class="layout-backdrop" aria-hidden="true"></div>
+    <div class="layout-content">
+      <nav class="top-nav">
+        <a class="brand" href="app.html">
+          <img
+            class="brand-mark"
+            src="assets/logo-mark.svg"
+            width="32"
+            height="32"
+            alt=""
+            decoding="async"
+          />
+          <span class="brand-text">CrowdCare</span>
+        </a>
+        <div class="top-nav-links">
+          <a href="create.html">Start a campaign</a>
+          <a href="profile.html" id="nav-profile" hidden>Profile</a>
+          <a href="index.html?signin=1" id="nav-signin">Sign in</a>
+        </div>
+      </nav>
+
+      <div id="user-bar" class="user-bar" hidden></div>
+
+      <div class="page-hero">
+        <img
+          class="page-logo"
+          src="assets/logo-mark.svg"
+          width="40"
+          height="40"
+          alt=""
+          decoding="async"
+        />
+        <h1 class="site-title">CrowdCare</h1>
+      </div>
+      <p class="lead">
+        Crowdfunding on <strong>Solana</strong>—share your story and receive
+        SOL or SPL tokens (e.g. USDC) straight to your wallet.
+      </p>
+      <p class="actions">
+        <a href="create.html">Start a campaign</a>
+      </p>
+      <h2 class="section-heading">Campaigns</h2>
+      <ul class="campaign-list" id="campaign-list"></ul>
+      <p class="note">
+        Built-in rows come from <code>campaigns.js</code>. Rows you add from
+        “Start a campaign” are stored only in <strong>this browser</strong> until
+        there is a backend. Use <strong>Profile</strong> to set your display name
+        and picture after you sign in.
+      </p>
+    </div>
+
+    <script src="session.js"></script>
+    <script src="campaigns.js"></script>
+    <script src="app.js"></script>
+    <script src="nav-boot.js"></script>
+    <script src="app-main.js"></script>
+  </body>
+</html>

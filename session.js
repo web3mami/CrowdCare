@@ -19,9 +19,28 @@
     localStorage.removeItem(STORAGE_KEY);
   }
 
+  function updateProfile(updates) {
+    var u = getUser();
+    if (!u) return false;
+    updates = updates || {};
+    if (updates.username !== undefined) {
+      u.username = updates.username;
+    }
+    if (updates.avatarDataUrl !== undefined) {
+      if (updates.avatarDataUrl === "") {
+        delete u.avatarDataUrl;
+      } else {
+        u.avatarDataUrl = updates.avatarDataUrl;
+      }
+    }
+    setUser(u);
+    return true;
+  }
+
   window.CROWDCARE_SESSION = {
     getUser: getUser,
     setUser: setUser,
     signOut: signOut,
+    updateProfile: updateProfile,
   };
 })();

@@ -3,9 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>CrowdCare</title>
+    <title>CrowdCare — Sign in</title>
     <link rel="icon" href="assets/logo-mark.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=8" />
+    <link rel="stylesheet" href="styles.css?v=9" />
   </head>
   <body>
     <div class="layout-backdrop" aria-hidden="true"></div>
@@ -26,7 +26,7 @@
         }
       })();
     </script>
-    <!-- Gate: (1) welcome + Start (2) Google sign-in -->
+    <!-- Gate: (1) welcome + Start (2) Google sign-in — then navigate to app.html -->
     <div id="gate" class="gate-screen">
       <div id="gate-welcome" class="gate-welcome">
         <img
@@ -43,12 +43,7 @@
           Start CrowdCare
         </button>
         <p class="gate-welcome-skip">
-          <button
-            type="button"
-            class="bare"
-            id="browse-skip-welcome"
-            onclick="sessionStorage.setItem('crowdcare_browse_only','1');location.reload();"
-          >
+          <button type="button" class="bare" id="browse-skip-welcome">
             Browse without signing in
           </button>
         </p>
@@ -90,67 +85,11 @@
         </div>
 
         <p class="gate-skip-wrap gate-skip-centered">
-          <button
-            type="button"
-            class="bare"
-            id="browse-skip"
-            onclick="sessionStorage.setItem('crowdcare_browse_only','1');location.reload();"
-          >
+          <button type="button" class="bare" id="browse-skip">
             Browse campaigns without signing in
           </button>
         </p>
       </div>
-    </div>
-
-    <!-- After sign-in or skip: full app -->
-    <div id="main" hidden>
-      <nav class="top-nav">
-        <a class="brand" href="index.html">
-          <img
-            class="brand-mark"
-            src="assets/logo-mark.svg"
-            width="32"
-            height="32"
-            alt=""
-            decoding="async"
-          />
-          <span class="brand-text">CrowdCare</span>
-        </a>
-        <div class="top-nav-links">
-          <a href="create.html">Start a campaign</a>
-          <a href="index.html?signin=1">Sign in</a>
-        </div>
-      </nav>
-
-      <div id="user-bar" class="user-bar" hidden></div>
-
-      <div class="page-hero">
-        <img
-          class="page-logo"
-          src="assets/logo-mark.svg"
-          width="40"
-          height="40"
-          alt=""
-          decoding="async"
-        />
-        <h1 class="site-title">CrowdCare</h1>
-      </div>
-      <p class="lead">
-        Crowdfunding on <strong>Solana</strong>—share your story and receive
-        SOL or SPL tokens (e.g. USDC) straight to your wallet.
-      </p>
-      <p class="actions">
-        <a href="create.html">Start a campaign</a>
-      </p>
-      <h2 class="section-heading">Campaigns</h2>
-      <ul class="campaign-list" id="campaign-list"></ul>
-      <p class="note">
-        Built-in rows come from <code>campaigns.js</code>. Rows you add from
-        “Start a campaign” are stored only in <strong>this browser</strong> until
-        there is a backend. To see the <strong>sign-in screen</strong> again, use
-        <strong>Sign in</strong> in the nav (or open
-        <code>index.html?signin=1</code>).
-      </p>
     </div>
     </div>
 
