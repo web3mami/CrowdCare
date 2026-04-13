@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
-import { usePrivy } from "@privy-io/react-auth";
+import { useLoginWithOAuth, usePrivy } from "@privy-io/react-auth";
 import { useSession } from "../context/SessionContext.jsx";
 
 const BROWSE_KEY = "crowdcare_browse_only";
@@ -13,6 +13,7 @@ const privyAppId = import.meta.env.VITE_PRIVY_APP_ID || "";
  */
 export function GatePage() {
   const { ready, authenticated, login } = usePrivy();
+  const { initOAuth, loading: oauthLoading } = useLoginWithOAuth();
   const { user } = useSession();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -66,6 +67,19 @@ export function GatePage() {
   const missingPrivy =
     !privyAppId || privyAppId.startsWith("set-VITE_PRIVY_APP_ID");
   const waitingForWallet = ready && authenticated && !user?.publicKey;
+
+  async function continueWithX() {
+    try {
+      await initOAuth({ provider: "twitter" });
+    } catch (err) {
+      console.error("[CrowdCare] X login (OAuth) failed:", err);
+      try {
+        login({ loginMethods: ["twitter"] });
+      } catch (e2) {
+        console.error("[CrowdCare] X login (modal) failed:", e2);
+      }
+    }
+  }
 
   return (
     <>
@@ -155,14 +169,10 @@ export function GatePage() {
                     type="button"
                     className="ft-create-cta gate-signin-primary"
                     style={{ width: "100%", maxWidth: 320 }}
-                    disabled={!ready || missingPrivy}
-                    onClick={() =>
-                      login({
-                        loginMethods: ["twitter"],
-                      })
-                    }
+                    disabled={!ready || missingPrivy || oauthLoading}
+                    onClick={() => void continueWithX()}
                   >
-                    Continue with X
+                    {oauthLoading ? "Redirecting…" : "Continue with X"}
                   </button>
                 </div>
               )}
