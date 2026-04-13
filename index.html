@@ -38,6 +38,32 @@
         color: #555;
         margin-top: 2rem;
       }
+      .address-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .address-row .address {
+        flex: 1 1 12rem;
+        margin: 0;
+      }
+      button {
+        font: inherit;
+        cursor: pointer;
+        border: 1px solid #333;
+        background: #1a1a1a;
+        color: #fff;
+        border-radius: 8px;
+        padding: 0.5rem 0.75rem;
+      }
+      button:hover {
+        background: #333;
+      }
+      button:focus-visible {
+        outline: 2px solid #06c;
+        outline-offset: 2px;
+      }
     </style>
   </head>
   <body>
@@ -50,11 +76,42 @@
       </p>
       <p class="goal"><strong>Goal:</strong> 5,000 USDC</p>
       <p><strong>Send to this address:</strong></p>
-      <p class="address">0x0000000000000000000000000000000000000000</p>
+      <div class="address-row">
+        <p class="address" id="wallet-address">
+          0x0000000000000000000000000000000000000000
+        </p>
+        <button type="button" id="copy-btn" aria-label="Copy wallet address">
+          Copy address
+        </button>
+      </div>
       <p class="note">
         Placeholder: replace the story, goal, and address. Open this file in
         your browser to preview (double-click or drag into the browser).
       </p>
     </article>
+    <script>
+      (function () {
+        var addr = document.getElementById("wallet-address");
+        var btn = document.getElementById("copy-btn");
+        if (!addr || !btn) return;
+        var label = btn.textContent;
+        btn.addEventListener("click", function () {
+          var text = addr.textContent.trim();
+          function done() {
+            btn.textContent = "Copied!";
+            setTimeout(function () {
+              btn.textContent = label;
+            }, 2000);
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(done).catch(function () {
+              window.prompt("Copy this address:", text);
+            });
+          } else {
+            window.prompt("Copy this address:", text);
+          }
+        });
+      })();
+    </script>
   </body>
 </html>
