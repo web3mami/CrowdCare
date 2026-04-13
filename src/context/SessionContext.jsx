@@ -26,7 +26,6 @@ export function SessionProvider({ children }) {
   const signOut = useCallback(async () => {
     clearLocalUser();
     sessionStorage.removeItem("crowdcare_browse_only");
-    sessionStorage.removeItem("crowdcare_gate_started");
     setUserState(null);
     await logout();
   }, [logout]);

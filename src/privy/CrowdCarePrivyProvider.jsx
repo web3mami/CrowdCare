@@ -1,5 +1,4 @@
 import { PrivyProvider } from "@privy-io/react-auth";
-import { toSolanaWalletConnectors } from "@privy-io/react-auth/solana";
 import {
   createSolanaRpc,
   createSolanaRpcSubscriptions,
@@ -8,8 +7,9 @@ import {
 const appId = import.meta.env.VITE_PRIVY_APP_ID || "";
 
 /**
- * Privy wraps the app so login (X, email, Solana wallet) and embedded Solana
- * wallets work. Configure the same login methods in the Privy dashboard.
+ * Privy: X (Twitter) login only. Embedded Solana wallets are created after login
+ * for campaign addresses—no external wallet connect in the modal.
+ * Enable Twitter/X in the Privy dashboard.
  */
 export function CrowdCarePrivyProvider({ children }) {
   if (!appId) {
@@ -32,26 +32,13 @@ export function CrowdCarePrivyProvider({ children }) {
             },
           },
         },
-               appearance: {
+        appearance: {
           theme: "dark",
           walletChainType: "solana-only",
-          /** Wallet / Solana options above other methods in the Privy modal */
-          showWalletLoginFirst: true,
         },
-        /** Subset of methods also enabled in the Privy dashboard */
-        loginMethods: ["wallet", "twitter", "email"],
-        /**
-         * First screen of the Privy modal: Solana wallets, then X, email.
-         */
+        loginMethods: ["twitter"],
         loginMethodsAndOrder: {
-          primary: [
-            "detected_solana_wallets",
-            "twitter",
-            "email",
-          ],
-        },
-        externalWallets: {
-          solana: { connectors: toSolanaWalletConnectors() },
+          primary: ["twitter"],
         },
         embeddedWallets: {
           solana: { createOnLogin: "all-users" },

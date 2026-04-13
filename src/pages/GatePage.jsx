@@ -4,19 +4,20 @@ import { usePrivy } from "@privy-io/react-auth";
 import { useSession } from "../context/SessionContext.jsx";
 
 const BROWSE_KEY = "crowdcare_browse_only";
-const GATE_START_KEY = "crowdcare_gate_started";
 
 const privyAppId = import.meta.env.VITE_PRIVY_APP_ID || "";
 
 /**
- * Landing route `/`: sign-in is the first screen (no extra “Start” step before login).
- * After session or browse-only, `/app` and the rest of the app are available.
+ * `/`: welcome with “Start CrowdCare”, then X sign-in via Privy (embedded Solana after login).
+ * Gate step is not persisted—each visit lands on Start CrowdCare first.
  */
 export function GatePage() {
   const { ready, authenticated, login } = usePrivy();
   const { user } = useSession();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const [gateStarted, setGateStarted] = useState(false);
 
   const [browseOnly] = useState(
     () =>
@@ -40,10 +41,18 @@ export function GatePage() {
   useEffect(() => {
     if (searchParams.get("signin") === "1") {
       sessionStorage.removeItem(BROWSE_KEY);
-      sessionStorage.removeItem(GATE_START_KEY);
+      setGateStarted(false);
       setSearchParams({}, { replace: true });
     }
   }, [searchParams, setSearchParams]);
+
+  function startGate() {
+    setGateStarted(true);
+  }
+
+  function backToWelcome() {
+    setGateStarted(false);
+  }
 
   function goBrowse() {
     sessionStorage.setItem(BROWSE_KEY, "1");
@@ -63,80 +72,133 @@ export function GatePage() {
       <div className="layout-backdrop" aria-hidden="true" />
       <div className="layout-content">
         <div id="gate" className="gate-screen">
-          <div
-            className="gate-auth-modal content-shell gate-signin-first"
-            role="main"
-            aria-labelledby="gate-connect-heading"
-          >
-            <img
-              className="gate-welcome-logo"
-              src="/assets/logo-mark.svg"
-              width="64"
-              height="64"
-              alt=""
-              decoding="async"
-            />
-            <p className="gate-welcome-name">CrowdCare</p>
-            <p className="gate-welcome-tagline gate-signin-tagline">
-              Crowdfunding on <strong>Solana</strong>
-            </p>
-
-            <h1 id="gate-connect-heading" className="gate-connect-title">
-              Sign in
-            </h1>
-            <p className="gate-connect-lead">
-              Sign in with a <strong>Solana wallet</strong>, <strong>X</strong>, or{" "}
-              <strong>email</strong> — powered by <strong>Privy</strong>. You get a
-              Solana address from your wallet or an embedded wallet after login.
-            </p>
-
-            <div
-              id="gate-client-setup"
-              className="banner-warn gate-modal-banner"
-              hidden={!missingPrivy}
-            >
-              <strong>Setup:</strong> add <code>VITE_PRIVY_APP_ID</code> to{" "}
-              <code>.env</code> (see <code>PRIVY-SETUP.md</code>).
-            </div>
-
-            <div className="banner-warn gate-modal-banner">
-              <strong>Demo</strong> — campaigns stay in this browser until you
-              add a backend.
-            </div>
-
-            {waitingForWallet ? (
-              <p className="lead lead--compact">Finishing sign-in…</p>
-            ) : (
-              <>
-                <p className="gate-connect-label">Continue</p>
-                <div className="gate-google-row gate-google-row--modal">
-                  <button
-                    type="button"
-                    className="ft-create-cta gate-signin-primary"
-                    style={{ width: "100%", maxWidth: 320 }}
-                    disabled={!ready || missingPrivy}
-                    onClick={() => login()}
-                  >
-                    Log in with Privy
-                  </button>
-                </div>
-              </>
-            )}
-
-            <p className="gate-welcome-skip gate-skip-centered">
+          {!gateStarted ? (
+            <div className="gate-welcome gate-welcome--pop-in">
+              <img
+                className="gate-welcome-logo"
+                src="/assets/logo-mark.svg"
+                width="64"
+                height="64"
+                alt=""
+                decoding="async"
+              />
+              <p className="gate-welcome-name">CrowdCare</p>
+              <p className="gate-welcome-tagline">
+                Crowdfunding on <strong>Solana</strong>
+              </p>
               <button
                 type="button"
-                className="bare"
-                id="browse-skip-welcome"
-                onClick={(e) => {
-                  e.preventDefault();
-                  goBrowse();
-                }}
+                className="gate-start-btn"
+                id="gate-start-btn"
+                onClick={startGate}
               >
-                Browse only
+                Start CrowdCare
               </button>
-            </p>
-          </div>
+              <p className="gate-welcome-skip">
+                <button
+                  type="button"
+                  className="bare"
+                  id="browse-skip-welcome"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    goBrowse();
+                  }}
+                >
+                  Browse only
+                </button>
+              </p>
+            </div>
+          ) : (
+            <div
+              className="gate-auth-modal content-shell gate-signin-first"
+              role="main"
+              aria-labelledby="gate-connect-heading"
+            >
+              <div className="gate-auth-modal-head">
+                <button
+                  type="button"
+                  className="gate-auth-back bare"
+                  id="gate-auth-back"
+                  onClick={backToWelcome}
+                >
+                  ← Back
+                </button>
+              </div>
+              <img
+                className="gate-welcome-logo"
+                src="/assets/logo-mark.svg"
+                width="64"
+                height="64"
+                alt=""
+                decoding="async"
+              />
+              <p className="gate-welcome-name">CrowdCare</p>
+              <p className="gate-welcome-tagline gate-signin-tagline">
+                Crowdfunding on <strong>Solana</strong>
+              </p>
+
+              <h1 id="gate-connect-heading" className="gate-connect-title">
+                Sign in with X
+              </h1>
+              <p className="gate-connect-lead">
+                Continue with your <strong>X</strong> account through{" "}
+                <strong>Privy</strong>. We&apos;ll create a{" "}
+                <strong>Solana</strong> wallet in the browser for demos—no
+                external wallet app required.
+              </p>
+
+              <div
+                id="gate-client-setup"
+                className="banner-warn gate-modal-banner"
+                hidden={!missingPrivy}
+              >
+                <strong>Setup:</strong> add <code>VITE_PRIVY_APP_ID</code> to{" "}
+                <code>.env</code> (see <code>PRIVY-SETUP.md</code>).
+              </div>
+
+              <div className="banner-warn gate-modal-banner">
+                <strong>Demo</strong> — campaigns stay in this browser until you
+                add a backend.
+              </div>
+
+              {waitingForWallet ? (
+                <p className="lead lead--compact">Finishing sign-in…</p>
+              ) : (
+                <>
+                  <p className="gate-connect-label">Continue with X</p>
+                  <div className="gate-google-row gate-google-row--modal">
+                    <button
+                      type="button"
+                      className="ft-create-cta gate-signin-primary"
+                      style={{ width: "100%", maxWidth: 320 }}
+                      disabled={!ready || missingPrivy}
+                      onClick={() =>
+                        login({
+                          loginMethods: ["twitter"],
+                        })
+                      }
+                    >
+                      Log in with X
+                    </button>
+                  </div>
+                </>
+              )}
+
+              <p className="gate-welcome-skip gate-skip-centered">
+                <button
+                  type="button"
+                  className="bare"
+                  id="browse-skip-auth"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    goBrowse();
+                  }}
+                >
+                  Browse only
+                </button>
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </>

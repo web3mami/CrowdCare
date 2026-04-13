@@ -383,7 +383,7 @@ h1 {
   overflow-y: auto;
 }
 
-/* Sign-in first: single screen (no “Start” step before login). */
+/* Sign-in panel (after “Start CrowdCare”). */
 .gate-signin-first {
   flex: 1;
   display: flex;

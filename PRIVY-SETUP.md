@@ -20,13 +20,9 @@ Restart the dev server after changing env vars.
 
 ## 3. Turn on login methods in the dashboard
 
-In the Privy app settings, enable what you want users to see, for example:
+In the Privy app settings, enable **Twitter / X** (the app uses X sign-in only; embedded Solana wallets are created after login).
 
-- Twitter / X  
-- Email  
-- Wallet (Solana)
-
-CrowdCare’s code asks for: **Twitter, wallet, email** (see `src/privy/CrowdCarePrivyProvider.jsx`). If a method is off in the dashboard, it simply won’t appear.
+CrowdCare’s code asks for: **Twitter only** (see `src/privy/CrowdCarePrivyProvider.jsx`). If X is off in the dashboard, login will not work.
 
 ## 4. Allowed URLs
 
