@@ -73,12 +73,36 @@ body {
     );
 }
 
-/* Watermark hooks (fill in when you add logo assets) */
-.layout-backdrop::before,
+/* Tiled dot watermark */
+.layout-backdrop::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("assets/watermark-tile.svg");
+  background-size: 72px 72px;
+  opacity: 0.07;
+}
+
+/* Large centered mark (very faint) */
 .layout-backdrop::after {
   content: "";
   position: absolute;
+  left: 50%;
+  top: 40%;
+  transform: translate(-50%, -50%) rotate(-10deg);
+  width: min(72vmin, 440px);
+  height: min(72vmin, 440px);
   pointer-events: none;
+  background: url("assets/logo-mark.svg") center / contain no-repeat;
+  opacity: 0.05;
+}
+
+@media (max-width: 600px) {
+  .layout-backdrop::after {
+    opacity: 0.035;
+    top: 35%;
+  }
 }
 
 .layout-content {
@@ -109,6 +133,39 @@ h1 {
 
 .gate-screen {
   padding: 0.35rem 0 2.25rem;
+}
+
+.gate-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.65rem;
+  margin-bottom: 0.15rem;
+}
+
+.gate-logo {
+  width: 56px;
+  height: 56px;
+  display: block;
+  filter: drop-shadow(0 0 18px rgba(201, 164, 58, 0.35));
+}
+
+.page-hero {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.page-hero .page-logo {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 12px rgba(201, 164, 58, 0.25));
+}
+
+.page-hero .site-title {
+  margin: 0;
 }
 
 .gate-title {
@@ -346,11 +403,25 @@ h1.site-title:not(.gate-title) {
 }
 
 .top-nav .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
   font-weight: 700;
   font-size: 1.125rem;
   color: var(--gold-bright);
   text-decoration: none;
   letter-spacing: 0.02em;
+}
+
+.top-nav .brand-mark {
+  width: 32px;
+  height: 32px;
+  display: block;
+  flex-shrink: 0;
+}
+
+.top-nav .brand-text {
+  line-height: 1;
 }
 
 .top-nav .top-nav-links {

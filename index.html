@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CrowdCare</title>
-    <link rel="stylesheet" href="styles.css?v=4" />
+    <link rel="icon" href="assets/logo-mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css?v=5" />
   </head>
   <body>
     <div class="layout-backdrop" aria-hidden="true"></div>
@@ -27,7 +28,17 @@
     </script>
     <!-- First screen: sign in (until user signs in or chooses to browse) -->
     <div id="gate" class="gate-screen">
-      <h1 class="site-title gate-title">CrowdCare</h1>
+      <div class="gate-brand">
+        <img
+          class="gate-logo"
+          src="assets/logo-mark.svg"
+          width="56"
+          height="56"
+          alt=""
+          decoding="async"
+        />
+        <h1 class="site-title gate-title">CrowdCare</h1>
+      </div>
       <p class="lead">
         Crowdfunding on <strong>Solana</strong>. Sign in with Google to get a
         <strong>demo receive address</strong> for this browser, then explore and
@@ -67,7 +78,17 @@
     <!-- After sign-in or skip: full app -->
     <div id="main" hidden>
       <nav class="top-nav">
-        <a class="brand" href="index.html">CrowdCare</a>
+        <a class="brand" href="index.html">
+          <img
+            class="brand-mark"
+            src="assets/logo-mark.svg"
+            width="32"
+            height="32"
+            alt=""
+            decoding="async"
+          />
+          <span class="brand-text">CrowdCare</span>
+        </a>
         <div class="top-nav-links">
           <a href="create.html">Start a campaign</a>
           <a href="index.html?signin=1">Sign in</a>
@@ -76,7 +97,17 @@
 
       <div id="user-bar" class="user-bar" hidden></div>
 
-      <h1 class="site-title">CrowdCare</h1>
+      <div class="page-hero">
+        <img
+          class="page-logo"
+          src="assets/logo-mark.svg"
+          width="40"
+          height="40"
+          alt=""
+          decoding="async"
+        />
+        <h1 class="site-title">CrowdCare</h1>
+      </div>
       <p class="lead">
         Crowdfunding on <strong>Solana</strong>—share your story and receive
         SOL or SPL tokens (e.g. USDC) straight to your wallet.
