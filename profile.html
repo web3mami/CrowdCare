@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Profile — CrowdCare</title>
     <link rel="icon" href="assets/logo-mark.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=14" />
+    <link rel="stylesheet" href="styles.css?v=15" />
   </head>
   <body>
     <div class="layout-backdrop" aria-hidden="true"></div>
@@ -23,7 +23,7 @@
           <span class="brand-text">CrowdCare</span>
         </a>
         <div class="top-nav-links">
-          <a href="create.html">Start a campaign</a>
+          <a href="create.html">Create a campaign</a>
           <a href="profile.html" id="nav-profile" aria-current="page" hidden>Profile</a>
           <a href="index.html?signin=1" id="nav-signin">Sign in</a>
         </div>
@@ -35,9 +35,23 @@
         <h1 class="site-title">Your profile</h1>
         <p class="lead">
           This profile is stored in <strong>this browser</strong> with your
-          account. Add a display name and optional photo—more fields can go here
-          later.
+          account. Add a display name and optional photo.
         </p>
+
+        <div class="content-shell ft-panel share-link-panel">
+          <p class="ft-kicker">Share</p>
+          <p class="ft-panel-title share-link-title">Your hub link</p>
+          <p class="share-link-explainer">
+            One link that lists <strong>your</strong> campaigns on this device.
+            With a backend, the same URL would work for everyone everywhere.
+          </p>
+          <div class="share-link-row">
+            <code id="profile-hub-url" class="share-link-url"></code>
+            <button type="button" class="secondary-btn" id="profile-copy-hub">
+              Copy
+            </button>
+          </div>
+        </div>
 
         <p id="profile-error" class="form-error" hidden></p>
         <p id="profile-saved" class="form-success" hidden>Profile saved.</p>

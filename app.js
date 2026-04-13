@@ -62,6 +62,20 @@
     return base.concat(getExtraCampaigns());
   }
 
+  function getCampaignsByCreatorSub(sub) {
+    if (!sub) return [];
+    return getAllCampaigns().filter(function (c) {
+      return c.creatorSub === sub;
+    });
+  }
+
+  function getCampaignsByShareSlug(slug) {
+    if (!slug || typeof slug !== "string") return [];
+    return getAllCampaigns().filter(function (c) {
+      return c.creatorShareSlug === slug;
+    });
+  }
+
   function findCampaignById(id) {
     if (!id) return null;
     var all = getAllCampaigns();
@@ -112,6 +126,8 @@
 
   window.CROWDCARE_APP = {
     getAllCampaigns: getAllCampaigns,
+    getCampaignsByCreatorSub: getCampaignsByCreatorSub,
+    getCampaignsByShareSlug: getCampaignsByShareSlug,
     findCampaignById: findCampaignById,
     isValidCampaign: isValidCampaign,
     idTaken: idTaken,

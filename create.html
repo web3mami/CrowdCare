@@ -3,9 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Start a campaign — CrowdCare</title>
+    <title>Create a campaign — CrowdCare</title>
     <link rel="icon" href="assets/logo-mark.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=14" />
+    <link rel="stylesheet" href="styles.css?v=15" />
   </head>
   <body>
     <div class="layout-backdrop" aria-hidden="true"></div>
@@ -23,27 +23,99 @@
         <span class="brand-text">CrowdCare</span>
       </a>
       <div class="top-nav-links">
-        <a href="app.html">Home</a>
+        <a href="create.html">Create a campaign</a>
         <a href="profile.html" id="nav-profile" hidden>Profile</a>
         <a href="index.html?signin=1" id="nav-signin">Sign in</a>
       </div>
     </nav>
 
-    <p class="back"><a href="app.html">← All campaigns</a></p>
-    <h1 class="site-title">Start a campaign</h1>
+    <p class="back"><a href="app.html">← Home</a></p>
+    <h1 class="site-title">Create a campaign</h1>
     <p class="lead">
-      Campaigns are funded on <strong>Solana</strong>. Set a numeric goal and
-      optional raised-to-date so supporters see a <strong>public progress bar</strong>.
-      Transparency splits explain where funds are intended to go.
+      Donors will open a public page with your story, funding progress, and wallet
+      address. Choose whether you want to receive <strong>USDC</strong> or
+      <strong>SOL</strong>, then describe what the money is for.
     </p>
-    <p class="lead">
-      Data is stored only in <strong>this browser</strong> until you have a backend.
-      Sign in with Google to pre-fill a <em>demo</em> receive address.
+    <p class="lead note-create-local">
+      Saved only in <strong>this browser</strong> until you add a backend.
     </p>
     <p id="form-error" class="form-error" hidden></p>
-    <form id="campaign-form" novalidate>
+    <form id="campaign-form" class="create-campaign-form content-shell" novalidate>
       <div class="form-field">
-        <label for="slug">Campaign ID (URL)</label>
+        <label for="title">Campaign title</label>
+        <input
+          id="title"
+          name="title"
+          type="text"
+          required
+          maxlength="200"
+          placeholder="Short headline people see when you share the link"
+        />
+      </div>
+
+      <fieldset class="form-fieldset token-choice-fieldset">
+        <legend class="form-legend">Receive donations in</legend>
+        <p class="form-hint form-hint--fieldset">
+          Pick the asset donors should send on Solana. You can mention specifics in your description.
+        </p>
+        <div class="token-choice-grid">
+          <label class="token-option">
+            <input type="radio" name="goal-currency" value="USDC" checked />
+            <span class="token-option-body">
+              <span class="token-option-name">USDC</span>
+              <span class="token-option-desc">Dollar-stable token (common for crowdfunding)</span>
+            </span>
+          </label>
+          <label class="token-option">
+            <input type="radio" name="goal-currency" value="SOL" />
+            <span class="token-option-body">
+              <span class="token-option-name">SOL</span>
+              <span class="token-option-desc">Native Solana (price fluctuates)</span>
+            </span>
+          </label>
+        </div>
+      </fieldset>
+
+      <div class="form-field">
+        <label for="goal-amount">Funding target (amount)</label>
+        <input
+          id="goal-amount"
+          name="goal-amount"
+          type="number"
+          required
+          min="1"
+          step="any"
+          placeholder="e.g. 3000"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="story">What will the money be used for?</label>
+        <textarea
+          id="story"
+          name="story"
+          required
+          placeholder="This is the public description when someone opens your campaign link. Be specific: rent, medical bills, equipment, etc. Each line can be a short paragraph."
+        ></textarea>
+        <p class="form-hint">Shown on your campaign page. Each non-empty line becomes a paragraph.</p>
+      </div>
+
+      <div class="form-field">
+        <label for="raised-amount">Raised so far (optional)</label>
+        <input
+          id="raised-amount"
+          name="raised-amount"
+          type="number"
+          min="0"
+          step="any"
+          placeholder="0 — update manually until on-chain sync exists"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="slug">Campaign link ID</label>
         <input
           id="slug"
           name="slug"
@@ -54,61 +126,14 @@
           pattern="[a-z0-9]+(-[a-z0-9]+)*"
         />
         <p class="form-hint">
-          Lowercase letters, numbers, and hyphens only. Must be unique.
+          Used in your campaign URL: <code>campaign.html?id=…</code>. Lowercase letters, numbers, hyphens only.
         </p>
       </div>
-      <div class="form-field">
-        <label for="title">Title</label>
-        <input
-          id="title"
-          name="title"
-          type="text"
-          required
-          maxlength="200"
-          placeholder="Short headline"
-        />
-      </div>
-      <div class="form-field form-field-row">
-        <div>
-          <label for="goal-amount">Funding target (amount)</label>
-          <input
-            id="goal-amount"
-            name="goal-amount"
-            type="number"
-            required
-            min="1"
-            step="any"
-            placeholder="e.g. 3000"
-            autocomplete="off"
-          />
-        </div>
-        <div>
-          <label for="goal-currency">Token</label>
-          <select id="goal-currency" name="goal-currency">
-            <option value="USDC" selected>USDC</option>
-            <option value="SOL">SOL</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-field">
-        <label for="raised-amount">Raised so far (optional)</label>
-        <input
-          id="raised-amount"
-          name="raised-amount"
-          type="number"
-          min="0"
-          step="any"
-          placeholder="0 — update manually until you have on-chain sync"
-          autocomplete="off"
-        />
-        <p class="form-hint">
-          For the progress bar. In production this would come from indexed transfers.
-        </p>
-      </div>
+
       <fieldset class="form-fieldset">
         <legend class="form-legend">Transparency — fund allocation (%)</legend>
         <p class="form-hint form-hint--fieldset">
-          Must total <strong>100%</strong>. Shown on the campaign page so donors see where value is intended to go.
+          Must total <strong>100%</strong>. Shown on the campaign page.
         </p>
         <div class="form-field form-field-row">
           <div>
@@ -152,12 +177,13 @@
             id="trans-note"
             name="trans-note"
             maxlength="800"
-            placeholder="Short disclosure: who controls the wallet, any caveats, etc."
+            placeholder="Who controls the wallet, caveats, etc."
           ></textarea>
         </div>
       </fieldset>
+
       <div class="form-field">
-        <label for="wallet">Solana wallet address</label>
+        <label for="wallet">Solana wallet address (receives funds)</label>
         <input
           id="wallet"
           name="wallet"
@@ -166,23 +192,11 @@
           autocomplete="off"
           placeholder="Base58 public key"
         />
-        <p class="form-hint">Example format: 32–44 character base58 string.</p>
+        <p class="form-hint">Must be a valid Solana address.</p>
       </div>
-      <div class="form-field">
-        <label for="story">Story</label>
-        <textarea
-          id="story"
-          name="story"
-          required
-          placeholder="Each non-empty line becomes a paragraph."
-        ></textarea>
-      </div>
-      <button type="submit">Save and open campaign</button>
+
+      <button type="submit" class="ft-submit-campaign">Save and open campaign page</button>
     </form>
-    <p class="note">
-      Built-in IDs from <code>campaigns.js</code> cannot be reused (e.g.
-      <code>medical-bills</code>).
-    </p>
     </div>
     <script src="session.js"></script>
     <script src="campaigns.js"></script>
@@ -190,6 +204,13 @@
     <script src="nav-boot.js"></script>
     <script type="module">
       import { PublicKey } from "https://esm.sh/@solana/web3.js@1.95.8";
+
+      var u = window.CROWDCARE_SESSION.getUser();
+      if (!u || !u.publicKey) {
+        window.location.replace("index.html?signin=1");
+      } else {
+      window.CROWDCARE_SESSION.ensureShareSlug();
+      u = window.CROWDCARE_SESSION.getUser();
 
       var form = document.getElementById("campaign-form");
       var err = document.getElementById("form-error");
@@ -218,10 +239,7 @@
         }
       }
 
-      var u = window.CROWDCARE_SESSION.getUser();
-      if (u && u.publicKey) {
-        document.getElementById("wallet").value = u.publicKey;
-      }
+      document.getElementById("wallet").value = u.publicKey;
 
       form.addEventListener("submit", function (e) {
         e.preventDefault();
@@ -229,8 +247,9 @@
 
         var slug = document.getElementById("slug").value.trim().toLowerCase();
         var title = document.getElementById("title").value.trim();
+        var curEl = document.querySelector('input[name="goal-currency"]:checked');
+        var currency = (curEl && curEl.value) || "USDC";
         var goalAmt = parseFloat(document.getElementById("goal-amount").value, 10);
-        var currency = document.getElementById("goal-currency").value || "USDC";
         var raisedRaw = document.getElementById("raised-amount").value.trim();
         var raisedAmt = raisedRaw === "" ? 0 : parseFloat(raisedRaw, 10);
         var transBen = parseFloat(document.getElementById("trans-ben").value, 10);
@@ -244,18 +263,16 @@
 
         if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) {
           showError(
-            "Campaign ID must use lowercase letters, numbers, and hyphens only."
+            "Campaign link ID must use lowercase letters, numbers, and hyphens only."
           );
           return;
         }
         if (app.idTaken(slug)) {
-          showError(
-            "That ID is already used. Pick a different Campaign ID."
-          );
+          showError("That link ID is already used. Pick a different one.");
           return;
         }
         if (!body.length) {
-          showError("Add at least one line to your story.");
+          showError("Describe what the money will be used for.");
           return;
         }
         if (!(goalAmt > 0) || isNaN(goalAmt)) {
@@ -279,9 +296,7 @@
           return;
         }
         if (!isValidSolanaAddress(wallet)) {
-          showError(
-            "That doesn’t look like a valid Solana address (public key)."
-          );
+          showError("That doesn’t look like a valid Solana address (public key).");
           return;
         }
 
@@ -305,6 +320,8 @@
           transparencyNote: transNote || "",
           wallet: wallet.trim(),
           body: body,
+          creatorSub: u.sub,
+          creatorShareSlug: u.shareSlug,
         });
 
         if (!ok) {
@@ -315,6 +332,7 @@
         window.location.href =
           "campaign.html?id=" + encodeURIComponent(slug);
       });
+      }
     </script>
   </body>
 </html>

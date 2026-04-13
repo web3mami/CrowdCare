@@ -53,6 +53,10 @@ async function completeGoogleSignIn(response, errEl, onSuccess) {
     if (prev && prev.sub === sub) {
       if (prev.username) next.username = prev.username;
       if (prev.avatarDataUrl) next.avatarDataUrl = prev.avatarDataUrl;
+      if (prev.shareSlug) next.shareSlug = prev.shareSlug;
+    }
+    if (!next.shareSlug) {
+      next.shareSlug = window.CROWDCARE_SESSION.newShareSlug();
     }
     window.CROWDCARE_SESSION.setUser(next);
     sessionStorage.removeItem("crowdcare_browse_only");

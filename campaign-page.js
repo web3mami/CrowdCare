@@ -6,15 +6,13 @@
   var params = new URLSearchParams(window.location.search);
   var id = params.get("id");
   var c = id ? app.findCampaignById(id) : null;
-  if (id && !c) {
+  if (!c) {
     document.body.innerHTML =
       '<div class="layout-backdrop" aria-hidden="true"></div><div class="layout-content">' +
       "<p>Campaign not found.</p>" +
-      '<p><a href="app.html">← All campaigns</a></p></div>';
+      '<p><a href="app.html">← Home</a></p></div>';
     return;
   }
-  if (!c) c = app.getAllCampaigns()[0];
-  if (!c) return;
 
   var funding = app.getCampaignFunding(c);
 

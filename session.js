@@ -19,6 +19,25 @@
     localStorage.removeItem(STORAGE_KEY);
   }
 
+  function newShareSlug() {
+    var chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+    var s = "";
+    for (var i = 0; i < 10; i++) {
+      s += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return s;
+  }
+
+  function ensureShareSlug() {
+    var u = getUser();
+    if (!u) return null;
+    if (!u.shareSlug) {
+      u.shareSlug = newShareSlug();
+      setUser(u);
+    }
+    return u.shareSlug;
+  }
+
   function updateProfile(updates) {
     var u = getUser();
     if (!u) return false;
@@ -42,5 +61,7 @@
     setUser: setUser,
     signOut: signOut,
     updateProfile: updateProfile,
+    ensureShareSlug: ensureShareSlug,
+    newShareSlug: newShareSlug,
   };
 })();

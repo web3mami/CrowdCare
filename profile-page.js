@@ -4,9 +4,41 @@
 (function () {
   var u = window.CROWDCARE_SESSION.getUser();
   if (!u || !u.publicKey) {
-    window.location.replace("index.html");
+    window.location.replace("index.html?signin=1");
     return;
   }
+
+  window.CROWDCARE_SESSION.ensureShareSlug();
+  u = window.CROWDCARE_SESSION.getUser();
+  var slug = u.shareSlug;
+  var hubRel = "app.html?hub=" + encodeURIComponent(slug);
+  var hubUrl = hubRel;
+  try {
+    hubUrl = new URL(hubRel, window.location.href).href;
+  } catch (e) {
+    /* keep relative */
+  }
+  var hubCode = document.getElementById("profile-hub-url");
+  if (hubCode) hubCode.textContent = hubUrl;
+
+  document.getElementById("profile-copy-hub").addEventListener("click", function () {
+    var t = hubUrl;
+    function done() {
+      var b = document.getElementById("profile-copy-hub");
+      var prev = b.textContent;
+      b.textContent = "Copied";
+      setTimeout(function () {
+        b.textContent = prev;
+      }, 2000);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(t).then(done).catch(function () {
+        window.prompt("Copy this link:", t);
+      });
+    } else {
+      window.prompt("Copy this link:", t);
+    }
+  });
 
   var form = document.getElementById("profile-form");
   var errEl = document.getElementById("profile-error");

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CrowdCare</title>
     <link rel="icon" href="assets/logo-mark.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=14" />
+    <link rel="stylesheet" href="styles.css?v=15" />
   </head>
   <body>
     <div class="layout-backdrop" aria-hidden="true"></div>
@@ -23,38 +23,70 @@
           <span class="brand-text">CrowdCare</span>
         </a>
         <div class="top-nav-links">
-          <a href="create.html">Start a campaign</a>
+          <a href="create.html" id="nav-create">Create a campaign</a>
           <a href="profile.html" id="nav-profile" hidden>Profile</a>
           <a href="index.html?signin=1" id="nav-signin">Sign in</a>
         </div>
       </nav>
 
-      <div class="page-hero">
-        <img
-          class="page-logo"
-          src="assets/logo-mark.svg"
-          width="40"
-          height="40"
-          alt=""
-          decoding="async"
-        />
-        <h1 class="site-title">CrowdCare</h1>
+      <!-- Public hub: app.html?hub=your-slug (same-browser demo; needs backend for global sharing) -->
+      <div id="hub-view" class="hub-view" hidden>
+        <p class="back"><a href="app.html">← Home</a></p>
+        <div class="content-shell ft-panel hub-panel">
+          <p class="ft-kicker">Creator hub</p>
+          <h1 class="site-title hub-title" id="hub-title">Campaigns</h1>
+          <p class="lead hub-lead" id="hub-lead">
+            Campaigns saved in this browser for this link.
+          </p>
+          <ul class="campaign-list" id="hub-campaign-list"></ul>
+          <p id="hub-empty" class="note" hidden>
+            No campaigns here yet. The creator may still be setting up, or you’re
+            viewing from a device that doesn’t have their saved data yet—a server
+            would fix that.
+          </p>
+        </div>
       </div>
-      <p class="lead">
-        Crowdfunding on <strong>Solana</strong>—share your story and receive
-        SOL or SPL tokens (e.g. USDC) straight to your wallet.
-      </p>
-      <p class="actions">
-        <a href="create.html">Start a campaign</a>
-      </p>
-      <h2 class="section-heading">Campaigns</h2>
-      <ul class="campaign-list" id="campaign-list"></ul>
-      <p class="note">
-        Built-in rows come from <code>campaigns.js</code>. Rows you add from
-        “Start a campaign” are stored only in <strong>this browser</strong> until
-        there is a backend. Use <strong>Profile</strong> to set your display name
-        and picture after you sign in.
-      </p>
+
+      <div id="signed-in-home" class="signed-in-home" hidden>
+        <div class="signed-in-hero">
+          <img
+            class="signed-in-hero-mark"
+            src="assets/logo-mark.svg"
+            width="56"
+            height="56"
+            alt=""
+            decoding="async"
+          />
+          <h1 class="signed-in-hero-title">CrowdCare</h1>
+          <p class="signed-in-hero-lead">
+            Raise on <strong>Solana</strong> with a clear page donors can trust.
+            Start by creating your first campaign.
+          </p>
+          <a href="create.html" class="ft-create-cta">Create a campaign</a>
+          <p class="signed-in-hero-sub">
+            <a href="profile.html">Profile</a>
+            <span class="signed-in-dot">·</span>
+            <span id="signed-in-hub-hint" class="signed-in-hub-hint"></span>
+          </p>
+        </div>
+        <section id="your-campaigns-section" class="your-campaigns-section" hidden>
+          <h2 class="section-heading">Your campaigns</h2>
+          <ul class="campaign-list" id="campaign-list"></ul>
+        </section>
+      </div>
+
+      <div id="browse-home" class="browse-home" hidden>
+        <div class="signed-in-hero browse-hero">
+          <h1 class="signed-in-hero-title">CrowdCare</h1>
+          <p class="signed-in-hero-lead">
+            You’re browsing without an account. <strong>Sign in with Google</strong>
+            to create a campaign and get your shareable hub link.
+          </p>
+          <a href="index.html?signin=1" class="ft-create-cta ft-create-cta--secondary"
+            >Sign in</a
+          >
+        </div>
+      </div>
     </div>
 
     <script src="session.js"></script>
