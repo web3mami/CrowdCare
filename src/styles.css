@@ -383,6 +383,38 @@ h1 {
   overflow-y: auto;
 }
 
+/* Sign-in first: single screen (no “Start” step before login). */
+.gate-signin-first {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 2.5rem;
+  box-sizing: border-box;
+}
+
+.gate-signin-first .gate-welcome-logo {
+  margin-bottom: 0;
+}
+
+.gate-signin-tagline {
+  margin-bottom: 1.25rem !important;
+}
+
+.gate-signin-first .gate-connect-title {
+  margin-top: 0.15rem;
+}
+
+.gate-signin-primary {
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
+
 .gate-welcome {
   flex: 1;
   display: flex;
