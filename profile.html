@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Profile — CrowdCare</title>
     <link rel="icon" href="assets/logo-mark.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=16" />
+    <link rel="stylesheet" href="styles.css?v=18" />
   </head>
   <body>
     <div class="layout-backdrop" aria-hidden="true"></div>
@@ -32,31 +32,70 @@
       <p class="back"><a href="app.html">← Home</a></p>
 
       <article class="content-shell profile-shell">
-        <h1 class="site-title">Your profile</h1>
-        <p class="lead">
-          This profile is stored in <strong>this browser</strong> with your
-          account. Add a display name and optional photo.
+        <h1 class="site-title">Profile</h1>
+        <p class="lead lead--compact">
+          Stored in this browser. Hub link lists your campaigns here only until you add a server.
         </p>
 
         <div class="content-shell ft-panel share-link-panel">
           <p class="ft-kicker">Share</p>
-          <p class="ft-panel-title share-link-title">Your hub link</p>
-          <p class="share-link-explainer">
-            One link that lists <strong>your</strong> campaigns on this device.
-            With a backend, the same URL would work for everyone everywhere.
+          <p class="ft-panel-title share-link-title">Hub link</p>
+          <p class="share-link-explainer share-link-explainer--short">
+            One URL for all your campaigns on this device.
           </p>
           <div class="share-link-row">
             <code id="profile-hub-url" class="share-link-url"></code>
-            <button type="button" class="secondary-btn" id="profile-copy-hub">
-              Copy
-            </button>
+            <button type="button" class="secondary-btn" id="profile-copy-hub">Copy</button>
           </div>
         </div>
 
+        <section class="content-shell ft-panel profile-campaigns-panel">
+          <p class="ft-kicker">Campaigns</p>
+          <p class="ft-panel-title">Yours</p>
+          <p id="profile-campaigns-empty" class="note note--tight" hidden>
+            None yet. <a href="create.html">Create a campaign</a>.
+          </p>
+          <ul class="campaign-list" id="profile-campaign-list"></ul>
+        </section>
+
+        <div id="wallet-export-panel" class="content-shell ft-panel wallet-export-panel">
+          <p class="ft-kicker">Wallet</p>
+          <p class="ft-panel-title">Import into Phantom / Solflare</p>
+          <p class="wallet-export-lead note--tight">
+            This app derives a key from your Google account. Export lets you use the
+            <strong>same</strong> address in a real wallet. Anyone with the private key controls funds.
+          </p>
+          <ol class="wallet-export-steps">
+            <li>Reveal and copy the key below.</li>
+            <li>Phantom: Settings → Add / Connect wallet → Import private key. (Solflare: similar.)</li>
+            <li>Paste the key. Hide it again when done.</li>
+          </ol>
+          <label class="wallet-export-ack-label">
+            <input type="checkbox" id="wallet-export-ack" />
+            I understand exposing this key can drain the wallet.
+          </label>
+          <p id="wallet-export-error" class="form-error" hidden></p>
+          <div class="wallet-export-actions">
+            <button type="button" class="secondary-btn" id="wallet-export-reveal">Show private key</button>
+            <button type="button" class="secondary-btn" id="wallet-export-copy" hidden>Copy key</button>
+            <button type="button" class="secondary-btn" id="wallet-export-hide" hidden>Hide</button>
+          </div>
+          <textarea
+            id="wallet-export-secret"
+            class="wallet-export-secret"
+            readonly
+            hidden
+            rows="3"
+            autocomplete="off"
+            aria-label="Exported private key"
+          ></textarea>
+        </div>
+
         <p id="profile-error" class="form-error" hidden></p>
-        <p id="profile-saved" class="form-success" hidden>Profile saved.</p>
+        <p id="profile-saved" class="form-success" hidden>Saved.</p>
 
         <form id="profile-form" class="profile-form" novalidate>
+          <h2 class="section-heading section-heading--inline">Account</h2>
           <div class="profile-avatar-row">
             <div class="profile-avatar-preview-wrap">
               <img
@@ -68,24 +107,20 @@
                 height="120"
                 hidden
               />
-              <div id="profile-avatar-placeholder" class="profile-avatar-placeholder">
-                No photo
-              </div>
+              <div id="profile-avatar-placeholder" class="profile-avatar-placeholder">No photo</div>
             </div>
             <div class="profile-avatar-actions">
               <div class="form-field">
-                <label for="profile-avatar">Profile picture</label>
+                <label for="profile-avatar">Photo</label>
                 <input
                   id="profile-avatar"
                   name="avatar"
                   type="file"
                   accept="image/jpeg,image/png,image/webp,image/gif"
                 />
-                <p class="form-hint">JPEG, PNG, WebP, or GIF. About 512×512 or smaller is ideal.</p>
+                <p class="form-hint">Max ~750 KB.</p>
               </div>
-              <button type="button" class="secondary-btn" id="profile-remove-avatar">
-                Remove photo
-              </button>
+              <button type="button" class="secondary-btn" id="profile-remove-avatar">Remove photo</button>
             </div>
           </div>
 
@@ -97,20 +132,20 @@
               type="text"
               maxlength="40"
               autocomplete="nickname"
-              placeholder="How you want to appear on CrowdCare"
+              placeholder="Optional"
             />
           </div>
 
           <div class="profile-readonly-block">
-            <p class="profile-readonly-label">Email (from Google)</p>
+            <p class="profile-readonly-label">Email</p>
             <p id="profile-email" class="profile-readonly-value"></p>
           </div>
           <div class="profile-readonly-block">
-            <p class="profile-readonly-label">Demo Solana address</p>
-            <p id="profile-address" class="profile-readonly-value mono"></p>
+            <p class="profile-readonly-label">Solana address (demo)</p>
+            <p id="profile-address" class="profile-readonly-value mono profile-address-wrap"></p>
           </div>
 
-          <button type="submit">Save profile</button>
+          <button type="submit">Save</button>
         </form>
       </article>
     </div>
@@ -120,5 +155,6 @@
     <script src="app.js"></script>
     <script src="nav-boot.js"></script>
     <script src="profile-page.js"></script>
+    <script type="module" src="profile-wallet.mjs"></script>
   </body>
 </html>

@@ -21,6 +21,12 @@
   var hubCode = document.getElementById("profile-hub-url");
   if (hubCode) hubCode.textContent = hubUrl;
 
+  var profileList = document.getElementById("profile-campaign-list");
+  var profileEmpty = document.getElementById("profile-campaigns-empty");
+  var mine = window.CROWDCARE_APP.getCampaignsByCreatorSub(u.sub);
+  if (profileList) window.CROWDCARE_APP.populateCampaignListEl(profileList, mine);
+  if (profileEmpty) profileEmpty.hidden = mine.length > 0;
+
   document.getElementById("profile-copy-hub").addEventListener("click", function () {
     var t = hubUrl;
     function done() {

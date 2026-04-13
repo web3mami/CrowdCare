@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Campaign — CrowdCare</title>
     <link rel="icon" href="assets/logo-mark.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=16" />
+    <link rel="stylesheet" href="styles.css?v=18" />
   </head>
   <body>
     <div class="layout-backdrop" aria-hidden="true"></div>
@@ -64,7 +64,7 @@
         <div id="progress-fill" class="ft-progress-fill"></div>
       </div>
       <p class="ft-progress-caption">
-        <span id="progress-pct">0</span>% of goal — shown for transparency; verify on-chain for live totals.
+        <span id="progress-pct">0</span>% of goal — verify real totals on-chain.
       </p>
     </section>
 
@@ -74,10 +74,8 @@
         <span class="ft-panel-title">Where funds are intended to go</span>
       </div>
       <p class="ft-transparency-lead">
-        The creator set these shares to explain how they <strong>plan</strong> to use support (for example, most to
-        the cause and a small slice for fees or overhead). That split is a <strong>public promise</strong>, not a
-        smart-contract rule here—everything still goes to the <strong>same wallet</strong> below. Check the chain and
-        the creator’s note before you send. CrowdCare does not hold funds in this version.
+        Creator’s <strong>intended</strong> split (cause vs fees/other)—not enforced by this site. All sends go to the
+        <strong>same address</strong> below. CrowdCare doesn’t custody funds here.
       </p>
       <div class="ft-allocation-visual" aria-hidden="true">
         <div class="ft-allocation-stack">
@@ -117,10 +115,8 @@
           Copy address
         </button>
       </div>
-      <p class="note" id="campaign-note">
-        Use a Solana wallet (Phantom, Solflare, etc.). Confirm the token mint
-        (e.g. USDC) and network (mainnet-beta vs devnet) before sending real
-        funds.
+      <p class="note note--tight" id="campaign-note">
+        Use Phantom/Solflare. Double-check token + network before sending.
       </p>
     </article>
     </div>

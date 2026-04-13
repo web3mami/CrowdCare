@@ -4,21 +4,13 @@
  * module used to abort and the Google button never rendered. Web3 loads only
  * after the user completes Google sign-in.
  */
-var WEB3_ESM = "https://esm.sh/@solana/web3.js@1.95.8";
+import { deriveDemoKeypair } from "./crowdcare-keypair.mjs";
 
 function decodeJwtPayload(jwt) {
   var part = jwt.split(".")[1];
   var b64 = part.replace(/-/g, "+").replace(/_/g, "/");
   var json = atob(b64);
   return JSON.parse(json);
-}
-
-async function deriveDemoKeypair(googleSub) {
-  var { Keypair } = await import(WEB3_ESM);
-  var enc = new TextEncoder().encode("crowdcare-demo-v1|" + googleSub);
-  var hash = await crypto.subtle.digest("SHA-256", enc);
-  var seed = new Uint8Array(hash);
-  return Keypair.fromSeed(seed);
 }
 
 function needsGoogleClientSetup() {

@@ -1686,7 +1686,7 @@ body.cc-motion-flow #hub-view:not([hidden]) .hub-panel {
   animation: cc-modal-in-cinema 0.78s var(--ease-cinematic-out) 0.08s both;
 }
 
-body.cc-motion-flow #your-campaigns-section:not([hidden]) {
+body.cc-motion-flow #your-campaigns:not([hidden]) {
   animation: cc-rise-cinema 0.75s var(--ease-cinematic-out) 0.2s both;
 }
 
@@ -1756,6 +1756,222 @@ body.cc-motion-flow .bare:hover {
 
 .note-create-local {
   font-size: 0.875rem;
+}
+
+.lead--compact {
+  margin-bottom: 0.65rem;
+  font-size: 1rem;
+}
+
+.note--tight {
+  font-size: 0.8125rem;
+  margin: 0 0 0.75rem;
+  line-height: 1.45;
+}
+
+.section-heading--inline {
+  margin-top: 1.25rem;
+}
+
+.share-link-explainer--short {
+  margin-bottom: 0.65rem;
+}
+
+.mono-link--wrap {
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: bottom;
+}
+
+.profile-address-wrap {
+  word-break: break-word;
+}
+
+.profile-campaigns-panel {
+  margin-bottom: 1rem;
+}
+
+.wallet-export-lead {
+  margin: 0 0 0.65rem;
+}
+
+.wallet-export-steps {
+  margin: 0 0 0.85rem;
+  padding-left: 1.1rem;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.wallet-export-steps li {
+  margin-bottom: 0.35rem;
+}
+
+.wallet-export-ack-label {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin: 0 0 0.85rem;
+  cursor: pointer;
+}
+
+.wallet-export-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.65rem;
+}
+
+.wallet-export-secret {
+  width: 100%;
+  box-sizing: border-box;
+  font: 0.72rem ui-monospace, monospace;
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--gold-border);
+  background: var(--ash-deep);
+  color: var(--text);
+  resize: vertical;
+  min-height: 4rem;
+}
+
+@media (max-width: 600px) {
+  .layout-content {
+    padding: 0.85rem 1rem 1.75rem;
+  }
+
+  .top-nav {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.85rem;
+  }
+
+  .top-nav .brand {
+    justify-content: flex-start;
+  }
+
+  .top-nav-links {
+    justify-content: flex-start;
+    gap: 0.65rem 1rem;
+  }
+
+  .top-nav-links a {
+    font-size: 0.8125rem;
+  }
+
+  .back {
+    margin-bottom: 0.65rem;
+  }
+
+  .signed-in-hero {
+    padding: 1.15rem 0.5rem 2rem;
+    min-height: unset;
+  }
+
+  .signed-in-hero-mark {
+    width: 48px;
+    height: auto;
+  }
+
+  .signed-in-hero-title {
+    font-size: 1.5rem;
+  }
+
+  .signed-in-hero-lead {
+    max-width: none;
+    margin-bottom: 1.35rem;
+    font-size: 1rem;
+  }
+
+  .signed-in-hero-sub {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    align-items: center;
+    text-align: center;
+    max-width: 100%;
+  }
+
+  .signed-in-dot {
+    display: none;
+  }
+
+  .signed-in-hub-hint {
+    display: block;
+    max-width: 100%;
+  }
+
+  .ft-create-cta {
+    width: 100%;
+    max-width: 20rem;
+    box-sizing: border-box;
+  }
+
+  .content-shell {
+    padding: 1rem 1rem 1.15rem;
+  }
+
+  .your-campaigns-section {
+    padding: 0 0 1.5rem;
+  }
+
+  .section-heading {
+    margin: 1.25rem 0 0.5rem;
+  }
+
+  .gate-welcome {
+    padding: 1rem 0.75rem 1.75rem;
+  }
+
+  .gate-start-btn {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .gate-auth-modal.content-shell {
+    padding: 1rem 1rem 1.15rem;
+  }
+
+  .share-link-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .share-link-row .secondary-btn {
+    width: 100%;
+  }
+
+  .wallet-export-actions .secondary-btn {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .profile-avatar-row {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .profile-avatar-actions {
+    width: 100%;
+  }
+
+  h1.site-title {
+    font-size: 1.35rem;
+  }
+
+  .form-fieldset {
+    padding: 0.85rem 0.9rem 0.95rem;
+  }
+
+  .ft-submit-campaign {
+    max-width: none;
+  }
 }
 
 /* Token choice (create campaign) */

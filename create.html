@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Create a campaign — CrowdCare</title>
     <link rel="icon" href="assets/logo-mark.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=16" />
+    <link rel="stylesheet" href="styles.css?v=18" />
   </head>
   <body>
     <div class="layout-backdrop" aria-hidden="true"></div>
@@ -31,14 +31,11 @@
 
     <p class="back"><a href="app.html">← Home</a></p>
     <h1 class="site-title">Create a campaign</h1>
-    <p class="lead">
-      Donors will open a public page with your story, funding progress, and wallet
-      address. Choose whether you want to receive <strong>USDC</strong> or
-      <strong>SOL</strong>, then describe what the money is for. When you save, we
-      create a <strong>unique campaign link</strong> automatically—you don’t set it here.
+    <p class="lead lead--compact">
+      Public page: story, goal, wallet. Pick <strong>USDC</strong> or <strong>SOL</strong>. We create the campaign URL when you save.
     </p>
-    <p class="lead note-create-local">
-      Saved only in <strong>this browser</strong> until you add a backend.
+    <p class="lead note-create-local note--tight">
+      Saved in <strong>this browser</strong> only (demo).
     </p>
     <p id="form-error" class="form-error" hidden></p>
     <form id="campaign-form" class="create-campaign-form content-shell" novalidate>
@@ -56,22 +53,20 @@
 
       <fieldset class="form-fieldset token-choice-fieldset">
         <legend class="form-legend">Receive donations in</legend>
-        <p class="form-hint form-hint--fieldset">
-          Pick the asset donors should send on Solana. You can mention specifics in your description.
-        </p>
+        <p class="form-hint form-hint--fieldset">Asset donors send on Solana.</p>
         <div class="token-choice-grid">
           <label class="token-option">
             <input type="radio" name="goal-currency" value="USDC" checked />
             <span class="token-option-body">
               <span class="token-option-name">USDC</span>
-              <span class="token-option-desc">Dollar-stable token (common for crowdfunding)</span>
+              <span class="token-option-desc">Stable USD token</span>
             </span>
           </label>
           <label class="token-option">
             <input type="radio" name="goal-currency" value="SOL" />
             <span class="token-option-body">
               <span class="token-option-name">SOL</span>
-              <span class="token-option-desc">Native Solana (price fluctuates)</span>
+              <span class="token-option-desc">Native SOL (volatile)</span>
             </span>
           </label>
         </div>
@@ -97,9 +92,9 @@
           id="story"
           name="story"
           required
-          placeholder="This is the public description when someone opens your campaign link. Be specific: rent, medical bills, equipment, etc. Each line can be a short paragraph."
+          placeholder="What donors are funding. One paragraph per line."
         ></textarea>
-        <p class="form-hint">Shown on your campaign page. Each non-empty line becomes a paragraph.</p>
+        <p class="form-hint">Each line = a paragraph on the public page.</p>
       </div>
 
       <div class="form-field">
@@ -110,23 +105,20 @@
           type="number"
           min="0"
           step="any"
-          placeholder="0 — update manually until on-chain sync exists"
+          placeholder="0 (manual until on-chain sync)"
           autocomplete="off"
         />
       </div>
 
       <fieldset class="form-fieldset">
-        <legend class="form-legend">Transparency — how you tell donors funds break down</legend>
+        <legend class="form-legend">Transparency (%)</legend>
         <p class="form-hint form-hint--fieldset">
-          This is <strong>informational</strong> for people reading your page: you describe what share of support you
-          intend to go to the campaign wallet (the cause) versus anything else you want to call out—like estimated
-          fees, currency conversion, or a small operational slice. It is <strong>not</strong> enforced on-chain in this
-          version; donors still send to one address, and you stay accountable to what you publish here.
-          Percentages must total <strong>100%</strong> and appear in the transparency block on your public page.
+          Shown on your page: how you intend to split “cause” vs “other” (fees, etc.). Not enforced on-chain here—one
+          wallet still receives everything. Must total <strong>100%</strong>.
         </p>
         <div class="form-field form-field-row">
           <div>
-            <label for="trans-ben">Primary — intended for the cause (this wallet)</label>
+            <label for="trans-ben">Primary (cause / this wallet)</label>
             <input
               id="trans-ben"
               name="trans-ben"
@@ -138,7 +130,7 @@
             />
           </div>
           <div>
-            <label for="trans-oth">Other — label below (fees, reserves, etc.)</label>
+            <label for="trans-oth">Other (see label)</label>
             <input
               id="trans-oth"
               name="trans-oth"
@@ -151,7 +143,7 @@
           </div>
         </div>
         <div class="form-field">
-          <label for="trans-other-label">What “other” means (shown to donors)</label>
+          <label for="trans-other-label">“Other” label</label>
           <input
             id="trans-other-label"
             name="trans-other-label"
@@ -161,12 +153,12 @@
           />
         </div>
         <div class="form-field">
-          <label for="trans-note">Extra note for donors (optional)</label>
+          <label for="trans-note">Note (optional)</label>
           <textarea
             id="trans-note"
             name="trans-note"
             maxlength="800"
-            placeholder="e.g. who controls the wallet, how you’ll update the page, or limits of this demo."
+            placeholder="Optional context for donors."
           ></textarea>
         </div>
       </fieldset>

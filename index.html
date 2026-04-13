@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CrowdCare — Sign in</title>
     <link rel="icon" href="assets/logo-mark.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=17" />
+    <link rel="stylesheet" href="styles.css?v=18" />
   </head>
   <body class="cc-motion-flow">
     <div class="layout-backdrop" aria-hidden="true"></div>
@@ -44,7 +44,7 @@
         </button>
         <p class="gate-welcome-skip">
           <button type="button" class="bare" id="browse-skip-welcome">
-            Browse without signing in
+            Browse only
           </button>
         </p>
       </div>
@@ -63,20 +63,15 @@
           </div>
           <h2 id="gate-connect-heading" class="gate-connect-title">Connect Google</h2>
           <p class="gate-connect-lead">
-            Sign in to get a <strong>demo receive address</strong> in this browser,
-            then explore and start campaigns.
+            Sign in for a <strong>demo Solana address</strong> in this browser.
           </p>
 
           <div id="gate-client-setup" class="banner-warn gate-modal-banner" hidden>
-            <strong>Set up Google Sign-In.</strong> Edit <code>config.js</code> and
-            paste your <strong>Web client ID</strong> from Google Cloud Console. Add
-            your site origin under <em>Authorized JavaScript origins</em>. Sign-in does
-            not work from <code>file://</code>—use GitHub Pages or a local server.
+            <strong>Google Sign-In:</strong> set <code>config.js</code> Web client ID + authorized origin. Not on <code>file://</code>.
           </div>
 
           <div class="banner-warn gate-modal-banner">
-            <strong>Demo only.</strong> Your Solana public key here is derived in the
-            browser for prototyping—not a production wallet. Review before real funds.
+            <strong>Demo wallet</strong> — derived in-browser. Don’t fund heavily without understanding the risk.
           </div>
 
           <p id="gate-auth-error" class="form-error" hidden></p>
@@ -88,7 +83,7 @@
 
           <p class="gate-skip-wrap gate-skip-centered">
             <button type="button" class="bare" id="browse-skip">
-              Browse campaigns without signing in
+              Browse only
             </button>
           </p>
         </div>

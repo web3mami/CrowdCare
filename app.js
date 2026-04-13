@@ -124,6 +124,66 @@
     return { goal: goal || null, raised: raised, pct: pct, currency: currency };
   }
 
+  function formatCampaignAmt(n, currency) {
+    var s = Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 });
+    return currency ? s + " " + currency : s;
+  }
+
+  function appendCampaignListCard(listEl, c) {
+    var li = document.createElement("li");
+    var a = document.createElement("a");
+    a.href = "campaign.html?id=" + encodeURIComponent(c.id);
+    var title = document.createElement("p");
+    title.className = "card-title";
+    title.textContent = c.title;
+    var meta = document.createElement("p");
+    meta.className = "meta";
+    meta.textContent = "Goal: " + c.goalLabel;
+
+    var fund = getCampaignFunding(c);
+    if (fund.pct != null && fund.goal) {
+      var prog = document.createElement("div");
+      prog.className = "campaign-card-funding";
+      var row = document.createElement("div");
+      row.className = "campaign-card-funding-row";
+      var pctEl = document.createElement("span");
+      pctEl.className = "campaign-card-pct";
+      pctEl.textContent = fund.pct + "% funded";
+      var amtEl = document.createElement("span");
+      amtEl.className = "campaign-card-amt";
+      var cur = fund.currency || "";
+      amtEl.textContent =
+        formatCampaignAmt(fund.raised, cur) + " / " + formatCampaignAmt(fund.goal, cur);
+      row.appendChild(pctEl);
+      row.appendChild(amtEl);
+      var track = document.createElement("div");
+      track.className = "ft-progress-track ft-progress-track--compact";
+      track.setAttribute("role", "presentation");
+      var fill = document.createElement("div");
+      fill.className = "ft-progress-fill";
+      fill.style.width = fund.pct + "%";
+      track.appendChild(fill);
+      prog.appendChild(row);
+      prog.appendChild(track);
+      a.appendChild(title);
+      a.appendChild(prog);
+      a.appendChild(meta);
+    } else {
+      a.appendChild(title);
+      a.appendChild(meta);
+    }
+    li.appendChild(a);
+    listEl.appendChild(li);
+  }
+
+  function populateCampaignListEl(listEl, campaigns) {
+    if (!listEl) return;
+    listEl.innerHTML = "";
+    (campaigns || []).forEach(function (c) {
+      appendCampaignListCard(listEl, c);
+    });
+  }
+
   window.CROWDCARE_APP = {
     getAllCampaigns: getAllCampaigns,
     getCampaignsByCreatorSub: getCampaignsByCreatorSub,
@@ -134,5 +194,6 @@
     addExtraCampaign: addExtraCampaign,
     getCampaignFunding: getCampaignFunding,
     parseGoalFromLabel: parseGoalFromLabel,
+    populateCampaignListEl: populateCampaignListEl,
   };
 })();

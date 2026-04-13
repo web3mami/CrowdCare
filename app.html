@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CrowdCare</title>
     <link rel="icon" href="assets/logo-mark.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=17" />
+    <link rel="stylesheet" href="styles.css?v=18" />
   </head>
   <body class="cc-motion-flow">
     <div class="layout-backdrop" aria-hidden="true"></div>
@@ -35,14 +35,10 @@
         <div class="content-shell ft-panel hub-panel">
           <p class="ft-kicker">Creator hub</p>
           <h1 class="site-title hub-title" id="hub-title">Campaigns</h1>
-          <p class="lead hub-lead" id="hub-lead">
-            Campaigns saved in this browser for this link.
-          </p>
+          <p class="lead hub-lead" id="hub-lead">Saved in this browser only.</p>
           <ul class="campaign-list" id="hub-campaign-list"></ul>
-          <p id="hub-empty" class="note" hidden>
-            No campaigns here yet. The creator may still be setting up, or you’re
-            viewing from a device that doesn’t have their saved data yet—a server
-            would fix that.
+          <p id="hub-empty" class="note note--tight" hidden>
+            Nothing here—wrong device or empty hub.
           </p>
         </div>
       </div>
@@ -59,18 +55,22 @@
           />
           <h1 class="signed-in-hero-title">CrowdCare</h1>
           <p class="signed-in-hero-lead">
-            Raise on <strong>Solana</strong> with a clear page donors can trust.
-            Start by creating your first campaign.
+            Crowdfunding on <strong>Solana</strong>. Tap below to start.
           </p>
           <a href="create.html" class="ft-create-cta">Create a campaign</a>
           <p class="signed-in-hero-sub">
+            <a href="#your-campaigns">Your campaigns</a>
+            <span class="signed-in-dot">·</span>
             <a href="profile.html">Profile</a>
             <span class="signed-in-dot">·</span>
             <span id="signed-in-hub-hint" class="signed-in-hub-hint"></span>
           </p>
         </div>
-        <section id="your-campaigns-section" class="your-campaigns-section" hidden>
+        <section id="your-campaigns" class="your-campaigns-section" hidden>
           <h2 class="section-heading">Your campaigns</h2>
+          <p id="home-campaigns-empty" class="note note--tight" hidden>
+            None yet. <a href="create.html">Create one</a>.
+          </p>
           <ul class="campaign-list" id="campaign-list"></ul>
         </section>
       </div>
@@ -79,8 +79,7 @@
         <div class="signed-in-hero browse-hero">
           <h1 class="signed-in-hero-title">CrowdCare</h1>
           <p class="signed-in-hero-lead">
-            You’re browsing without an account. <strong>Sign in with Google</strong>
-            to create a campaign and get your shareable hub link.
+            <strong>Sign in</strong> to create campaigns and get your hub link.
           </p>
           <a href="index.html?signin=1" class="ft-create-cta ft-create-cta--secondary"
             >Sign in</a
