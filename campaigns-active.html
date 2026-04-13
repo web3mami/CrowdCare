@@ -3,11 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>CrowdCare</title>
+    <title>Active campaigns — CrowdCare</title>
     <link rel="icon" href="assets/logo-mark.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css?v=22" />
   </head>
-  <body class="cc-motion-flow">
+  <body class="cc-motion-flow campaigns-directory-page">
     <div class="layout-backdrop" aria-hidden="true"></div>
     <div class="layout-content">
       <nav class="top-nav">
@@ -45,9 +45,7 @@
         >
           <div class="nav-drawer-header">
             <span id="nav-drawer-title" class="nav-drawer-title">Menu</span>
-            <button type="button" class="nav-drawer-close" id="nav-drawer-close" aria-label="Close menu">
-              ×
-            </button>
+            <button type="button" class="nav-drawer-close" id="nav-drawer-close" aria-label="Close menu">×</button>
           </div>
           <ul class="nav-drawer-list">
             <li id="drawer-profile-wrap" hidden><a href="profile.html">Profile</a></li>
@@ -63,58 +61,15 @@
         </div>
       </div>
 
-      <!-- Public hub: app.html?hub=your-slug (same-browser demo; needs backend for global sharing) -->
-      <div id="hub-view" class="hub-view" hidden>
-        <p class="back"><a href="app.html">← Home</a></p>
-        <div class="content-shell ft-panel hub-panel">
-          <p class="ft-kicker">Creator hub</p>
-          <h1 class="site-title hub-title" id="hub-title">Campaigns</h1>
-          <p class="lead hub-lead" id="hub-lead">Saved in this browser only.</p>
-          <ul class="campaign-list" id="hub-campaign-list"></ul>
-          <p id="hub-empty" class="note note--tight" hidden>
-            Nothing here—wrong device or empty hub.
-          </p>
-        </div>
-      </div>
+      <p class="back"><a href="app.html">← Home</a></p>
+      <h1 class="site-title">Active campaigns</h1>
+      <p class="lead lead--compact">
+        Still raising (under 100% of goal in this demo). Everyone listed here has a campaign stored in this browser.
+      </p>
 
-      <div id="signed-in-home" class="signed-in-home" hidden>
-        <div class="signed-in-hero">
-          <img
-            class="signed-in-hero-mark"
-            src="assets/logo-mark.svg"
-            width="56"
-            height="56"
-            alt=""
-            decoding="async"
-          />
-          <h1 class="signed-in-hero-title">CrowdCare</h1>
-          <p class="signed-in-hero-lead">
-            Crowdfunding on <strong>Solana</strong>. Tap below to start.
-          </p>
-          <div class="signed-in-hero-ctas">
-            <a href="create.html" class="ft-create-cta">Create a campaign</a>
-            <a href="my-campaigns.html" class="ft-create-cta ft-create-cta--secondary"
-              >My Campaigns</a
-            >
-          </div>
-          <p class="signed-in-hero-sub">
-            <a href="profile.html">Profile</a>
-            <span class="signed-in-dot">·</span>
-            <span id="signed-in-hub-hint" class="signed-in-hub-hint"></span>
-          </p>
-        </div>
-      </div>
-
-      <div id="browse-home" class="browse-home" hidden>
-        <div class="signed-in-hero browse-hero">
-          <h1 class="signed-in-hero-title">CrowdCare</h1>
-          <p class="signed-in-hero-lead">
-            <strong>Sign in</strong> to create campaigns and get your hub link.
-          </p>
-          <a href="index.html?signin=1" class="ft-create-cta ft-create-cta--secondary"
-            >Sign in</a
-          >
-        </div>
+      <div class="content-shell ft-panel campaigns-dir-panel">
+        <p id="dir-empty" class="note note--tight" hidden>No active campaigns here yet.</p>
+        <ul class="campaign-list" id="dir-campaign-list"></ul>
       </div>
     </div>
 
@@ -123,6 +78,6 @@
     <script src="app.js"></script>
     <script src="nav-drawer.js"></script>
     <script src="nav-boot.js"></script>
-    <script src="app-main.js"></script>
+    <script src="campaigns-active.js"></script>
   </body>
 </html>

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>My campaigns — CrowdCare</title>
     <link rel="icon" href="assets/logo-mark.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=21" />
+    <link rel="stylesheet" href="styles.css?v=22" />
   </head>
   <body class="cc-motion-flow my-campaigns-page">
     <div class="layout-backdrop" aria-hidden="true"></div>
@@ -22,13 +22,44 @@
           />
           <span class="brand-text">CrowdCare</span>
         </a>
-        <div class="top-nav-links">
-          <a href="create.html">Create a campaign</a>
-          <a href="my-campaigns.html" aria-current="page">My campaigns</a>
-          <a href="profile.html" id="nav-profile" hidden>Profile</a>
-          <a href="index.html?signin=1" id="nav-signin">Sign in</a>
-        </div>
+        <button
+          type="button"
+          class="nav-menu-toggle"
+          id="nav-menu-toggle"
+          aria-expanded="false"
+          aria-controls="nav-drawer-panel"
+          aria-label="Open menu"
+        >
+          <span class="nav-menu-bars" aria-hidden="true"></span>
+        </button>
       </nav>
+
+      <div id="nav-drawer" class="nav-drawer" hidden>
+        <div class="nav-drawer-backdrop" id="nav-drawer-backdrop"></div>
+        <div
+          class="nav-drawer-panel content-shell"
+          id="nav-drawer-panel"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="nav-drawer-title"
+        >
+          <div class="nav-drawer-header">
+            <span id="nav-drawer-title" class="nav-drawer-title">Menu</span>
+            <button type="button" class="nav-drawer-close" id="nav-drawer-close" aria-label="Close menu">×</button>
+          </div>
+          <ul class="nav-drawer-list">
+            <li id="drawer-profile-wrap" hidden><a href="profile.html">Profile</a></li>
+            <li><a href="campaigns-active.html">Active campaigns</a></li>
+            <li><a href="campaigns-past.html">Past campaigns</a></li>
+            <li id="drawer-create-wrap" hidden><a href="create.html">Create a campaign</a></li>
+            <li id="drawer-mine-wrap" hidden><a href="my-campaigns.html">My campaigns</a></li>
+            <li><a href="index.html?signin=1" id="drawer-auth">Sign in</a></li>
+          </ul>
+          <p class="nav-drawer-note">
+            Campaign lists use data stored in <strong>this browser</strong>. With a server, you could show every creator on the site.
+          </p>
+        </div>
+      </div>
 
       <p class="back"><a href="app.html">← Home</a></p>
       <h1 class="site-title">My campaigns</h1>
@@ -45,6 +76,7 @@
     <script src="session.js"></script>
     <script src="campaigns.js"></script>
     <script src="app.js"></script>
+    <script src="nav-drawer.js"></script>
     <script src="nav-boot.js"></script>
     <script src="my-campaigns.js"></script>
   </body>

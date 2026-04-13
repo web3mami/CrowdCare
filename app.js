@@ -184,6 +184,27 @@
     });
   }
 
+  /** Goal reached or progress at 100% — “past” for directory views. */
+  function isCampaignPast(c) {
+    var f = getCampaignFunding(c);
+    if (!f.goal || !(f.goal > 0)) return false;
+    if (f.pct != null && f.pct >= 100) return true;
+    if (typeof c.raisedAmount === "number" && c.raisedAmount >= f.goal) return true;
+    return false;
+  }
+
+  function getActiveCampaignsDirectory() {
+    return getAllCampaigns().filter(function (c) {
+      return !isCampaignPast(c);
+    });
+  }
+
+  function getPastCampaignsDirectory() {
+    return getAllCampaigns().filter(function (c) {
+      return isCampaignPast(c);
+    });
+  }
+
   window.CROWDCARE_APP = {
     getAllCampaigns: getAllCampaigns,
     getCampaignsByCreatorSub: getCampaignsByCreatorSub,
@@ -195,5 +216,8 @@
     getCampaignFunding: getCampaignFunding,
     parseGoalFromLabel: parseGoalFromLabel,
     populateCampaignListEl: populateCampaignListEl,
+    isCampaignPast: isCampaignPast,
+    getActiveCampaignsDirectory: getActiveCampaignsDirectory,
+    getPastCampaignsDirectory: getPastCampaignsDirectory,
   };
 })();
