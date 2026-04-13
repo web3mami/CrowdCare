@@ -7,20 +7,54 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <nav class="top-nav">
+      <a class="brand" href="index.html">CrowdCare</a>
+      <div class="top-nav-links">
+        <a href="create.html">Start a campaign</a>
+        <a href="auth.html">Sign in</a>
+      </div>
+    </nav>
+
+    <div id="user-bar" class="user-bar" hidden></div>
+
     <h1 class="site-title">CrowdCare</h1>
-    <p class="lead">Support someone directly—send crypto to their wallet.</p>
-    <p class="actions"><a href="create.html">Start a campaign</a></p>
+    <p class="lead">
+      Crowdfunding on <strong>Solana</strong>—share your story and receive
+      SOL or SPL tokens (e.g. USDC) straight to your wallet.
+    </p>
+    <p class="actions">
+      <a href="create.html">Start a campaign</a>
+      ·
+      <a href="auth.html">Sign in with Google</a>
+    </p>
     <h2 class="section-heading">Campaigns</h2>
     <ul class="campaign-list" id="campaign-list"></ul>
     <p class="note">
-      Built-in campaigns come from <code>campaigns.js</code>. Campaigns you add
-      with “Start a campaign” are saved only in <strong>this browser</strong>
-      until you have a real backend.
+      Built-in rows come from <code>campaigns.js</code>. Rows you add from
+      “Start a campaign” are stored only in <strong>this browser</strong> until
+      there is a backend.
     </p>
+    <script src="session.js"></script>
     <script src="campaigns.js"></script>
     <script src="app.js"></script>
     <script>
       (function () {
+        var bar = document.getElementById("user-bar");
+        var u = window.CROWDCARE_SESSION.getUser();
+        if (u && u.publicKey) {
+          bar.hidden = false;
+          bar.innerHTML =
+            "Signed in as <strong>" +
+            (u.email || "Google user") +
+            '</strong>. Your demo Solana address: <span class="mono">' +
+            u.publicKey +
+            '</span> · <button type="button" class="linkish" id="sign-out">Sign out</button>';
+          document.getElementById("sign-out").addEventListener("click", function () {
+            window.CROWDCARE_SESSION.signOut();
+            window.location.reload();
+          });
+        }
+
         var list = document.getElementById("campaign-list");
         var campaigns = window.CROWDCARE_APP.getAllCampaigns();
         campaigns.forEach(function (c) {

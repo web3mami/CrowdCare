@@ -1,6 +1,6 @@
 /**
- * All campaigns in one place. Home page and campaign page read from here.
- * Later this can move to a database or API.
+ * Sample campaigns (Solana). Replace with API or DB later.
+ * Addresses are base58 Solana public keys (SPL / SOL).
  */
 window.CROWDCARE_CAMPAIGNS = [
   {
@@ -8,19 +8,19 @@ window.CROWDCARE_CAMPAIGNS = [
     title: "Help with medical bills after surgery",
     body: [
       "I'm recovering and can't work full-time for a few months. I'm raising funds to cover insurance gaps and prescriptions.",
-      "Any support helps—thank you for reading.",
+      "Any support helps—thank you for reading. Donations on Solana (SOL or USDC).",
     ],
-    goalLabel: "5,000 USDC",
-    wallet: "0x0000000000000000000000000000000000000000",
+    goalLabel: "5,000 USDC on Solana",
+    wallet: "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
   },
   {
     id: "rent-after-layoff",
     title: "Help with rent after job loss",
     body: [
       "I was laid off without warning and am two months behind on rent while I search for work.",
-      "I'm hoping to stay housed until my first paycheck at a new job.",
+      "I'm hoping to stay housed until my first paycheck at a new job. Solana network.",
     ],
-    goalLabel: "2,500 USDC",
-    wallet: "0x1111111111111111111111111111111111111111",
+    goalLabel: "2,500 USDC on Solana",
+    wallet: "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
   },
 ];

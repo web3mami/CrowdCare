@@ -7,12 +7,24 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <nav class="top-nav">
+      <a class="brand" href="index.html">CrowdCare</a>
+      <div class="top-nav-links">
+        <a href="auth.html">Sign in</a>
+      </div>
+    </nav>
+
     <p class="back"><a href="index.html">← All campaigns</a></p>
     <h1 class="site-title">Start a campaign</h1>
     <p class="lead">
-      This saves the campaign only in <strong>this browser</strong>. Other
-      people won’t see it on their phones or computers until you host real data
-      (for example a server and database).
+      Campaigns are funded on <strong>Solana</strong>. The address below must be
+      a valid Solana <strong>public key</strong> (base58), not an Ethereum
+      address.
+    </p>
+    <p class="lead">
+      Rows you save here are stored only in <strong>this browser</strong> until
+      you have a backend. Sign in with Google to pre-fill a <em>demo</em>
+      receive address.
     </p>
     <p id="form-error" class="form-error" hidden></p>
     <form id="campaign-form" novalidate>
@@ -49,20 +61,20 @@
           name="goal"
           type="text"
           required
-          placeholder="e.g. 3,000 USDC"
+          placeholder="e.g. 3,000 USDC on Solana"
         />
       </div>
       <div class="form-field">
-        <label for="wallet">Wallet address</label>
+        <label for="wallet">Solana wallet address</label>
         <input
           id="wallet"
           name="wallet"
           type="text"
           required
           autocomplete="off"
-          placeholder="0x…"
+          placeholder="Base58 public key"
         />
-        <p class="form-hint">Ethereum-style 0x + 40 hex characters.</p>
+        <p class="form-hint">Example format: 32–44 character base58 string.</p>
       </div>
       <div class="form-field">
         <label for="story">Story</label>
@@ -79,82 +91,93 @@
       Built-in IDs from <code>campaigns.js</code> cannot be reused (e.g.
       <code>medical-bills</code>).
     </p>
+    <script src="session.js"></script>
     <script src="campaigns.js"></script>
     <script src="app.js"></script>
-    <script>
-      (function () {
-        var form = document.getElementById("campaign-form");
-        var err = document.getElementById("form-error");
-        var app = window.CROWDCARE_APP;
+    <script type="module">
+      import { PublicKey } from "https://esm.sh/@solana/web3.js@1.95.8";
 
-        function showError(msg) {
-          err.textContent = msg;
-          err.hidden = !msg;
+      var form = document.getElementById("campaign-form");
+      var err = document.getElementById("form-error");
+      var app = window.CROWDCARE_APP;
+
+      function showError(msg) {
+        err.textContent = msg;
+        err.hidden = !msg;
+      }
+
+      function parseStory(text) {
+        return text
+          .split(/\r?\n/)
+          .map(function (line) {
+            return line.trim();
+          })
+          .filter(Boolean);
+      }
+
+      function isValidSolanaAddress(s) {
+        try {
+          new PublicKey(s.trim());
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+
+      var u = window.CROWDCARE_SESSION.getUser();
+      if (u && u.publicKey) {
+        document.getElementById("wallet").value = u.publicKey;
+      }
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        showError("");
+
+        var slug = document.getElementById("slug").value.trim().toLowerCase();
+        var title = document.getElementById("title").value.trim();
+        var goal = document.getElementById("goal").value.trim();
+        var wallet = document.getElementById("wallet").value.trim();
+        var body = parseStory(document.getElementById("story").value);
+
+        if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) {
+          showError(
+            "Campaign ID must use lowercase letters, numbers, and hyphens only."
+          );
+          return;
+        }
+        if (app.idTaken(slug)) {
+          showError(
+            "That ID is already used. Pick a different Campaign ID."
+          );
+          return;
+        }
+        if (!body.length) {
+          showError("Add at least one line to your story.");
+          return;
+        }
+        if (!isValidSolanaAddress(wallet)) {
+          showError(
+            "That doesn’t look like a valid Solana address (public key)."
+          );
+          return;
         }
 
-        function parseStory(text) {
-          return text
-            .split(/\r?\n/)
-            .map(function (line) {
-              return line.trim();
-            })
-            .filter(Boolean);
-        }
-
-        function looksLikeEthAddress(s) {
-          return /^0x[a-fA-F0-9]{40}$/.test(s.trim());
-        }
-
-        form.addEventListener("submit", function (e) {
-          e.preventDefault();
-          showError("");
-
-          var slug = document.getElementById("slug").value.trim().toLowerCase();
-          var title = document.getElementById("title").value.trim();
-          var goal = document.getElementById("goal").value.trim();
-          var wallet = document.getElementById("wallet").value.trim();
-          var body = parseStory(document.getElementById("story").value);
-
-          if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) {
-            showError(
-              "Campaign ID must use lowercase letters, numbers, and hyphens only."
-            );
-            return;
-          }
-          if (app.idTaken(slug)) {
-            showError(
-              "That ID is already used. Pick a different Campaign ID."
-            );
-            return;
-          }
-          if (!body.length) {
-            showError("Add at least one line to your story.");
-            return;
-          }
-          if (!looksLikeEthAddress(wallet)) {
-            showError(
-              "Wallet must look like 0x followed by 40 hexadecimal characters."
-            );
-            return;
-          }
-
-          var ok = app.addExtraCampaign({
-            id: slug,
-            title: title,
-            goalLabel: goal,
-            wallet: wallet,
-            body: body,
-          });
-
-          if (!ok) {
-            showError("Could not save. Try again.");
-            return;
-          }
-
-          window.location.href =
-            "campaign.html?id=" + encodeURIComponent(slug);
+        var ok = app.addExtraCampaign({
+          id: slug,
+          title: title,
+          goalLabel: goal,
+          wallet: wallet.trim(),
+          body: body,
         });
-      })();
+
+        if (!ok) {
+          showError("Could not save. Try again.");
+          return;
+        }
+
+        window.location.href =
+          "campaign.html?id=" + encodeURIComponent(slug);
+      });
     </script>
   </body>
 </html>

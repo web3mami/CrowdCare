@@ -7,21 +7,30 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <nav class="top-nav">
+      <a class="brand" href="index.html">CrowdCare</a>
+      <div class="top-nav-links">
+        <a href="create.html">Start a campaign</a>
+        <a href="auth.html">Sign in</a>
+      </div>
+    </nav>
+
     <p class="back"><a href="index.html">← All campaigns</a></p>
     <article id="campaign-article">
       <h1 id="campaign-title"></h1>
       <div id="campaign-story"></div>
       <p class="goal" id="campaign-goal"></p>
-      <p><strong>Send to this address:</strong></p>
+      <p><strong>Send on Solana to:</strong></p>
       <div class="address-row">
         <p class="address" id="wallet-address"></p>
-        <button type="button" id="copy-btn" aria-label="Copy wallet address">
+        <button type="button" id="copy-btn" aria-label="Copy Solana address">
           Copy address
         </button>
       </div>
       <p class="note" id="campaign-note">
-        Campaigns may come from <code>campaigns.js</code> or from this browser’s
-        saved list (Start a campaign).
+        Use a Solana wallet (Phantom, Solflare, etc.). Confirm the token mint
+        (e.g. USDC) and network (mainnet-beta vs devnet) before sending real
+        funds.
       </p>
     </article>
     <script src="campaigns.js"></script>
