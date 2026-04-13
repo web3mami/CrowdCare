@@ -1,8 +1,10 @@
 /**
  * Home page only: gate (sign-in first) or main app.
- * Single module file so opening index.html over file:// still works in many browsers.
+ * No top-level import from CDNs: if that request fails (CSP, network), the whole
+ * module used to abort and the Google button never rendered. Web3 loads only
+ * after the user completes Google sign-in.
  */
-import { Keypair } from "https://esm.sh/@solana/web3.js@1.95.8";
+var WEB3_ESM = "https://esm.sh/@solana/web3.js@1.95.8";
 
 function decodeJwtPayload(jwt) {
   var part = jwt.split(".")[1];
@@ -12,6 +14,7 @@ function decodeJwtPayload(jwt) {
 }
 
 async function deriveDemoKeypair(googleSub) {
+  var { Keypair } = await import(WEB3_ESM);
   var enc = new TextEncoder().encode("crowdcare-demo-v1|" + googleSub);
   var hash = await crypto.subtle.digest("SHA-256", enc);
   var seed = new Uint8Array(hash);

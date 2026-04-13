@@ -4,6 +4,7 @@
  *
  * Authorized JavaScript origins (examples):
  *   https://web3mami.github.io
+ *   https://your-project.vercel.app
  *   http://localhost:8080
  *
  * No client secret is used in the browser (GIS only needs the client ID).
