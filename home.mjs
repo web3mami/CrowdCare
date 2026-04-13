@@ -191,7 +191,7 @@ if (user || browse) {
       window.setTimeout(function () {
         welcome.hidden = true;
         welcome.classList.remove("gate-welcome--exit");
-      }, 460);
+      }, 340);
     }
     if (auth) {
       auth.hidden = false;
