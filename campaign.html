@@ -8,33 +8,59 @@
   </head>
   <body>
     <p class="back"><a href="index.html">← All campaigns</a></p>
-    <article>
-      <h1>Help with medical bills after surgery</h1>
-      <p>
-        I’m recovering and can’t work full-time for a few months. I’m raising
-        funds to cover insurance gaps and prescriptions. Any support helps—thank
-        you for reading.
-      </p>
-      <p class="goal"><strong>Goal:</strong> 5,000 USDC</p>
+    <article id="campaign-article">
+      <h1 id="campaign-title"></h1>
+      <div id="campaign-story"></div>
+      <p class="goal" id="campaign-goal"></p>
       <p><strong>Send to this address:</strong></p>
       <div class="address-row">
-        <p class="address" id="wallet-address">
-          0x0000000000000000000000000000000000000000
-        </p>
+        <p class="address" id="wallet-address"></p>
         <button type="button" id="copy-btn" aria-label="Copy wallet address">
           Copy address
         </button>
       </div>
-      <p class="note">
-        Placeholder: replace the story, goal, and address. For local preview,
-        open <code>index.html</code> or this file from the same folder.
+      <p class="note" id="campaign-note">
+        Campaign data comes from <code>campaigns.js</code>.
       </p>
     </article>
+    <script src="campaigns.js"></script>
     <script>
       (function () {
+        var campaigns = window.CROWDCARE_CAMPAIGNS || [];
+        var params = new URLSearchParams(window.location.search);
+        var id = params.get("id");
+        var c = null;
+        for (var i = 0; i < campaigns.length; i++) {
+          if (campaigns[i].id === id) {
+            c = campaigns[i];
+            break;
+          }
+        }
+        if (id && !c) {
+          document.body.innerHTML =
+            '<div style="max-width:40rem;margin:2rem auto;padding:0 1.5rem;font-family:system-ui,sans-serif">' +
+            "<p>Campaign not found.</p>" +
+            '<p><a href="index.html">← All campaigns</a></p></div>';
+          return;
+        }
+        if (!c) c = campaigns[0];
+        if (!c) return;
+
+        document.title = c.title + " — CrowdCare";
+        document.getElementById("campaign-title").textContent = c.title;
+        var story = document.getElementById("campaign-story");
+        story.innerHTML = "";
+        c.body.forEach(function (text) {
+          var p = document.createElement("p");
+          p.textContent = text;
+          story.appendChild(p);
+        });
+        document.getElementById("campaign-goal").innerHTML =
+          "<strong>Goal:</strong> " + c.goalLabel;
+        document.getElementById("wallet-address").textContent = c.wallet;
+
         var addr = document.getElementById("wallet-address");
         var btn = document.getElementById("copy-btn");
-        if (!addr || !btn) return;
         var label = btn.textContent;
         btn.addEventListener("click", function () {
           var text = addr.textContent.trim();

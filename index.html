@@ -10,16 +10,32 @@
     <h1 class="site-title">CrowdCare</h1>
     <p class="lead">Support someone directly—send crypto to their wallet.</p>
     <h2 class="section-heading">Campaigns</h2>
-    <ul class="campaign-list">
-      <li>
-        <a href="campaign.html">
-          <p class="card-title">Help with medical bills after surgery</p>
-          <p class="meta">Goal: 5,000 USDC</p>
-        </a>
-      </li>
-    </ul>
+    <ul class="campaign-list" id="campaign-list"></ul>
     <p class="note">
-      Placeholder list: later, each row can link to its own campaign page.
+      Campaigns are loaded from <code>campaigns.js</code>. Edit that file to add
+      or change listings.
     </p>
+    <script src="campaigns.js"></script>
+    <script>
+      (function () {
+        var list = document.getElementById("campaign-list");
+        var campaigns = window.CROWDCARE_CAMPAIGNS || [];
+        campaigns.forEach(function (c) {
+          var li = document.createElement("li");
+          var a = document.createElement("a");
+          a.href = "campaign.html?id=" + encodeURIComponent(c.id);
+          var title = document.createElement("p");
+          title.className = "card-title";
+          title.textContent = c.title;
+          var meta = document.createElement("p");
+          meta.className = "meta";
+          meta.textContent = "Goal: " + c.goalLabel;
+          a.appendChild(title);
+          a.appendChild(meta);
+          li.appendChild(a);
+          list.appendChild(li);
+        });
+      })();
+    </script>
   </body>
 </html>
