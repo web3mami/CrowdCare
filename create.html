@@ -34,7 +34,8 @@
     <p class="lead">
       Donors will open a public page with your story, funding progress, and wallet
       address. Choose whether you want to receive <strong>USDC</strong> or
-      <strong>SOL</strong>, then describe what the money is for.
+      <strong>SOL</strong>, then describe what the money is for. When you save, we
+      create a <strong>unique campaign link</strong> automatically—you don’t set it here.
     </p>
     <p class="lead note-create-local">
       Saved only in <strong>this browser</strong> until you add a backend.
@@ -114,30 +115,18 @@
         />
       </div>
 
-      <div class="form-field">
-        <label for="slug">Campaign link ID</label>
-        <input
-          id="slug"
-          name="slug"
-          type="text"
-          required
-          autocomplete="off"
-          placeholder="e.g. help-with-rent"
-          pattern="[a-z0-9]+(-[a-z0-9]+)*"
-        />
-        <p class="form-hint">
-          Used in your campaign URL: <code>campaign.html?id=…</code>. Lowercase letters, numbers, hyphens only.
-        </p>
-      </div>
-
       <fieldset class="form-fieldset">
-        <legend class="form-legend">Transparency — fund allocation (%)</legend>
+        <legend class="form-legend">Transparency — how you tell donors funds break down</legend>
         <p class="form-hint form-hint--fieldset">
-          Must total <strong>100%</strong>. Shown on the campaign page.
+          This is <strong>informational</strong> for people reading your page: you describe what share of support you
+          intend to go to the campaign wallet (the cause) versus anything else you want to call out—like estimated
+          fees, currency conversion, or a small operational slice. It is <strong>not</strong> enforced on-chain in this
+          version; donors still send to one address, and you stay accountable to what you publish here.
+          Percentages must total <strong>100%</strong> and appear in the transparency block on your public page.
         </p>
         <div class="form-field form-field-row">
           <div>
-            <label for="trans-ben">Primary (beneficiary / wallet)</label>
+            <label for="trans-ben">Primary — intended for the cause (this wallet)</label>
             <input
               id="trans-ben"
               name="trans-ben"
@@ -149,7 +138,7 @@
             />
           </div>
           <div>
-            <label for="trans-oth">Other</label>
+            <label for="trans-oth">Other — label below (fees, reserves, etc.)</label>
             <input
               id="trans-oth"
               name="trans-oth"
@@ -162,7 +151,7 @@
           </div>
         </div>
         <div class="form-field">
-          <label for="trans-other-label">Label for “other”</label>
+          <label for="trans-other-label">What “other” means (shown to donors)</label>
           <input
             id="trans-other-label"
             name="trans-other-label"
@@ -172,12 +161,12 @@
           />
         </div>
         <div class="form-field">
-          <label for="trans-note">Transparency note (optional)</label>
+          <label for="trans-note">Extra note for donors (optional)</label>
           <textarea
             id="trans-note"
             name="trans-note"
             maxlength="800"
-            placeholder="Who controls the wallet, caveats, etc."
+            placeholder="e.g. who controls the wallet, how you’ll update the page, or limits of this demo."
           ></textarea>
         </div>
       </fieldset>
@@ -230,6 +219,33 @@
           .filter(Boolean);
       }
 
+      function slugifyTitle(title) {
+        var s = String(title || "")
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+        if (s.length > 36) s = s.slice(0, 36).replace(/-+$/g, "");
+        return s || "campaign";
+      }
+
+      function randomSlugSuffix() {
+        return Math.random().toString(36).slice(2, 8);
+      }
+
+      function makeUniqueCampaignId(title) {
+        var base = slugifyTitle(title);
+        var slug = base;
+        var n = 0;
+        while (app.idTaken(slug) && n < 40) {
+          slug = base + "-" + randomSlugSuffix();
+          n++;
+        }
+        if (app.idTaken(slug)) {
+          slug = "campaign-" + Date.now().toString(36) + "-" + randomSlugSuffix();
+        }
+        return slug;
+      }
+
       function isValidSolanaAddress(s) {
         try {
           new PublicKey(s.trim());
@@ -245,8 +261,8 @@
         e.preventDefault();
         showError("");
 
-        var slug = document.getElementById("slug").value.trim().toLowerCase();
         var title = document.getElementById("title").value.trim();
+        var slug = makeUniqueCampaignId(title);
         var curEl = document.querySelector('input[name="goal-currency"]:checked');
         var currency = (curEl && curEl.value) || "USDC";
         var goalAmt = parseFloat(document.getElementById("goal-amount").value, 10);
@@ -261,16 +277,6 @@
         var wallet = document.getElementById("wallet").value.trim();
         var body = parseStory(document.getElementById("story").value);
 
-        if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) {
-          showError(
-            "Campaign link ID must use lowercase letters, numbers, and hyphens only."
-          );
-          return;
-        }
-        if (app.idTaken(slug)) {
-          showError("That link ID is already used. Pick a different one.");
-          return;
-        }
         if (!body.length) {
           showError("Describe what the money will be used for.");
           return;
