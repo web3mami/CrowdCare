@@ -31,6 +31,8 @@ function show(el, hidden) {
   el.hidden = hidden;
 }
 
+var crowdcareGsiInitialized = false;
+
 async function completeGoogleSignIn(response, errEl, onSuccess) {
   show(errEl, true);
   try {
@@ -96,14 +98,17 @@ function initGoogleAuth(opts) {
     return;
   }
 
-  google.accounts.id.initialize({
-    client_id: window.CROWDCARE_CONFIG.googleClientId,
-    callback: function (response) {
-      completeGoogleSignIn(response, errEl, onSignedIn);
-    },
-    auto_select: false,
-    cancel_on_tap_outside: true,
-  });
+  if (!crowdcareGsiInitialized) {
+    google.accounts.id.initialize({
+      client_id: window.CROWDCARE_CONFIG.googleClientId,
+      callback: function (response) {
+        completeGoogleSignIn(response, errEl, onSignedIn);
+      },
+      auto_select: false,
+      cancel_on_tap_outside: true,
+    });
+    crowdcareGsiInitialized = true;
+  }
 
   var el = document.getElementById(buttonMountId);
   if (el) {
@@ -186,8 +191,24 @@ if (user || browse) {
     );
   }
 
+  function dismissGsiOneTap() {
+    try {
+      if (
+        window.google &&
+        window.google.accounts &&
+        window.google.accounts.id &&
+        typeof window.google.accounts.id.cancel === "function"
+      ) {
+        window.google.accounts.id.cancel();
+      }
+    } catch (e) {
+      /* ignore */
+    }
+  }
+
   function closeAuthModal() {
     sessionStorage.removeItem(GATE_START_KEY);
+    dismissGsiOneTap();
     if (auth) {
       auth.hidden = true;
       auth.classList.remove("gate-auth--in");
@@ -205,7 +226,6 @@ if (user || browse) {
   }
 
   function revealAuth() {
-    sessionStorage.setItem(GATE_START_KEY, "1");
     if (welcome) {
       welcome.classList.add("gate-welcome--exit");
       window.setTimeout(function () {
@@ -226,18 +246,13 @@ if (user || browse) {
   }
 
   if (welcome && auth && startBtn) {
-    if (sessionStorage.getItem(GATE_START_KEY) === "1") {
-      welcome.hidden = true;
-      auth.hidden = false;
-      if (document.readyState === "complete") mountGoogleButton();
-      else window.addEventListener("load", mountGoogleButton);
-      requestAnimationFrame(function () {
-        requestAnimationFrame(playAuthEntrance);
-      });
-    } else {
-      startBtn.addEventListener("click", revealAuth);
-    }
+    startBtn.addEventListener("click", revealAuth);
   }
+
+  /* No sessionStorage auto-open: Google is only initialized after “Start CrowdCare”. */
+  dismissGsiOneTap();
+  window.setTimeout(dismissGsiOneTap, 400);
+  window.setTimeout(dismissGsiOneTap, 1200);
 
   var authClose = document.getElementById("gate-auth-close");
   if (authClose) {
