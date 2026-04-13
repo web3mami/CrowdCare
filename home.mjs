@@ -219,7 +219,20 @@ if (user || browse) {
     }
     var m = document.getElementById("g_id_signin_gate");
     if (m) m.innerHTML = "";
-    if (welcome) welcome.hidden = false;
+    if (welcome) {
+      welcome.hidden = false;
+      welcome.classList.remove("gate-welcome--exit");
+      welcome.classList.add("gate-welcome--pop-in");
+      welcome.addEventListener(
+        "animationend",
+        function onPopEnd(ev) {
+          if (ev.animationName !== "cc-welcome-pop-in") return;
+          welcome.removeEventListener("animationend", onPopEnd);
+          welcome.classList.remove("gate-welcome--pop-in");
+        },
+        false
+      );
+    }
   }
 
   function playAuthEntrance() {
@@ -231,11 +244,12 @@ if (user || browse) {
 
   function revealAuth() {
     if (welcome) {
+      welcome.classList.remove("gate-welcome--pop-in");
       welcome.classList.add("gate-welcome--exit");
       window.setTimeout(function () {
         welcome.hidden = true;
         welcome.classList.remove("gate-welcome--exit");
-      }, 340);
+      }, 580);
     }
     if (auth) {
       auth.hidden = false;
@@ -245,7 +259,7 @@ if (user || browse) {
         requestAnimationFrame(function () {
           requestAnimationFrame(playAuthEntrance);
         });
-      }, 120);
+      }, 200);
     }
   }
 

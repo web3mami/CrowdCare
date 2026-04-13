@@ -27,14 +27,18 @@
   --danger: #e07070;
   --success: #6ebf7a;
 
-  /* Motion — short, predictable curves (fintech / product, not trailer) */
+  /* Motion — product defaults + optional cinematic (gate / app home) */
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-cinematic-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-cinematic-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --dur-cinema: 0.85s;
+  --dur-cinema-long: 1.05s;
   /* aliases for older class names */
-  --ease-cinematic: var(--ease-standard);
+  --ease-cinematic: var(--ease-cinematic-out);
   --ease-out-soft: var(--ease-out);
-  --ease-in-cine: var(--ease-in);
+  --ease-in-cine: var(--ease-cinematic-in);
 
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   line-height: 1.5;
@@ -123,6 +127,130 @@ body {
   }
 }
 
+@keyframes cc-page-enter-cinema {
+  from {
+    opacity: 0;
+    transform: translateY(1.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cc-rise-cinema {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 1.75rem, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes cc-logo-reveal-cinema {
+  from {
+    opacity: 0;
+    transform: scale(0.85) translate3d(0, 1.25rem, 0) rotate(-5deg);
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translate3d(0, 0, 0) rotate(0deg);
+    filter: drop-shadow(0 0 22px rgba(212, 180, 92, 0.38));
+  }
+}
+
+@keyframes cc-welcome-exit-cinema {
+  to {
+    opacity: 0;
+    transform: translate3d(0, -2.5rem, 0) scale(0.96);
+    filter: blur(5px);
+  }
+}
+
+@keyframes cc-welcome-pop-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 1.5rem, 0) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes cc-overlay-in-cinema {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes cc-modal-in-cinema {
+  from {
+    opacity: 0;
+    transform: scale(0.88) translate3d(0, 2.5rem, 0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+}
+
+@keyframes cc-auth-piece-cinema {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 1.25rem, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes cc-backdrop-mark-breathe {
+  0%,
+  100% {
+    opacity: 0.034;
+    transform: translate(-50%, -50%) rotate(-8deg) scale(1);
+  }
+  50% {
+    opacity: 0.056;
+    transform: translate(-50%, -48%) rotate(-6deg) scale(1.045);
+  }
+}
+
+@keyframes cc-nav-descend {
+  from {
+    opacity: 0;
+    transform: translateY(-1.125rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cc-hero-cta-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.35),
+      0 0 0 1px rgba(212, 180, 92, 0.25),
+      0 0 28px rgba(212, 180, 92, 0.12);
+  }
+  50% {
+    box-shadow:
+      0 10px 36px rgba(0, 0, 0, 0.38),
+      0 0 0 1px rgba(212, 180, 92, 0.35),
+      0 0 40px rgba(212, 180, 92, 0.2);
+  }
+}
+
 /* Fixed full-viewport layer: background + future logo/watermarks */
 .layout-backdrop {
   position: fixed;
@@ -182,6 +310,10 @@ body {
   }
 }
 
+body.cc-motion-flow .layout-backdrop::after {
+  animation: cc-backdrop-mark-breathe 14s ease-in-out infinite;
+}
+
 .layout-content {
   position: relative;
   z-index: 1;
@@ -211,6 +343,37 @@ body {
 
 .layout-content .campaign-list a:hover {
   color: inherit;
+}
+
+/* —— Cinematic motion: gate + app home only (body.cc-motion-flow) —— */
+body.cc-motion-flow .layout-content {
+  animation: cc-page-enter-cinema var(--dur-cinema-long) var(--ease-cinematic-out) both;
+}
+
+body.cc-motion-flow .top-nav {
+  animation: cc-nav-descend 0.75s var(--ease-cinematic-out) 0.12s both;
+}
+
+body.cc-motion-flow .top-nav-links a {
+  transition:
+    color 0.35s var(--ease-standard),
+    transform 0.45s var(--ease-cinematic-out),
+    letter-spacing 0.45s var(--ease-cinematic-out);
+}
+
+body.cc-motion-flow .top-nav-links a:hover {
+  transform: translateY(-2px);
+  letter-spacing: 0.02em;
+}
+
+body.cc-motion-flow .brand {
+  transition:
+    transform 0.5s var(--ease-cinematic-out),
+    filter 0.5s var(--ease-standard);
+}
+
+body.cc-motion-flow .brand:hover {
+  transform: translateY(-1px) scale(1.02);
 }
 
 h1 {
@@ -247,10 +410,22 @@ h1 {
   pointer-events: none;
 }
 
+body.cc-motion-flow .gate-welcome.gate-welcome--exit {
+  animation: cc-welcome-exit-cinema 0.58s var(--ease-cinematic-in) forwards;
+}
+
+.gate-welcome.gate-welcome--pop-in {
+  animation: cc-welcome-pop-in 0.75s var(--ease-cinematic-out) both;
+}
+
 .gate-welcome-logo {
   display: block;
   filter: drop-shadow(0 0 12px rgba(212, 180, 92, 0.2));
   animation: cc-logo-reveal 0.65s var(--ease-standard) both;
+}
+
+body.cc-motion-flow .gate-welcome-logo {
+  animation: cc-logo-reveal-cinema var(--dur-cinema-long) var(--ease-cinematic-out) both;
 }
 
 .gate-welcome-name {
@@ -263,12 +438,20 @@ h1 {
   animation: cc-rise 0.55s var(--ease-standard) 0.06s both;
 }
 
+body.cc-motion-flow .gate-welcome-name {
+  animation: cc-rise-cinema 0.95s var(--ease-cinematic-out) 0.12s both;
+}
+
 .gate-welcome-tagline {
   color: var(--text-muted);
   margin: 0 0 1.85rem;
   font-size: 1.0625rem;
   max-width: 28ch;
   animation: cc-rise 0.55s var(--ease-standard) 0.12s both;
+}
+
+body.cc-motion-flow .gate-welcome-tagline {
+  animation: cc-rise-cinema 0.95s var(--ease-cinematic-out) 0.22s both;
 }
 
 .gate-welcome-tagline strong {
@@ -288,18 +471,43 @@ h1 {
     filter 0.2s var(--ease-standard);
 }
 
+body.cc-motion-flow .gate-start-btn {
+  animation: cc-rise-cinema 0.9s var(--ease-cinematic-out) 0.32s both;
+  transition:
+    transform 0.45s var(--ease-cinematic-out),
+    box-shadow 0.45s var(--ease-cinematic-out),
+    filter 0.35s var(--ease-standard);
+}
+
 .gate-start-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+
+body.cc-motion-flow .gate-start-btn:hover {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow:
+    0 14px 40px rgba(0, 0, 0, 0.45),
+    0 0 32px rgba(212, 180, 92, 0.22);
+  filter: brightness(1.08);
 }
 
 .gate-start-btn:active {
   transform: translateY(0);
 }
 
+body.cc-motion-flow .gate-start-btn:active {
+  transform: translateY(-1px) scale(0.99);
+  transition-duration: 0.12s;
+}
+
 .gate-welcome-skip {
   margin: 1.5rem 0 0;
   animation: cc-rise 0.45s var(--ease-standard) 0.24s both;
+}
+
+body.cc-motion-flow .gate-welcome-skip {
+  animation: cc-rise-cinema 0.85s var(--ease-cinematic-out) 0.42s both;
 }
 
 /* Centered “Connect Google” modal over dimmed backdrop */
@@ -416,6 +624,59 @@ h1 {
 
 #gate-auth.gate-auth--in .gate-skip-wrap {
   animation: cc-auth-panel 0.4s var(--ease-standard) 0.16s both;
+}
+
+body.cc-motion-flow #gate-auth:not([hidden]) {
+  animation: cc-overlay-in-cinema 0.52s var(--ease-cinematic-out) both;
+}
+
+body.cc-motion-flow #gate-auth.gate-auth--in .gate-auth-modal {
+  animation: cc-modal-in-cinema 0.75s var(--ease-cinematic-out) 0.05s both;
+  box-shadow:
+    0 28px 80px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(212, 180, 92, 0.12);
+}
+
+body.cc-motion-flow #gate-auth.gate-auth--in .gate-connect-title {
+  animation: cc-auth-piece-cinema 0.72s var(--ease-cinematic-out) 0.1s both;
+}
+
+body.cc-motion-flow #gate-auth.gate-auth--in .gate-connect-lead {
+  animation: cc-auth-piece-cinema 0.72s var(--ease-cinematic-out) 0.16s both;
+}
+
+body.cc-motion-flow #gate-auth.gate-auth--in .gate-modal-banner {
+  animation: cc-auth-piece-cinema 0.72s var(--ease-cinematic-out) 0.2s both;
+}
+
+body.cc-motion-flow #gate-auth.gate-auth--in .gate-modal-banner ~ .gate-modal-banner {
+  animation-delay: 0.28s;
+}
+
+body.cc-motion-flow #gate-auth.gate-auth--in #gate-auth-error:not([hidden]) {
+  animation: cc-auth-piece-cinema 0.65s var(--ease-cinematic-out) 0.22s both;
+}
+
+body.cc-motion-flow #gate-auth.gate-auth--in .gate-connect-label {
+  animation: cc-auth-piece-cinema 0.72s var(--ease-cinematic-out) 0.26s both;
+}
+
+body.cc-motion-flow #gate-auth.gate-auth--in .gate-google-row--modal {
+  animation: cc-auth-piece-cinema 0.72s var(--ease-cinematic-out) 0.32s both;
+}
+
+body.cc-motion-flow #gate-auth.gate-auth--in .gate-skip-wrap {
+  animation: cc-auth-piece-cinema 0.72s var(--ease-cinematic-out) 0.38s both;
+}
+
+body.cc-motion-flow .gate-auth-back {
+  transition:
+    color 0.3s var(--ease-standard),
+    transform 0.45s var(--ease-cinematic-out);
+}
+
+body.cc-motion-flow .gate-auth-back:hover {
+  transform: translateX(-3px);
 }
 
 @keyframes cc-modal-in {
@@ -946,6 +1207,19 @@ h1.site-title:not(.gate-title) {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
 }
 
+body.cc-motion-flow .campaign-list a {
+  transition:
+    border-color 0.4s var(--ease-cinematic-out),
+    background 0.4s var(--ease-cinematic-out),
+    transform 0.5s var(--ease-cinematic-out),
+    box-shadow 0.5s var(--ease-cinematic-out);
+}
+
+body.cc-motion-flow .campaign-list a:hover {
+  transform: translateY(-6px) scale(1.012);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.34);
+}
+
 .campaign-list .card-title {
   font-weight: 600;
   margin: 0;
@@ -1350,6 +1624,82 @@ button.secondary-btn:hover {
   color: var(--accent-link-hover);
 }
 
+body.cc-motion-flow .ft-create-cta {
+  transition:
+    transform 0.5s var(--ease-cinematic-out),
+    box-shadow 0.5s var(--ease-cinematic-out),
+    filter 0.35s var(--ease-standard);
+}
+
+body.cc-motion-flow .ft-create-cta:hover {
+  transform: translateY(-6px) scale(1.035);
+}
+
+body.cc-motion-flow .ft-create-cta:active {
+  transform: translateY(-2px) scale(1.01);
+  transition-duration: 0.12s;
+}
+
+body.cc-motion-flow .ft-create-cta--secondary:hover {
+  transform: translateY(-4px) scale(1.02);
+}
+
+body.cc-motion-flow #signed-in-home:not([hidden]) .signed-in-hero-mark {
+  animation: cc-logo-reveal-cinema var(--dur-cinema-long) var(--ease-cinematic-out) both;
+}
+
+body.cc-motion-flow #signed-in-home:not([hidden]) .signed-in-hero-title {
+  animation: cc-rise-cinema 0.95s var(--ease-cinematic-out) 0.14s both;
+}
+
+body.cc-motion-flow #signed-in-home:not([hidden]) .signed-in-hero-lead {
+  animation: cc-rise-cinema 0.95s var(--ease-cinematic-out) 0.26s both;
+}
+
+body.cc-motion-flow #signed-in-home:not([hidden]) .ft-create-cta {
+  animation:
+    cc-rise-cinema 0.9s var(--ease-cinematic-out) 0.38s both,
+    cc-hero-cta-pulse 5s ease-in-out 1s infinite;
+}
+
+body.cc-motion-flow #signed-in-home:not([hidden]) .signed-in-hero-sub {
+  animation: cc-rise-cinema 0.88s var(--ease-cinematic-out) 0.48s both;
+}
+
+body.cc-motion-flow #browse-home:not([hidden]) .browse-hero .signed-in-hero-title {
+  animation: cc-rise-cinema 0.95s var(--ease-cinematic-out) 0.1s both;
+}
+
+body.cc-motion-flow #browse-home:not([hidden]) .browse-hero .signed-in-hero-lead {
+  animation: cc-rise-cinema 0.95s var(--ease-cinematic-out) 0.22s both;
+}
+
+body.cc-motion-flow #browse-home:not([hidden]) .browse-hero .ft-create-cta {
+  animation: cc-rise-cinema 0.9s var(--ease-cinematic-out) 0.34s both;
+}
+
+body.cc-motion-flow #hub-view:not([hidden]) .back {
+  animation: cc-rise-cinema 0.65s var(--ease-cinematic-out) both;
+}
+
+body.cc-motion-flow #hub-view:not([hidden]) .hub-panel {
+  animation: cc-modal-in-cinema 0.78s var(--ease-cinematic-out) 0.08s both;
+}
+
+body.cc-motion-flow #your-campaigns-section:not([hidden]) {
+  animation: cc-rise-cinema 0.75s var(--ease-cinematic-out) 0.2s both;
+}
+
+body.cc-motion-flow .bare {
+  transition:
+    color 0.35s var(--ease-standard),
+    transform 0.45s var(--ease-cinematic-out);
+}
+
+body.cc-motion-flow .bare:hover {
+  transform: translateY(-2px);
+}
+
 .signed-in-hero-sub {
   margin: 1.35rem 0 0;
   font-size: 0.875rem;
@@ -1529,6 +1879,10 @@ button.secondary-btn:hover {
     animation: none !important;
   }
 
+  body.cc-motion-flow .layout-backdrop::after {
+    animation: none !important;
+  }
+
   *,
   *::before,
   *::after {
@@ -1537,9 +1891,27 @@ button.secondary-btn:hover {
     transition-duration: 0.001ms !important;
   }
 
+  body.cc-motion-flow .gate-welcome.gate-welcome--exit {
+    filter: none !important;
+  }
+
   .gate-start-btn:hover,
   .campaign-list a:hover {
     transform: none;
+  }
+
+  body.cc-motion-flow .campaign-list a:hover {
+    transform: none;
+  }
+
+  body.cc-motion-flow .gate-start-btn:hover,
+  body.cc-motion-flow .ft-create-cta:hover,
+  body.cc-motion-flow .top-nav-links a:hover,
+  body.cc-motion-flow .brand:hover,
+  body.cc-motion-flow .bare:hover,
+  body.cc-motion-flow .gate-auth-back:hover {
+    transform: none;
+    letter-spacing: normal;
   }
 
   .gate-auth-overlay {
