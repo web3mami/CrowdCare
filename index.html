@@ -3,115 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Campaign — CrowdCare</title>
-    <style>
-      :root {
-        font-family: system-ui, sans-serif;
-        line-height: 1.5;
-        color: #1a1a1a;
-        background: #f6f6f4;
-      }
-      body {
-        max-width: 40rem;
-        margin: 0 auto;
-        padding: 1.5rem;
-      }
-      h1 {
-        font-size: 1.75rem;
-        line-height: 1.2;
-      }
-      .goal {
-        font-size: 1.125rem;
-        margin: 1rem 0;
-      }
-      .address {
-        word-break: break-all;
-        background: #fff;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        padding: 0.75rem 1rem;
-        font-family: ui-monospace, monospace;
-        font-size: 0.9rem;
-      }
-      .note {
-        font-size: 0.875rem;
-        color: #555;
-        margin-top: 2rem;
-      }
-      .address-row {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 0.5rem;
-      }
-      .address-row .address {
-        flex: 1 1 12rem;
-        margin: 0;
-      }
-      button {
-        font: inherit;
-        cursor: pointer;
-        border: 1px solid #333;
-        background: #1a1a1a;
-        color: #fff;
-        border-radius: 8px;
-        padding: 0.5rem 0.75rem;
-      }
-      button:hover {
-        background: #333;
-      }
-      button:focus-visible {
-        outline: 2px solid #06c;
-        outline-offset: 2px;
-      }
-    </style>
+    <title>CrowdCare</title>
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <article>
-      <h1>Help with medical bills after surgery</h1>
-      <p>
-        I’m recovering and can’t work full-time for a few months. I’m raising
-        funds to cover insurance gaps and prescriptions. Any support helps—thank
-        you for reading.
-      </p>
-      <p class="goal"><strong>Goal:</strong> 5,000 USDC</p>
-      <p><strong>Send to this address:</strong></p>
-      <div class="address-row">
-        <p class="address" id="wallet-address">
-          0x0000000000000000000000000000000000000000
-        </p>
-        <button type="button" id="copy-btn" aria-label="Copy wallet address">
-          Copy address
-        </button>
-      </div>
-      <p class="note">
-        Placeholder: replace the story, goal, and address. Open this file in
-        your browser to preview (double-click or drag into the browser).
-      </p>
-    </article>
-    <script>
-      (function () {
-        var addr = document.getElementById("wallet-address");
-        var btn = document.getElementById("copy-btn");
-        if (!addr || !btn) return;
-        var label = btn.textContent;
-        btn.addEventListener("click", function () {
-          var text = addr.textContent.trim();
-          function done() {
-            btn.textContent = "Copied!";
-            setTimeout(function () {
-              btn.textContent = label;
-            }, 2000);
-          }
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(text).then(done).catch(function () {
-              window.prompt("Copy this address:", text);
-            });
-          } else {
-            window.prompt("Copy this address:", text);
-          }
-        });
-      })();
-    </script>
+    <h1 class="site-title">CrowdCare</h1>
+    <p class="lead">Support someone directly—send crypto to their wallet.</p>
+    <h2 class="section-heading">Campaigns</h2>
+    <ul class="campaign-list">
+      <li>
+        <a href="campaign.html">
+          <p class="card-title">Help with medical bills after surgery</p>
+          <p class="meta">Goal: 5,000 USDC</p>
+        </a>
+      </li>
+    </ul>
+    <p class="note">
+      Placeholder list: later, each row can link to its own campaign page.
+    </p>
   </body>
 </html>

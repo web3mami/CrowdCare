@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Campaign — CrowdCare</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <p class="back"><a href="index.html">← All campaigns</a></p>
+    <article>
+      <h1>Help with medical bills after surgery</h1>
+      <p>
+        I’m recovering and can’t work full-time for a few months. I’m raising
+        funds to cover insurance gaps and prescriptions. Any support helps—thank
+        you for reading.
+      </p>
+      <p class="goal"><strong>Goal:</strong> 5,000 USDC</p>
+      <p><strong>Send to this address:</strong></p>
+      <div class="address-row">
+        <p class="address" id="wallet-address">
+          0x0000000000000000000000000000000000000000
+        </p>
+        <button type="button" id="copy-btn" aria-label="Copy wallet address">
+          Copy address
+        </button>
+      </div>
+      <p class="note">
+        Placeholder: replace the story, goal, and address. For local preview,
+        open <code>index.html</code> or this file from the same folder.
+      </p>
+    </article>
+    <script>
+      (function () {
+        var addr = document.getElementById("wallet-address");
+        var btn = document.getElementById("copy-btn");
+        if (!addr || !btn) return;
+        var label = btn.textContent;
+        btn.addEventListener("click", function () {
+          var text = addr.textContent.trim();
+          function done() {
+            btn.textContent = "Copied!";
+            setTimeout(function () {
+              btn.textContent = label;
+            }, 2000);
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(done).catch(function () {
+              window.prompt("Copy this address:", text);
+            });
+          } else {
+            window.prompt("Copy this address:", text);
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>
