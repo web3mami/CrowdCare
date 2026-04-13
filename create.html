@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Start a campaign — CrowdCare</title>
     <link rel="icon" href="assets/logo-mark.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=13" />
+    <link rel="stylesheet" href="styles.css?v=14" />
   </head>
   <body>
     <div class="layout-backdrop" aria-hidden="true"></div>
@@ -32,14 +32,13 @@
     <p class="back"><a href="app.html">← All campaigns</a></p>
     <h1 class="site-title">Start a campaign</h1>
     <p class="lead">
-      Campaigns are funded on <strong>Solana</strong>. The address below must be
-      a valid Solana <strong>public key</strong> (base58), not an Ethereum
-      address.
+      Campaigns are funded on <strong>Solana</strong>. Set a numeric goal and
+      optional raised-to-date so supporters see a <strong>public progress bar</strong>.
+      Transparency splits explain where funds are intended to go.
     </p>
     <p class="lead">
-      Rows you save here are stored only in <strong>this browser</strong> until
-      you have a backend. Sign in with Google to pre-fill a <em>demo</em>
-      receive address.
+      Data is stored only in <strong>this browser</strong> until you have a backend.
+      Sign in with Google to pre-fill a <em>demo</em> receive address.
     </p>
     <p id="form-error" class="form-error" hidden></p>
     <form id="campaign-form" novalidate>
@@ -69,16 +68,94 @@
           placeholder="Short headline"
         />
       </div>
-      <div class="form-field">
-        <label for="goal">Goal</label>
-        <input
-          id="goal"
-          name="goal"
-          type="text"
-          required
-          placeholder="e.g. 3,000 USDC on Solana"
-        />
+      <div class="form-field form-field-row">
+        <div>
+          <label for="goal-amount">Funding target (amount)</label>
+          <input
+            id="goal-amount"
+            name="goal-amount"
+            type="number"
+            required
+            min="1"
+            step="any"
+            placeholder="e.g. 3000"
+            autocomplete="off"
+          />
+        </div>
+        <div>
+          <label for="goal-currency">Token</label>
+          <select id="goal-currency" name="goal-currency">
+            <option value="USDC" selected>USDC</option>
+            <option value="SOL">SOL</option>
+          </select>
+        </div>
       </div>
+      <div class="form-field">
+        <label for="raised-amount">Raised so far (optional)</label>
+        <input
+          id="raised-amount"
+          name="raised-amount"
+          type="number"
+          min="0"
+          step="any"
+          placeholder="0 — update manually until you have on-chain sync"
+          autocomplete="off"
+        />
+        <p class="form-hint">
+          For the progress bar. In production this would come from indexed transfers.
+        </p>
+      </div>
+      <fieldset class="form-fieldset">
+        <legend class="form-legend">Transparency — fund allocation (%)</legend>
+        <p class="form-hint form-hint--fieldset">
+          Must total <strong>100%</strong>. Shown on the campaign page so donors see where value is intended to go.
+        </p>
+        <div class="form-field form-field-row">
+          <div>
+            <label for="trans-ben">Primary (beneficiary / wallet)</label>
+            <input
+              id="trans-ben"
+              name="trans-ben"
+              type="number"
+              min="0"
+              max="100"
+              value="97"
+              required
+            />
+          </div>
+          <div>
+            <label for="trans-oth">Other</label>
+            <input
+              id="trans-oth"
+              name="trans-oth"
+              type="number"
+              min="0"
+              max="100"
+              value="3"
+              required
+            />
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="trans-other-label">Label for “other”</label>
+          <input
+            id="trans-other-label"
+            name="trans-other-label"
+            type="text"
+            value="Est. network fees & conversion"
+            maxlength="120"
+          />
+        </div>
+        <div class="form-field">
+          <label for="trans-note">Transparency note (optional)</label>
+          <textarea
+            id="trans-note"
+            name="trans-note"
+            maxlength="800"
+            placeholder="Short disclosure: who controls the wallet, any caveats, etc."
+          ></textarea>
+        </div>
+      </fieldset>
       <div class="form-field">
         <label for="wallet">Solana wallet address</label>
         <input
@@ -152,7 +229,16 @@
 
         var slug = document.getElementById("slug").value.trim().toLowerCase();
         var title = document.getElementById("title").value.trim();
-        var goal = document.getElementById("goal").value.trim();
+        var goalAmt = parseFloat(document.getElementById("goal-amount").value, 10);
+        var currency = document.getElementById("goal-currency").value || "USDC";
+        var raisedRaw = document.getElementById("raised-amount").value.trim();
+        var raisedAmt = raisedRaw === "" ? 0 : parseFloat(raisedRaw, 10);
+        var transBen = parseFloat(document.getElementById("trans-ben").value, 10);
+        var transOth = parseFloat(document.getElementById("trans-oth").value, 10);
+        var transOtherLabel = document
+          .getElementById("trans-other-label")
+          .value.trim();
+        var transNote = document.getElementById("trans-note").value.trim();
         var wallet = document.getElementById("wallet").value.trim();
         var body = parseStory(document.getElementById("story").value);
 
@@ -172,6 +258,26 @@
           showError("Add at least one line to your story.");
           return;
         }
+        if (!(goalAmt > 0) || isNaN(goalAmt)) {
+          showError("Enter a valid funding target amount.");
+          return;
+        }
+        if (isNaN(raisedAmt) || raisedAmt < 0) {
+          showError("Raised amount must be zero or a positive number.");
+          return;
+        }
+        if (raisedAmt > goalAmt * 1.0001) {
+          showError("Raised amount cannot exceed the funding target.");
+          return;
+        }
+        if (isNaN(transBen) || isNaN(transOth)) {
+          showError("Enter valid percentages for transparency.");
+          return;
+        }
+        if (Math.abs(transBen + transOth - 100) > 0.001) {
+          showError("Transparency percentages must add up to 100.");
+          return;
+        }
         if (!isValidSolanaAddress(wallet)) {
           showError(
             "That doesn’t look like a valid Solana address (public key)."
@@ -179,10 +285,24 @@
           return;
         }
 
+        var goalLabel =
+          goalAmt.toLocaleString("en-US", { maximumFractionDigits: 2 }) +
+          " " +
+          currency +
+          " on Solana";
+
         var ok = app.addExtraCampaign({
           id: slug,
           title: title,
-          goalLabel: goal,
+          goalLabel: goalLabel,
+          goalAmount: goalAmt,
+          raisedAmount: raisedAmt,
+          goalCurrency: currency,
+          transparencyBeneficiaryPct: transBen,
+          transparencyOtherPct: transOth,
+          transparencyOtherLabel:
+            transOtherLabel || "Est. network fees & conversion",
+          transparencyNote: transNote || "",
           wallet: wallet.trim(),
           body: body,
         });

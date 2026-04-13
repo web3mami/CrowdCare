@@ -11,7 +11,14 @@ window.CROWDCARE_CAMPAIGNS = [
       "Any support helps—thank you for reading. Donations on Solana (SOL or USDC).",
     ],
     goalLabel: "5,000 USDC on Solana",
-    wallet: "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
+    goalAmount: 5000,
+    raisedAmount: 1420,
+    goalCurrency: "USDC",
+    transparencyBeneficiaryPct: 97,
+    transparencyOtherPct: 3,
+    transparencyOtherLabel: "Est. network fees & conversion",
+    transparencyNote:
+      "Funds sent to the campaign wallet are visible on-chain. This demo does not move money automatically—always verify the address before sending.",
   },
   {
     id: "rent-after-layoff",
@@ -21,6 +28,13 @@ window.CROWDCARE_CAMPAIGNS = [
       "I'm hoping to stay housed until my first paycheck at a new job. Solana network.",
     ],
     goalLabel: "2,500 USDC on Solana",
-    wallet: "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+    goalAmount: 2500,
+    raisedAmount: 875,
+    goalCurrency: "USDC",
+    transparencyBeneficiaryPct: 98,
+    transparencyOtherPct: 2,
+    transparencyOtherLabel: "Buffer for tx fees",
+    transparencyNote:
+      "Payouts are peer-to-peer to this Solana address. CrowdCare shows targets for transparency; on-chain totals can differ.",
   },
 ];

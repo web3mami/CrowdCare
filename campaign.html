@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Campaign — CrowdCare</title>
     <link rel="icon" href="assets/logo-mark.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=13" />
+    <link rel="stylesheet" href="styles.css?v=14" />
   </head>
   <body>
     <div class="layout-backdrop" aria-hidden="true"></div>
@@ -30,10 +30,84 @@
     </nav>
 
     <p class="back"><a href="app.html">← All campaigns</a></p>
-    <article id="campaign-article" class="content-shell">
+
+    <article id="campaign-article" class="content-shell ft-campaign-hero">
       <h1 id="campaign-title"></h1>
       <div id="campaign-story"></div>
       <p class="goal" id="campaign-goal"></p>
+    </article>
+
+    <section id="campaign-progress" class="content-shell ft-panel ft-progress-panel" hidden>
+      <div class="ft-panel-head">
+        <span class="ft-kicker">Funding</span>
+        <span class="ft-panel-title">Progress to goal</span>
+      </div>
+      <div class="ft-progress-stats">
+        <span class="ft-stat">
+          <span class="ft-stat-label">Raised</span>
+          <span class="ft-stat-value" id="progress-raised">—</span>
+        </span>
+        <span class="ft-stat ft-stat--right">
+          <span class="ft-stat-label">Target</span>
+          <span class="ft-stat-value ft-stat-value--muted" id="progress-goal">—</span>
+        </span>
+      </div>
+      <div
+        id="progress-track"
+        class="ft-progress-track"
+        role="progressbar"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="0"
+        aria-label="Percent of goal funded"
+      >
+        <div id="progress-fill" class="ft-progress-fill"></div>
+      </div>
+      <p class="ft-progress-caption">
+        <span id="progress-pct">0</span>% of goal — shown for transparency; verify on-chain for live totals.
+      </p>
+    </section>
+
+    <section id="campaign-transparency" class="content-shell ft-panel ft-transparency-panel" hidden>
+      <div class="ft-panel-head">
+        <span class="ft-kicker">Transparency</span>
+        <span class="ft-panel-title">Where funds are intended to go</span>
+      </div>
+      <p class="ft-transparency-lead">
+        Before you send assets, review how this campaign <strong>allocates</strong> value. All transfers are
+        <strong>direct to the Solana address</strong> below—CrowdCare does not custody funds in this version.
+      </p>
+      <div class="ft-allocation-visual" aria-hidden="true">
+        <div class="ft-allocation-stack">
+          <div
+            id="trans-bar-primary"
+            class="ft-allocation-seg ft-allocation-seg--primary"
+            style="width: 0%"
+          ></div>
+          <div
+            id="trans-bar-other"
+            class="ft-allocation-seg ft-allocation-seg--other"
+            style="width: 0%"
+          ></div>
+        </div>
+      </div>
+      <ul class="ft-allocation-list">
+        <li>
+          <span class="ft-allocation-pct" id="trans-pct-primary">—</span>
+          <span class="ft-allocation-desc"
+            >Primary payout — beneficiary / campaign wallet (on-chain)</span
+          >
+        </li>
+        <li>
+          <span class="ft-allocation-pct" id="trans-pct-other">—</span>
+          <span class="ft-allocation-desc" id="trans-label-other">—</span>
+        </li>
+      </ul>
+      <p id="transparency-note" class="ft-transparency-note" hidden></p>
+    </section>
+
+    <article class="content-shell ft-send-panel">
+      <p class="ft-kicker">Receive address</p>
       <p><strong>Send on Solana to:</strong></p>
       <div class="address-row">
         <p class="address" id="wallet-address"></p>
@@ -52,55 +126,6 @@
     <script src="campaigns.js"></script>
     <script src="app.js"></script>
     <script src="nav-boot.js"></script>
-    <script>
-      (function () {
-        var app = window.CROWDCARE_APP;
-        var params = new URLSearchParams(window.location.search);
-        var id = params.get("id");
-        var c = id ? app.findCampaignById(id) : null;
-        if (id && !c) {
-          document.body.innerHTML =
-            '<div class="layout-backdrop" aria-hidden="true"></div><div class="layout-content">' +
-            "<p>Campaign not found.</p>" +
-            '<p><a href="app.html">← All campaigns</a></p></div>';
-          return;
-        }
-        if (!c) c = app.getAllCampaigns()[0];
-        if (!c) return;
-
-        document.title = c.title + " — CrowdCare";
-        document.getElementById("campaign-title").textContent = c.title;
-        var story = document.getElementById("campaign-story");
-        story.innerHTML = "";
-        c.body.forEach(function (text) {
-          var p = document.createElement("p");
-          p.textContent = text;
-          story.appendChild(p);
-        });
-        document.getElementById("campaign-goal").innerHTML =
-          "<strong>Goal:</strong> " + c.goalLabel;
-        document.getElementById("wallet-address").textContent = c.wallet;
-
-        var addr = document.getElementById("wallet-address");
-        var btn = document.getElementById("copy-btn");
-        var label = btn.textContent;
-        btn.addEventListener("click", function () {
-          var text = addr.textContent.trim();
-          function done() {
-            btn.textContent = "Copied!";
-            setTimeout(function () {
-              btn.textContent = label;
-            }, 2000);
-          }
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(text).then(done).catch(function () {
-              window.prompt("Copy this address:", text);
-            });
-          } else {
-            window.prompt("Copy this address:", text);
-          }
-        });
-      })();
-    </script>
+    <script src="campaign-page.js"></script>
   </body>
 </html>
