@@ -7,9 +7,9 @@ import {
 const appId = import.meta.env.VITE_PRIVY_APP_ID || "";
 
 /**
- * Privy: X (Twitter) login only. Embedded Solana wallets are created after login
+ * Privy: Google sign-in. Embedded Solana wallets are created after login
  * for campaign addresses—no external wallet connect in the modal.
- * Enable Twitter/X in the Privy dashboard.
+ * Enable Google in the Privy dashboard.
  */
 export function CrowdCarePrivyProvider({ children }) {
   if (!appId) {
@@ -36,9 +36,9 @@ export function CrowdCarePrivyProvider({ children }) {
           theme: "dark",
           walletChainType: "solana-only",
         },
-        loginMethods: ["twitter"],
+        loginMethods: ["google"],
         loginMethodsAndOrder: {
-          primary: ["twitter"],
+          primary: ["google"],
         },
         embeddedWallets: {
           solana: { createOnLogin: "all-users" },

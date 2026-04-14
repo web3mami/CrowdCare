@@ -10,7 +10,7 @@ const NEXT_KEY = "crowdcare_next";
 const privyAppId = import.meta.env.VITE_PRIVY_APP_ID || "";
 
 /**
- * `/`: welcome with “Start CrowdCare”, then X sign-in via Privy (embedded Solana after login).
+ * `/`: welcome with “Start CrowdCare”, then Google sign-in via Privy (embedded Solana after login).
  * Gate step is not persisted—each visit lands on Start CrowdCare first.
  */
 export function GatePage() {
@@ -87,15 +87,15 @@ export function GatePage() {
     !privyAppId || privyAppId.startsWith("set-VITE_PRIVY_APP_ID");
   const waitingForWallet = ready && authenticated && !user?.publicKey;
 
-  async function continueWithX() {
+  async function continueWithGoogle() {
     try {
-      await initOAuth({ provider: "twitter" });
+      await initOAuth({ provider: "google" });
     } catch (err) {
-      console.error("[CrowdCare] X login (OAuth) failed:", err);
+      console.error("[CrowdCare] Google login (OAuth) failed:", err);
       try {
-        login({ loginMethods: ["twitter"] });
+        login({ loginMethods: ["google"] });
       } catch (e2) {
-        console.error("[CrowdCare] X login (modal) failed:", e2);
+        console.error("[CrowdCare] Google login (modal) failed:", e2);
       }
     }
   }
@@ -168,7 +168,7 @@ export function GatePage() {
               <p className="gate-welcome-name">CrowdCare</p>
 
               <h1 id="gate-connect-heading" className="gate-connect-title">
-                Sign in with X
+                Sign in with Google
               </h1>
 
               <div
@@ -189,9 +189,9 @@ export function GatePage() {
                     className="ft-create-cta gate-signin-primary"
                     style={{ width: "100%", maxWidth: 320 }}
                     disabled={!ready || missingPrivy || oauthLoading}
-                    onClick={() => void continueWithX()}
+                    onClick={() => void continueWithGoogle()}
                   >
-                    {oauthLoading ? "Redirecting…" : "Continue with X"}
+                    {oauthLoading ? "Redirecting…" : "Continue with Google"}
                   </button>
                 </div>
               )}

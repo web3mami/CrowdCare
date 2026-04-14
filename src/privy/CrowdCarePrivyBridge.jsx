@@ -124,7 +124,7 @@ export function CrowdCarePrivyBridge() {
   }, [authenticated]);
 
   /**
-   * X OAuth often completes before embedded Solana exists on the user object.
+   * OAuth often completes before embedded Solana exists on the user object.
    * createOnLogin does not always run in time — explicitly create Solana embedded once per user.
    */
   useEffect(() => {
