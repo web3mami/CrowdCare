@@ -85,11 +85,6 @@ export function AdminPage() {
           <Link to="/">← CrowdCare home</Link>
         </p>
         <h1 className="site-title">Admin</h1>
-        <p className="lead lead--compact admin-page-lead">
-          Signed-in Google accounts recorded by the server (unique{" "}
-          <code>sub</code>). Admin login is <strong>{ADMIN_LOGIN_NAME}</strong>; set{" "}
-          <code>ADMIN_PASSWORD</code> on the host.
-        </p>
 
         <form className="admin-page-form" onSubmit={onSubmit}>
           <div className="form-field">

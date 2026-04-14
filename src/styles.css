@@ -4004,14 +4004,6 @@ body.cc-motion-flow .bare:hover {
   text-decoration: underline;
 }
 
-.admin-page-lead {
-  margin-bottom: 1.25rem;
-}
-
-.admin-page-lead code {
-  font-size: 0.8em;
-}
-
 .admin-page-fixed-user {
   margin: 0;
   font-size: 0.9375rem;
