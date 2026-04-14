@@ -67,9 +67,7 @@ export function AdminPage() {
       const msg = err instanceof Error ? err.message : String(err);
       if (/failed to fetch|networkerror|load failed/i.test(msg)) {
         setError(
-          import.meta.env.DEV && !import.meta.env.VITE_DEV_API_PROXY
-            ? "Could not reach the API. With npm run dev, add VITE_DEV_API_PROXY=https://your-site.vercel.app to .env.local (no trailing slash), restart the dev server, so /api is proxied. Or run npm run dev:vercel. On production, open /api/health — it should show JSON {\"ok\":true}."
-            : "Could not reach the server (network, extension, or offline). Open /api/health in a new tab on this same site — if that fails, API routes are not reachable. Try disabling extensions or another browser."
+          "Could not reach the server (network, extension, or offline). On this same host, open /api/health — you should see JSON with \"ok\":true. With npm run dev, /api is proxied to production by default (see vite.config.js); override with VITE_DEV_API_PROXY if needed."
         );
       } else {
         setError(msg);
