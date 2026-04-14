@@ -5,7 +5,10 @@ import {
   findCampaignById,
   formatCampaignAmt,
   getCampaignFunding,
+  mergeCampaignFundingWithOnchain,
 } from "../lib/crowdcareApp.js";
+import { fetchWalletUsdcUi } from "../lib/onchainUsdcBalance.js";
+import { isValidSolanaAddress } from "../lib/solanaWallet.js";
 import { xProfileUrlFromHandle } from "../lib/xUsername.js";
 
 /** X (Twitter) logomark for creator line — path aligned with common brand SVG. */
@@ -63,6 +66,36 @@ export function CampaignPage() {
     local || (remote && typeof remote === "object" ? remote : null);
   const loading = !local && remote === undefined;
 
+  const goalTokenForChain =
+    c &&
+    (() => {
+      const f = getCampaignFunding(c);
+      return (
+        f.currency ||
+        (c.goalLabel.toUpperCase().indexOf("SOL") >= 0 ? "SOL" : "USDC")
+      );
+    })();
+
+  const [onChainUsdcUi, setOnChainUsdcUi] = useState(null);
+
+  useEffect(() => {
+    if (
+      !c?.wallet ||
+      goalTokenForChain !== "USDC" ||
+      !isValidSolanaAddress(c.wallet)
+    ) {
+      setOnChainUsdcUi(null);
+      return;
+    }
+    let cancelled = false;
+    fetchWalletUsdcUi(c.wallet).then((ui) => {
+      if (!cancelled) setOnChainUsdcUi(ui);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [decoded, c?.wallet, goalTokenForChain]);
+
   useEffect(() => {
     if (c?.title) {
       document.title = c.title + " — CrowdCare";
@@ -96,11 +129,15 @@ export function CampaignPage() {
     );
   }
 
-  const funding = getCampaignFunding(c);
-  const showProgress = funding.pct != null && funding.goal;
+  const fundingBase = getCampaignFunding(c);
   const cur =
-    funding.currency ||
+    fundingBase.currency ||
     (c.goalLabel.toUpperCase().indexOf("SOL") >= 0 ? "SOL" : "USDC");
+  const funding =
+    cur === "USDC"
+      ? mergeCampaignFundingWithOnchain(fundingBase, onChainUsdcUi)
+      : fundingBase;
+  const showProgress = funding.pct != null && funding.goal;
 
   const ben = c.transparencyBeneficiaryPct;
   const oth = c.transparencyOtherPct;
@@ -219,7 +256,9 @@ export function CampaignPage() {
         </div>
         <p className="ft-progress-caption">
           <span id="progress-pct">{showProgress ? funding.pct : 0}</span>% of
-          goal — verify real totals on-chain.
+          goal — for USDC, the bar uses the higher of saved progress and this
+          wallet’s USDC balance (mainnet, standard deposit address). Confirm
+          on a block explorer if needed.
         </p>
       </section>
 

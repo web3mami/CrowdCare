@@ -322,6 +322,27 @@ export function getCampaignFunding(c) {
   return { goal: goal || null, raised, pct, currency };
 }
 
+/**
+ * Use the higher of saved `raisedAmount` and an on-chain balance (e.g. USDC in the campaign wallet).
+ * @param {{ goal: number|null, raised: number, pct: number|null, currency: string }} funding
+ * @param {number|null|undefined} onChainRaisedUi
+ */
+export function mergeCampaignFundingWithOnchain(funding, onChainRaisedUi) {
+  if (
+    onChainRaisedUi == null ||
+    typeof onChainRaisedUi !== "number" ||
+    Number.isNaN(onChainRaisedUi)
+  ) {
+    return funding;
+  }
+  const raised = Math.max(funding.raised, Math.max(0, onChainRaisedUi));
+  let pct = funding.pct;
+  if (funding.goal && funding.goal > 0) {
+    pct = Math.min(100, Math.round((raised / funding.goal) * 1000) / 10);
+  }
+  return { ...funding, raised, pct };
+}
+
 export function formatCampaignAmt(n, currency) {
   const s = Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 });
   return currency ? s + " " + currency : s;
