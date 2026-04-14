@@ -3,6 +3,21 @@ import { Link } from "react-router-dom";
 
 const ADMIN_LOGIN_NAME = "Mami";
 
+/** HTTP Basic credentials (supports non-ASCII passwords; `btoa` alone cannot). */
+function basicAuthHeader(user, pass) {
+  const raw = `${user}:${pass}`;
+  try {
+    return `Basic ${btoa(raw)}`;
+  } catch {
+    const bytes = new TextEncoder().encode(raw);
+    let bin = "";
+    for (let i = 0; i < bytes.length; i++) {
+      bin += String.fromCharCode(bytes[i]);
+    }
+    return `Basic ${btoa(bin)}`;
+  }
+}
+
 export function AdminPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -17,12 +32,8 @@ export function AdminPage() {
     setRecordedAt("");
     setBusy(true);
     try {
-      const token =
-        typeof btoa !== "undefined"
-          ? btoa(`${username}:${password}`)
-          : "";
       const r = await fetch("/api/admin/stats", {
-        headers: { Authorization: `Basic ${token}` },
+        headers: { Authorization: basicAuthHeader(ADMIN_LOGIN_NAME, password) },
       });
       let data = {};
       try {
@@ -44,6 +55,10 @@ export function AdminPage() {
       } else {
         setError("Unexpected response from server.");
       }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Could not reach the server. Try again."
+      );
     } finally {
       setBusy(false);
     }
