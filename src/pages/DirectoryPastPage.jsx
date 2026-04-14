@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { CampaignList } from "../components/CampaignList.jsx";
-import { fetchAllCampaignsDirectoryFromApi } from "../lib/crowdcareApi.js";
+import { fetchCampaignsDirectoryFromApi } from "../lib/crowdcareApi.js";
 import {
   getAllCampaigns,
   isCampaignPast,
@@ -10,15 +10,22 @@ import {
 
 export function DirectoryPastPage() {
   const [remote, setRemote] = useState(undefined);
+  const [databaseConfigured, setDatabaseConfigured] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
-    fetchAllCampaignsDirectoryFromApi()
-      .then((list) => {
-        if (!cancelled) setRemote(Array.isArray(list) ? list : []);
+    fetchCampaignsDirectoryFromApi()
+      .then(({ campaigns, databaseConfigured: dbOk }) => {
+        if (!cancelled) {
+          setRemote(Array.isArray(campaigns) ? campaigns : []);
+          setDatabaseConfigured(dbOk !== false);
+        }
       })
       .catch(() => {
-        if (!cancelled) setRemote([]);
+        if (!cancelled) {
+          setRemote([]);
+          setDatabaseConfigured(true);
+        }
       });
     return () => {
       cancelled = true;
@@ -45,6 +52,13 @@ export function DirectoryPastPage() {
         CrowdCare and this browser.
       </p>
       <div className="content-shell ft-panel campaigns-dir-panel">
+        {!loading && !databaseConfigured ? (
+          <p className="note note--tight banner-warn">
+            The live server is not connected to a database, so only campaigns stored
+            in this browser appear here. The site owner must set{" "}
+            <code>DATABASE_URL</code> on the host.
+          </p>
+        ) : null}
         <p id="dir-loading" className="note note--tight" hidden={!loading}>
           Loading campaigns…
         </p>

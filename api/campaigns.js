@@ -8,7 +8,7 @@ export default async function handler(req, res) {
 
   if (req.method === "GET") {
     if (!sql) {
-      res.status(200).json({ campaigns: [] });
+      res.status(200).json({ campaigns: [], databaseConfigured: false });
       return;
     }
     try {
@@ -20,7 +20,7 @@ export default async function handler(req, res) {
         const c = parsePayload(row);
         if (c && typeof c.id === "string") campaigns.push(c);
       }
-      res.status(200).json({ campaigns });
+      res.status(200).json({ campaigns, databaseConfigured: true });
     } catch (e) {
       console.error("[api/campaigns GET]", e);
       res.status(500).json({ error: "Database error" });

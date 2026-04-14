@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { useSession } from "../context/SessionContext.jsx";
 import { safeInternalPath } from "../lib/safeRedirectPath.js";
@@ -63,6 +63,17 @@ export function GatePage() {
     if (next) sessionStorage.setItem(NEXT_KEY, next);
     setSearchParams({}, { replace: true });
   }, [searchParams, setSearchParams, user?.publicKey]);
+
+  /** Already logged in (localStorage) but need a fresh GIS credential — e.g. online sync. */
+  useLayoutEffect(() => {
+    if (searchParams.get("signin") !== "1") return;
+    if (!user?.publicKey) return;
+    sessionStorage.removeItem(BROWSE_KEY);
+    const next = safeInternalPath(searchParams.get("next") || "");
+    if (next) sessionStorage.setItem(NEXT_KEY, next);
+    setGateStarted(true);
+    setSearchParams({}, { replace: true });
+  }, [searchParams, user?.publicKey, setSearchParams]);
 
   credentialHandlerRef.current = async (response) => {
     if (!response?.credential) return;
@@ -173,7 +184,11 @@ export function GatePage() {
     navigate("/app", { replace: true });
   }
 
-  if (user?.publicKey) {
+  if (
+    user?.publicKey &&
+    searchParams.get("signin") !== "1" &&
+    !gateStarted
+  ) {
     sessionStorage.removeItem(BROWSE_KEY);
     const nextFromQuery = safeInternalPath(searchParams.get("next") || "");
     const stored = sessionStorage.getItem(NEXT_KEY);

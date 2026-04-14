@@ -2,7 +2,11 @@ import { useLayoutEffect, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { PublicKey } from "@solana/web3.js";
 import { useSession } from "../context/SessionContext.jsx";
-import { syncCampaignToApi } from "../lib/crowdcareApi.js";
+import {
+  formatCampaignSyncError,
+  hasFreshGoogleIdTokenForSync,
+  syncCampaignToApi,
+} from "../lib/crowdcareApi.js";
 import {
   addExtraCampaign,
   findCampaignById,
@@ -57,6 +61,8 @@ export function CreatePage() {
   const { user, ensureShareSlug } = useSession();
   const navigate = useNavigate();
   const [error, setError] = useState("");
+  /** Set when local save succeeded but POST /api/campaigns failed — use Retry before creating another. */
+  const [pendingSyncSlug, setPendingSyncSlug] = useState(null);
 
   const [title, setTitle] = useState("");
   const [currency, setCurrency] = useState("USDC");
@@ -82,7 +88,25 @@ export function CreatePage() {
     return <Navigate to="/?signin=1" replace />;
   }
 
-  function onSubmit(e) {
+  async function retryPendingSync() {
+    if (!pendingSyncSlug) return;
+    setError("");
+    const saved = findCampaignById(pendingSyncSlug);
+    if (!saved) {
+      setError("Campaign not found in this browser. You can create a new one.");
+      setPendingSyncSlug(null);
+      return;
+    }
+    const sync = await syncCampaignToApi(saved);
+    if (!sync.ok) {
+      setError(formatCampaignSyncError(sync));
+      return;
+    }
+    setPendingSyncSlug(null);
+    navigate(`/campaign/${encodeURIComponent(pendingSyncSlug)}`);
+  }
+
+  async function onSubmit(e) {
     e.preventDefault();
     setError("");
 
@@ -163,13 +187,15 @@ export function CreatePage() {
 
     const saved = findCampaignById(slug);
     if (saved) {
-      void syncCampaignToApi(saved).then((r) => {
-        if (!r.ok) {
-          console.warn("[CrowdCare] Server sync failed:", r.error);
-        }
-      });
+      const sync = await syncCampaignToApi(saved);
+      if (!sync.ok) {
+        console.warn("[CrowdCare] Server sync failed:", sync.error, sync.status);
+        setPendingSyncSlug(slug);
+        setError(formatCampaignSyncError(sync));
+        return;
+      }
     }
-
+    setPendingSyncSlug(null);
     navigate(`/campaign/${encodeURIComponent(slug)}`);
   }
 
@@ -187,9 +213,28 @@ export function CreatePage() {
         Also kept in <strong>this browser</strong>; synced online when you save so
         others can open your hub (demo).
       </p>
+      {!hasFreshGoogleIdTokenForSync() ? (
+        <p className="note note--tight banner-warn">
+          <strong>Online sync needs Google in this tab.</strong> If you only see your
+          own campaigns on the live site, open{" "}
+          <Link to="/?signin=1&next=/create">Sign in again for sync</Link> (same
+          account), return here, then save or use Retry online sync.
+        </p>
+      ) : null}
       <p id="form-error" className="form-error" hidden={!error}>
         {error}
       </p>
+      {pendingSyncSlug ? (
+        <p className="form-field">
+          <button
+            type="button"
+            className="ft-submit-campaign"
+            onClick={() => void retryPendingSync()}
+          >
+            Retry online sync
+          </button>
+        </p>
+      ) : null}
       <form
         id="campaign-form"
         className="create-campaign-form content-shell"
@@ -363,7 +408,16 @@ export function CreatePage() {
           <p className="form-hint">Must be a valid Solana address.</p>
         </div>
 
-        <button type="submit" className="ft-submit-campaign">
+        <button
+          type="submit"
+          className="ft-submit-campaign"
+          disabled={!!pendingSyncSlug}
+          title={
+            pendingSyncSlug
+              ? "Finish online sync with the button above first"
+              : undefined
+          }
+        >
           Save and open campaign page
         </button>
       </form>

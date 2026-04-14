@@ -1,3 +1,5 @@
+import { decodeGoogleCredentialJwt } from "./googleGis.js";
+
 /** GIS credential JWT — used to authorize POST /api/campaigns (same aud as Web client ID). */
 const ID_TOKEN_KEY = "crowdcare_google_id_token";
 
@@ -20,12 +22,53 @@ export function clearGoogleIdToken() {
   sessionStorage.removeItem(ID_TOKEN_KEY);
 }
 
-/** Public list of all campaigns synced to CrowdCare (for Active / Past directories). */
-export async function fetchAllCampaignsDirectoryFromApi() {
+/**
+ * Public list of campaigns synced to CrowdCare plus whether the server has a database.
+ * @returns {{ campaigns: object[], databaseConfigured: boolean }}
+ */
+export async function fetchCampaignsDirectoryFromApi() {
   const r = await fetch("/api/campaigns");
   if (!r.ok) throw new Error(`campaigns ${r.status}`);
   const data = await r.json();
-  return Array.isArray(data.campaigns) ? data.campaigns : [];
+  const campaigns = Array.isArray(data.campaigns) ? data.campaigns : [];
+  const databaseConfigured = data.databaseConfigured !== false;
+  return { campaigns, databaseConfigured };
+}
+
+/** @returns {boolean} whether a non-expired GIS credential JWT is in sessionStorage */
+export function hasFreshGoogleIdTokenForSync() {
+  const token = getGoogleIdToken();
+  if (!token) return false;
+  try {
+    const payload = decodeGoogleCredentialJwt(token);
+    const exp = payload.exp;
+    if (typeof exp !== "number") return true;
+    return exp * 1000 > Date.now() + 30_000;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * User-visible message when POST /api/campaigns fails after create.
+ * @param {{ ok?: boolean, error?: string, status?: number }} result
+ */
+export function formatCampaignSyncError(result) {
+  const err = result?.error || "";
+  const status = result?.status;
+  if (err === "no_id_token" || err === "id_token_expired") {
+    return "Online sync needs a fresh Google sign-in in this tab. Use “Sign in again for sync” below, then click Retry online sync (your campaign is already saved on this device).";
+  }
+  if (status === 503 || /not configured/i.test(err)) {
+    return "The live site is not connected to a database yet (server configuration). Your campaign is saved only in this browser until DATABASE_URL is set on the host.";
+  }
+  if (status === 401 || /invalid or expired token/i.test(err)) {
+    return "Google sign-in expired or was rejected by the server. Use “Sign in again for sync” below, then click Retry online sync.";
+  }
+  if (status === 403) {
+    return "Server rejected this save (account mismatch). Sign out, sign in with the same Google account you used to create this profile, then try again.";
+  }
+  return `Could not sync online: ${err || "unknown error"}. Your campaign is still saved in this browser.`;
 }
 
 export async function fetchHubCampaignsFromApi(slug) {
@@ -50,6 +93,15 @@ export async function fetchCampaignByIdFromApi(id) {
 export async function syncCampaignToApi(campaign) {
   const token = getGoogleIdToken();
   if (!token) {
+    return { ok: false, error: "no_id_token" };
+  }
+  try {
+    const payload = decodeGoogleCredentialJwt(token);
+    const exp = payload.exp;
+    if (typeof exp === "number" && exp * 1000 <= Date.now() + 30_000) {
+      return { ok: false, error: "id_token_expired" };
+    }
+  } catch {
     return { ok: false, error: "no_id_token" };
   }
   const r = await fetch("/api/campaigns", {
