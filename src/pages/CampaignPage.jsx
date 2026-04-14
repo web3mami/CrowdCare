@@ -6,6 +6,7 @@ import {
   formatCampaignAmt,
   getCampaignFunding,
 } from "../lib/crowdcareApp.js";
+import { xProfileUrlFromHandle } from "../lib/xUsername.js";
 
 /** X (Twitter) logomark for creator line — path aligned with common brand SVG. */
 function XLogoMark({ className }) {
@@ -106,6 +107,10 @@ export function CampaignPage() {
   const showTrans =
     typeof ben === "number" && typeof oth === "number";
 
+  const xProfileUrl = c.creatorXUsername
+    ? xProfileUrlFromHandle(c.creatorXUsername)
+    : null;
+
   function copyWallet() {
     const text = c.wallet.trim();
     function done() {
@@ -129,7 +134,7 @@ export function CampaignPage() {
 
       <article id="campaign-article" className="content-shell ft-campaign-hero">
         <h1 id="campaign-title">{c.title}</h1>
-        {c.creatorDisplayName || c.creatorXUsername ? (
+        {c.creatorDisplayName || xProfileUrl ? (
           <div className="campaign-creator-bar" id="campaign-creator-meta">
             {c.creatorDisplayName ? (
               <p className="campaign-creator-line">
@@ -137,15 +142,15 @@ export function CampaignPage() {
                 <span className="campaign-creator-name">{c.creatorDisplayName}</span>
               </p>
             ) : null}
-            {c.creatorXUsername ? (
+            {c.creatorXUsername && xProfileUrl ? (
               <p className="campaign-creator-line campaign-creator-line--x">
                 <a
                   className="campaign-x-link campaign-x-link--row"
-                  href={`https://x.com/${encodeURIComponent(
-                    String(c.creatorXUsername).replace(/^@/, "")
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={xProfileUrl}
+                  aria-label={`View @${String(c.creatorXUsername).replace(
+                    /^@/,
+                    ""
+                  )} on X`}
                 >
                   <span className="campaign-x-brand" aria-hidden="true">
                     <XLogoMark className="campaign-x-icon" />
@@ -153,9 +158,6 @@ export function CampaignPage() {
                   <span className="campaign-x-handle">
                     @
                     {String(c.creatorXUsername).replace(/^@/, "")}
-                  </span>
-                  <span className="visually-hidden">
-                    (opens profile on X)
                   </span>
                 </a>
               </p>
