@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { useLoginWithOAuth, usePrivy } from "@privy-io/react-auth";
 import { useSession } from "../context/SessionContext.jsx";
+import { safeInternalPath } from "../lib/safeRedirectPath.js";
 
 const BROWSE_KEY = "crowdcare_browse_only";
+const NEXT_KEY = "crowdcare_next";
 
 const privyAppId = import.meta.env.VITE_PRIVY_APP_ID || "";
 
@@ -43,6 +45,8 @@ export function GatePage() {
     if (searchParams.get("signin") === "1") {
       sessionStorage.removeItem(BROWSE_KEY);
       setGateStarted(false);
+      const next = safeInternalPath(searchParams.get("next") || "");
+      if (next) sessionStorage.setItem(NEXT_KEY, next);
       setSearchParams({}, { replace: true });
     }
   }, [searchParams, setSearchParams]);
@@ -63,6 +67,15 @@ export function GatePage() {
   // Same bar as Layout/Profile: need a Solana address. Else /profile sends you
   // to /?signin=1 and this redirect would immediately send you back to /app.
   if (user?.publicKey || browseOnly) {
+    if (browseOnly) {
+      return <Navigate to="/app" replace />;
+    }
+    const stored = sessionStorage.getItem(NEXT_KEY);
+    const to = safeInternalPath(stored || "");
+    if (to) {
+      return <Navigate to={to} replace />;
+    }
+    sessionStorage.removeItem(NEXT_KEY);
     return <Navigate to="/app" replace />;
   }
 

@@ -34,6 +34,10 @@ export function ProfilePage() {
   }, [user, ensureShareSlug]);
 
   useEffect(() => {
+    if (user?.publicKey) sessionStorage.removeItem("crowdcare_next");
+  }, [user?.publicKey]);
+
+  useEffect(() => {
     if (user?.username != null) {
       setUsername(String(user.username).trim());
     }
@@ -49,7 +53,7 @@ export function ProfilePage() {
   }, [user?.sub, user?.avatarDataUrl, user?.username]);
 
   if (!user || !user.publicKey) {
-    return <Navigate to="/?signin=1" replace />;
+    return <Navigate to="/?signin=1&next=%2Fprofile" replace />;
   }
 
   const slug = user.shareSlug || "";
