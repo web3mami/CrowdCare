@@ -17,18 +17,32 @@ function pickPrivyEmail(privyUser) {
   return "";
 }
 
-/** Solana address from connectors first, then Privy user (embedded / linked wallet). */
+function isSolanaChain(chain) {
+  return String(chain ?? "").toLowerCase() === "solana";
+}
+
+/** Solana address: external connectors first, then embedded / linked wallets on the Privy user. */
 function pickSolanaAddress(privyUser, wallets) {
-  const fromConnectors = wallets[0]?.address;
+  const fromConnectors = wallets?.[0]?.address;
   if (fromConnectors) return fromConnectors;
 
-  const first = privyUser?.wallet;
-  if (first?.chainType === "solana" && first.address) return first.address;
+  const linked = privyUser?.linkedAccounts?.filter((a) => a.type === "wallet");
+  if (linked?.length) {
+    const solana = linked.filter((a) => isSolanaChain(a.chainType));
+    const embedded = solana.find(
+      (a) =>
+        a.walletClientType === "privy" ||
+        a.walletClientType === "privy-v2"
+    );
+    if (embedded && "address" in embedded && embedded.address) {
+      return embedded.address;
+    }
+    const any = solana[0];
+    if (any && "address" in any && any.address) return any.address;
+  }
 
-  const linked = privyUser?.linkedAccounts?.find(
-    (a) => a.type === "wallet" && a.chainType === "solana"
-  );
-  if (linked && "address" in linked && linked.address) return linked.address;
+  const first = privyUser?.wallet;
+  if (first?.address && isSolanaChain(first.chainType)) return first.address;
 
   return "";
 }
@@ -38,10 +52,15 @@ function pickSolanaAddress(privyUser, wallets) {
  * Privy = source of truth for login; localStorage keeps profile + campaigns working as before.
  */
 export function CrowdCarePrivyBridge() {
-  const { ready, authenticated, user: privyUser } = usePrivy();
-  const { ready: walletsReady, wallets } = useWallets();
+  const { ready, authenticated, user: privyUser, refreshUser } = usePrivy();
+  const { wallets } = useWallets();
   const { refresh } = useSession();
   const lastSyncedPrivyId = useRef(null);
+
+  const privyUserRef = useRef(privyUser);
+  const walletsRef = useRef(wallets);
+  privyUserRef.current = privyUser;
+  walletsRef.current = wallets;
 
   useEffect(() => {
     if (!ready || authenticated) return;
@@ -57,10 +76,7 @@ export function CrowdCarePrivyBridge() {
     if (!ready || !authenticated || !privyUser) return;
 
     const addr = pickSolanaAddress(privyUser, wallets);
-    if (!addr) {
-      if (!walletsReady) return;
-      return;
-    }
+    if (!addr) return;
 
     if (
       lastSyncedPrivyId.current === privyUser.id &&
@@ -90,14 +106,34 @@ export function CrowdCarePrivyBridge() {
     setUser(next);
     lastSyncedPrivyId.current = privyUser.id;
     refresh();
-  }, [
-    ready,
-    authenticated,
-    privyUser,
-    walletsReady,
-    wallets,
-    refresh,
-  ]);
+  }, [ready, authenticated, privyUser, wallets, refresh]);
+
+  useEffect(() => {
+    if (!ready || !authenticated || !privyUser?.id) return;
+    if (pickSolanaAddress(privyUserRef.current, walletsRef.current)) return;
+
+    let ticks = 0;
+    const maxTicks = 20;
+    const id = setInterval(() => {
+      if (pickSolanaAddress(privyUserRef.current, walletsRef.current)) {
+        clearInterval(id);
+        return;
+      }
+      if (ticks >= maxTicks) {
+        clearInterval(id);
+        console.warn(
+          "[CrowdCare] No Solana wallet on Privy user after sign-in. Check Privy dashboard: embedded Solana + create on login."
+        );
+        return;
+      }
+      ticks += 1;
+      void refreshUser().catch((err) =>
+        console.warn("[CrowdCare] refreshUser (wallet pending):", err)
+      );
+    }, 1500);
+
+    return () => clearInterval(id);
+  }, [ready, authenticated, privyUser?.id, refreshUser]);
 
   return null;
 }
