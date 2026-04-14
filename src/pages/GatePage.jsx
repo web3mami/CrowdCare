@@ -298,57 +298,16 @@ export function GatePage() {
                               <span className="gate-veltra-card-tag">Active</span>
                             </div>
                             <p className="gate-preview-title">
-                              Neighborhood storm relief
+                              Urgent medical bills
                             </p>
-                            <p className="gate-veltra-metric">
-                              <span className="gate-veltra-metric-value">68%</span>
-                              <span className="gate-veltra-metric-label">
-                                funded · Goal 85 SOL
-                              </span>
+                            <p className="gate-preview-meta">
+                              52% funded · Goal 12,500 USDC on Solana
                             </p>
-                            <div className="gate-veltra-depth" role="presentation">
-                              <div className="gate-veltra-depth-row gate-veltra-depth-row--ask">
-                                <span
-                                  className="gate-veltra-depth-bar"
-                                  style={{ width: "72%" }}
-                                />
-                                <span className="gate-veltra-depth-txt">72</span>
-                              </div>
-                              <div className="gate-veltra-depth-row gate-veltra-depth-row--ask">
-                                <span
-                                  className="gate-veltra-depth-bar"
-                                  style={{ width: "58%" }}
-                                />
-                                <span className="gate-veltra-depth-txt">58</span>
-                              </div>
-                              <div className="gate-veltra-depth-row gate-veltra-depth-row--bid">
-                                <span
-                                  className="gate-veltra-depth-bar"
-                                  style={{ width: "64%" }}
-                                />
-                                <span className="gate-veltra-depth-txt">64</span>
-                              </div>
-                              <div className="gate-veltra-depth-row gate-veltra-depth-row--bid">
-                                <span
-                                  className="gate-veltra-depth-bar"
-                                  style={{ width: "81%" }}
-                                />
-                                <span className="gate-veltra-depth-txt">81</span>
-                              </div>
-                            </div>
                             <div
                               className="gate-preview-bar gate-preview-bar--veltra"
                               role="presentation"
                             >
                               <span className="gate-preview-bar-fill gate-preview-bar-fill--veltra" />
-                            </div>
-                            <div className="gate-veltra-card-actions">
-                              <span className="gate-veltra-pill-btn gate-veltra-pill-btn--long">
-                                Donate
-                              </span>
-                              <span className="gate-veltra-pill-btn gate-veltra-pill-btn--short">
-                                Share
-                              </span>
                             </div>
                           </div>
                         </div>

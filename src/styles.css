@@ -883,7 +883,7 @@ button.gate-hero-outline-btn:focus-visible {
 }
 
 .gate-preview-bar-fill--veltra {
-  width: 68%;
+  width: 52%;
   background: linear-gradient(90deg, var(--gold-deep), var(--gold-bright));
 }
 

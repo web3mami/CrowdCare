@@ -1,4 +1,5 @@
 import { BUILT_IN_CAMPAIGNS } from "./campaigns.js";
+import { isValidXUsername, normalizeXUsernameInput } from "./xUsername.js";
 
 const STORAGE_KEY = "crowdcare_extra";
 
@@ -141,6 +142,27 @@ export function getAllCampaigns() {
 export function getCampaignsByCreatorSub(sub) {
   if (!sub) return [];
   return getAllCampaigns().filter((c) => c.creatorSub === sub);
+}
+
+/**
+ * Display name + X handle from this user’s most recent campaign (local list).
+ * Used when creating another campaign so profile fields need not be re-entered.
+ * @param {string} sub
+ * @returns {{ displayName: string, xUsername: string } | null}
+ */
+export function getCreatorPublicMetaFromLatestCampaign(sub) {
+  if (!sub || typeof sub !== "string") return null;
+  const list = getCampaignsByCreatorSub(sub);
+  for (let i = list.length - 1; i >= 0; i--) {
+    const c = list[i];
+    const dn =
+      c.creatorDisplayName != null ? String(c.creatorDisplayName).trim() : "";
+    const xu = normalizeXUsernameInput(c.creatorXUsername);
+    if (!dn || dn.length > 80) continue;
+    if (!isValidXUsername(xu)) continue;
+    return { displayName: dn, xUsername: xu };
+  }
+  return null;
 }
 
 export function getCampaignsByShareSlug(slug) {

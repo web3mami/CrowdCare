@@ -12,6 +12,7 @@ import { requestGoogleCredentialOneTap } from "../lib/googleGis.js";
 import {
   addExtraCampaign,
   findCampaignById,
+  getCreatorPublicMetaFromLatestCampaign,
   idTaken,
 } from "../lib/crowdcareApp.js";
 import { getUser } from "../lib/session.js";
@@ -96,10 +97,18 @@ export function CreatePage() {
     return <Navigate to="/?signin=1" replace />;
   }
 
+  const reusePub =
+    user?.sub != null ? getCreatorPublicMetaFromLatestCampaign(user.sub) : null;
   const publicDisplayName =
     user.username != null ? String(user.username).trim() : "";
   const publicX = normalizeXUsernameInput(user.xUsername);
-  if (!publicDisplayName || !isValidXUsername(publicX)) {
+  const effectiveDisplayName = (publicDisplayName || reusePub?.displayName || "")
+    .trim()
+    .slice(0, 80);
+  const effectiveX = normalizeXUsernameInput(
+    isValidXUsername(publicX) ? publicX : reusePub?.xUsername ?? ""
+  );
+  if (!effectiveDisplayName || !isValidXUsername(effectiveX)) {
     return (
       <>
         <p className="back">
@@ -108,8 +117,9 @@ export function CreatePage() {
         <h1 className="site-title">Create a campaign</h1>
         <p className="note note--tight banner-warn">
           Add your <strong>public display name</strong> and{" "}
-          <strong>X (Twitter) username</strong> on Profile first. They appear on
-          shared lists and on each campaign page.
+          <strong>X (Twitter) username</strong> on Profile once (or finish your
+          first campaign with them). Later campaigns reuse the same identity
+          automatically.
         </p>
         <p className="lead lead--compact">
           <Link className="gate-start-btn" to="/profile">
@@ -218,15 +228,21 @@ export function CreatePage() {
       currency +
       " on Solana";
 
-    const creatorDisplayName = String(fresh?.username ?? "")
+    const fromCampaign = getCreatorPublicMetaFromLatestCampaign(user.sub);
+    let creatorDisplayName = String(fresh?.username ?? "")
       .trim()
       .slice(0, 80);
+    if (!creatorDisplayName && fromCampaign?.displayName) {
+      creatorDisplayName = fromCampaign.displayName.slice(0, 80);
+    }
+    let creatorXUsername = normalizeXUsernameInput(fresh?.xUsername);
+    if (!isValidXUsername(creatorXUsername) && fromCampaign?.xUsername) {
+      creatorXUsername = normalizeXUsernameInput(fromCampaign.xUsername);
+    }
     if (!creatorDisplayName) {
       setError("Set a display name on Profile before creating a campaign.");
       return;
     }
-
-    const creatorXUsername = normalizeXUsernameInput(fresh?.xUsername);
     if (!isValidXUsername(creatorXUsername)) {
       setError("Set a valid X username on Profile before creating a campaign.");
       return;
