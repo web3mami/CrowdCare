@@ -211,17 +211,9 @@ export function GatePage() {
 
   return (
     <>
-      <div
-        className={`layout-backdrop${!gateStarted ? " layout-backdrop--veltra" : ""}`}
-        aria-hidden="true"
-      />
-      <div
-        className={`layout-content${!gateStarted ? " layout-content--veltra" : ""}`}
-      >
-        <div
-          id="gate"
-          className={`gate-screen${!gateStarted ? " gate-screen--veltra" : ""}`}
-        >
+      <div className="layout-backdrop" aria-hidden="true" />
+      <div className="layout-content">
+        <div id="gate" className="gate-screen">
           {!gateStarted ? (
             <div className="gate-welcome-outer gate-welcome--pop-in">
               <div className="gate-welcome-card gate-landing-card gate-landing-card--hero">
@@ -251,7 +243,7 @@ export function GatePage() {
                     <div className="gate-veltra-actions">
                       <button
                         type="button"
-                        className="gate-veltra-btn-primary"
+                        className="gate-start-btn"
                         id="gate-start-btn"
                         onClick={startGate}
                       >
@@ -259,7 +251,7 @@ export function GatePage() {
                       </button>
                       <button
                         type="button"
-                        className="gate-veltra-btn-secondary"
+                        className="gate-hero-outline-btn"
                         id="browse-skip-welcome"
                         onClick={() => goBrowse()}
                       >
@@ -368,7 +360,7 @@ export function GatePage() {
                 <p className="gate-veltra-skip">
                   <button
                     type="button"
-                    className="bare gate-browse-link gate-browse-link--veltra"
+                    className="bare gate-browse-link"
                     onClick={(e) => {
                       e.preventDefault();
                       goBrowse();
@@ -378,7 +370,7 @@ export function GatePage() {
                   </button>
                 </p>
               </div>
-              <footer className="gate-landing-footer gate-landing-footer--veltra">
+              <footer className="gate-landing-footer">
                 <span className="gate-landing-footer-brand">CrowdCare</span>
                 <span className="gate-landing-footer-sep" aria-hidden>
                   ·

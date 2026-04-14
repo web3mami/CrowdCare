@@ -42,12 +42,6 @@
   --danger: #e07070;
   --success: #6ebf7a;
 
-  /* Landing hero (Veltra-style neon accent) */
-  --veltra-green: #00ffa3;
-  --veltra-green-soft: rgba(0, 255, 163, 0.14);
-  --veltra-red: #c93a3a;
-  --veltra-bg: #050505;
-
   /* Motion — product defaults + optional cinematic (gate / app home) */
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
@@ -144,11 +138,11 @@ body {
 @keyframes gate-veltra-logo-pulse {
   0%,
   100% {
-    filter: drop-shadow(0 0 18px rgba(0, 255, 163, 0.35));
+    filter: drop-shadow(0 0 14px rgba(212, 180, 92, 0.35));
     transform: scale(1);
   }
   50% {
-    filter: drop-shadow(0 0 28px rgba(0, 255, 163, 0.55));
+    filter: drop-shadow(0 0 22px rgba(212, 180, 92, 0.5));
     transform: scale(1.04);
   }
 }
@@ -385,23 +379,6 @@ body.cc-motion-flow .layout-backdrop::after {
   animation: cc-backdrop-mark-breathe 14s ease-in-out infinite;
 }
 
-.layout-backdrop--veltra {
-  background-color: var(--veltra-bg);
-  background-image: radial-gradient(
-    ellipse 80% 50% at 70% 20%,
-    rgba(0, 255, 163, 0.06),
-    transparent 55%
-  );
-}
-
-.layout-backdrop--veltra::before {
-  opacity: 0.02;
-}
-
-.layout-backdrop--veltra::after {
-  opacity: 0.02;
-}
-
 .layout-content {
   position: relative;
   z-index: 1;
@@ -490,16 +467,6 @@ body.cc-motion-flow .gate-welcome-kicker {
   padding: 0.35rem 0 2.25rem;
   box-sizing: border-box;
   overflow-y: auto;
-}
-
-.gate-screen--veltra {
-  background: var(--veltra-bg);
-  min-height: 100dvh;
-}
-
-.layout-content--veltra {
-  background: var(--veltra-bg);
-  max-width: none;
 }
 
 /* Sign-in panel (after “Start CrowdCare”) — compact card, no vertical stretch */
@@ -614,16 +581,9 @@ body.cc-motion-flow .gate-welcome-kicker {
 .gate-landing-card--hero {
   max-width: min(72rem, 100%);
   padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 4vw, 3rem) 1.5rem;
-  background: transparent;
-  border: none;
-  box-shadow: none;
 }
 
-.gate-landing-card--hero::before {
-  display: none;
-}
-
-/* Veltra-style split hero */
+/* Split landing hero (layout only; colors follow CrowdCare gold / ash theme) */
 .gate-veltra-hero {
   display: grid;
   gap: clamp(2rem, 5vw, 3.5rem);
@@ -647,13 +607,13 @@ body.cc-motion-flow .gate-welcome-kicker {
   gap: 0.45rem;
   padding: 0.35rem 0.75rem;
   border-radius: 999px;
-  border: 1px solid rgba(0, 255, 163, 0.35);
-  background: rgba(0, 255, 163, 0.06);
+  border: 1px solid rgba(212, 180, 92, 0.28);
+  background: rgba(212, 180, 92, 0.08);
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.88);
+  color: var(--text);
   margin-bottom: 1.25rem;
 }
 
@@ -661,8 +621,8 @@ body.cc-motion-flow .gate-welcome-kicker {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--veltra-green);
-  box-shadow: 0 0 10px var(--veltra-green);
+  background: var(--gold-bright);
+  box-shadow: 0 0 10px rgba(212, 180, 92, 0.45);
   flex-shrink: 0;
 }
 
@@ -676,12 +636,12 @@ body.cc-motion-flow .gate-welcome-kicker {
 
 .gate-veltra-title-line {
   display: block;
-  color: #fff;
+  color: var(--text);
 }
 
 .gate-veltra-title-accent {
   display: block;
-  color: var(--veltra-green);
+  color: var(--gold-bright);
   margin-top: 0.12em;
 }
 
@@ -689,12 +649,12 @@ body.cc-motion-flow .gate-welcome-kicker {
   margin: 0 0 1.5rem;
   font-size: 1.02rem;
   line-height: 1.65;
-  color: #a1a1aa;
+  color: var(--text-muted);
   max-width: 42ch;
 }
 
 .gate-veltra-lead strong {
-  color: #e4e4e7;
+  color: var(--text);
   font-weight: 600;
 }
 
@@ -703,53 +663,37 @@ body.cc-motion-flow .gate-welcome-kicker {
   flex-wrap: wrap;
   gap: 0.75rem 1rem;
   margin-bottom: 1.35rem;
+  align-items: center;
 }
 
-.gate-veltra-btn-primary {
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: 700;
-  padding: 0.85rem 1.65rem;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  color: #050505;
-  background: var(--veltra-green);
-  box-shadow: 0 0 24px rgba(0, 255, 163, 0.25);
-  transition:
-    transform 0.2s var(--ease-standard),
-    box-shadow 0.2s var(--ease-standard),
-    filter 0.2s var(--ease-standard);
+.gate-veltra-actions .gate-start-btn {
+  min-width: min(13.5rem, 100%);
 }
 
-.gate-veltra-btn-primary:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.06);
-  box-shadow: 0 0 36px rgba(0, 255, 163, 0.35);
-}
-
-.gate-veltra-btn-primary:active {
-  transform: translateY(0);
-}
-
-.gate-veltra-btn-secondary {
-  font-family: inherit;
-  font-size: 1rem;
+button.gate-hero-outline-btn {
+  font-size: 1.0625rem;
   font-weight: 600;
   padding: 0.85rem 1.65rem;
-  border-radius: 10px;
+  border-radius: 999px;
   cursor: pointer;
-  color: #fafafa;
+  color: var(--text);
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  border: 1px solid var(--gold-border);
+  box-shadow: none;
   transition:
     background 0.2s var(--ease-standard),
     border-color 0.2s var(--ease-standard);
 }
 
-.gate-veltra-btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.35);
+button.gate-hero-outline-btn:hover {
+  filter: none;
+  background: rgba(212, 180, 92, 0.08);
+  border-color: var(--gold-border-strong);
+}
+
+button.gate-hero-outline-btn:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 2px;
 }
 
 .gate-veltra-tags {
@@ -763,38 +707,15 @@ body.cc-motion-flow .gate-welcome-kicker {
   font-weight: 600;
   padding: 0.28rem 0.6rem;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #a1a1aa;
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(212, 180, 92, 0.15);
+  color: var(--text-muted);
   letter-spacing: 0.02em;
 }
 
 .gate-veltra-skip {
   margin: 1.35rem 0 0;
   text-align: left;
-}
-
-.gate-browse-link--veltra {
-  color: #a1a1aa;
-  text-decoration-color: rgba(0, 255, 163, 0.35);
-}
-
-.gate-browse-link--veltra:hover {
-  color: #e4e4e7;
-}
-
-.gate-landing-footer--veltra {
-  justify-content: flex-start;
-  text-align: left;
-  max-width: min(72rem, 100%);
-  margin-top: 1.75rem;
-  padding-left: clamp(1rem, 4vw, 3rem);
-  padding-right: clamp(1rem, 4vw, 3rem);
-  color: #71717a;
-}
-
-.gate-landing-footer--veltra .gate-landing-footer-brand {
-  color: var(--veltra-green);
 }
 
 .gate-veltra-right {
@@ -850,16 +771,16 @@ body.cc-motion-flow .gate-welcome-kicker {
 }
 
 .gate-preview-card--veltra {
-  border-color: rgba(0, 255, 163, 0.22);
+  border-color: rgba(212, 180, 92, 0.22);
   background: linear-gradient(
     165deg,
-    rgba(18, 22, 28, 0.96) 0%,
-    rgba(6, 8, 12, 0.98) 100%
+    rgba(28, 32, 40, 0.9) 0%,
+    rgba(14, 16, 22, 0.95) 100%
   );
   box-shadow:
-    0 0 0 1px rgba(0, 255, 163, 0.08),
-    0 24px 48px rgba(0, 0, 0, 0.55),
-    0 0 80px rgba(0, 255, 163, 0.06);
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 24px 48px rgba(0, 0, 0, 0.45),
+    0 0 48px rgba(212, 180, 92, 0.06);
 }
 
 .gate-veltra-card-head {
@@ -875,7 +796,7 @@ body.cc-motion-flow .gate-welcome-kicker {
   font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--veltra-green);
+  color: var(--gold-bright);
 }
 
 .gate-veltra-card-tag {
@@ -885,8 +806,8 @@ body.cc-motion-flow .gate-welcome-kicker {
   text-transform: uppercase;
   padding: 0.12rem 0.4rem;
   border-radius: 4px;
-  color: #050505;
-  background: var(--veltra-green);
+  color: var(--ash-void);
+  background: linear-gradient(180deg, var(--gold-bright), var(--gold));
 }
 
 .gate-veltra-metric {
@@ -900,13 +821,13 @@ body.cc-motion-flow .gate-welcome-kicker {
 .gate-veltra-metric-value {
   font-size: 1.35rem;
   font-weight: 700;
-  color: var(--veltra-green);
+  color: var(--gold-bright);
   letter-spacing: -0.02em;
 }
 
 .gate-veltra-metric-label {
   font-size: 0.6875rem;
-  color: #a1a1aa;
+  color: var(--text-muted);
 }
 
 .gate-veltra-depth {
@@ -941,7 +862,7 @@ body.cc-motion-flow .gate-welcome-kicker {
 }
 
 .gate-veltra-depth-row--bid .gate-veltra-depth-bar {
-  background: linear-gradient(90deg, transparent, rgba(0, 255, 163, 0.5));
+  background: linear-gradient(90deg, transparent, rgba(212, 180, 92, 0.55));
 }
 
 .gate-veltra-depth-row--ask .gate-veltra-depth-txt {
@@ -952,7 +873,7 @@ body.cc-motion-flow .gate-welcome-kicker {
 
 .gate-veltra-depth-row--bid .gate-veltra-depth-txt {
   position: relative;
-  color: var(--veltra-green);
+  color: var(--gold-bright);
   padding: 0 0.35rem;
 }
 
@@ -963,7 +884,7 @@ body.cc-motion-flow .gate-welcome-kicker {
 
 .gate-preview-bar-fill--veltra {
   width: 68%;
-  background: linear-gradient(90deg, #00c97a, var(--veltra-green));
+  background: linear-gradient(90deg, var(--gold-deep), var(--gold-bright));
 }
 
 .gate-veltra-card-actions {
@@ -983,8 +904,9 @@ body.cc-motion-flow .gate-welcome-kicker {
 }
 
 .gate-veltra-pill-btn--long {
-  color: #050505;
-  background: var(--veltra-green);
+  color: var(--ash-void);
+  background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 100%);
+  border: 1px solid var(--gold-deep);
 }
 
 .gate-veltra-pill-btn--short {
@@ -995,16 +917,10 @@ body.cc-motion-flow .gate-welcome-kicker {
 
 .gate-welcome-outer:has(.gate-landing-card--hero) {
   padding-top: clamp(1.25rem, 4vw, 2.5rem);
-  justify-content: flex-start;
 }
 
 @media (max-width: 899px) {
   .gate-veltra-skip {
-    text-align: center;
-  }
-
-  .gate-landing-footer--veltra {
-    justify-content: center;
     text-align: center;
   }
 
@@ -3825,6 +3741,12 @@ body.cc-motion-flow .bare:hover {
   }
 
   .gate-start-btn {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .gate-hero-outline-btn {
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
