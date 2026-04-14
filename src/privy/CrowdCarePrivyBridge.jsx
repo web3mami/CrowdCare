@@ -18,7 +18,8 @@ function pickPrivyEmail(privyUser) {
 }
 
 function isSolanaChain(chain) {
-  return String(chain ?? "").toLowerCase() === "solana";
+  const s = String(chain ?? "").toLowerCase();
+  return s === "solana" || s === "solana:mainnet" || s === "sol";
 }
 
 /** Solana address: external connectors first, then embedded / linked wallets on the Privy user. */
@@ -28,7 +29,9 @@ function pickSolanaAddress(privyUser, wallets) {
 
   const linked = privyUser?.linkedAccounts?.filter((a) => a.type === "wallet");
   if (linked?.length) {
-    const solana = linked.filter((a) => isSolanaChain(a.chainType));
+    const solana = linked.filter((a) =>
+      isSolanaChain(a.chainType ?? a.chain)
+    );
     const embedded = solana.find(
       (a) =>
         a.walletClientType === "privy" ||
@@ -42,7 +45,12 @@ function pickSolanaAddress(privyUser, wallets) {
   }
 
   const first = privyUser?.wallet;
-  if (first?.address && isSolanaChain(first.chainType)) return first.address;
+  if (
+    first?.address &&
+    isSolanaChain(first.chainType ?? first.chain)
+  ) {
+    return first.address;
+  }
 
   return "";
 }

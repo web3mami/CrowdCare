@@ -42,14 +42,15 @@ export function GatePage() {
   }, []);
 
   useEffect(() => {
-    if (searchParams.get("signin") === "1") {
-      sessionStorage.removeItem(BROWSE_KEY);
-      setGateStarted(false);
-      const next = safeInternalPath(searchParams.get("next") || "");
-      if (next) sessionStorage.setItem(NEXT_KEY, next);
-      setSearchParams({}, { replace: true });
-    }
-  }, [searchParams, setSearchParams]);
+    if (searchParams.get("signin") !== "1") return;
+    // Signed-in users leave via <Navigate> on the same tick; running this would race after `next` was cleared from the URL.
+    if (user?.publicKey) return;
+    sessionStorage.removeItem(BROWSE_KEY);
+    setGateStarted(false);
+    const next = safeInternalPath(searchParams.get("next") || "");
+    if (next) sessionStorage.setItem(NEXT_KEY, next);
+    setSearchParams({}, { replace: true });
+  }, [searchParams, setSearchParams, user?.publicKey]);
 
   function startGate() {
     setGateStarted(true);
@@ -70,9 +71,12 @@ export function GatePage() {
     if (browseOnly) {
       return <Navigate to="/app" replace />;
     }
+    // Read `next` from the URL here (sync). sessionStorage is filled in useEffect only after paint — too late if we only read storage.
+    const nextFromQuery = safeInternalPath(searchParams.get("next") || "");
     const stored = sessionStorage.getItem(NEXT_KEY);
-    const to = safeInternalPath(stored || "");
+    const to = nextFromQuery || safeInternalPath(stored || "");
     if (to) {
+      sessionStorage.removeItem(NEXT_KEY);
       return <Navigate to={to} replace />;
     }
     sessionStorage.removeItem(NEXT_KEY);

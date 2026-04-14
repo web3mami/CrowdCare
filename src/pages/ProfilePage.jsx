@@ -6,8 +6,27 @@ import { CampaignList } from "../components/CampaignList.jsx";
 import { getCampaignsByCreatorSub } from "../lib/crowdcareApp.js";
 import { demoSecretKeyBase58 } from "../lib/keypair.js";
 
+/**
+ * Privy’s useExportWallet must run only when the user is signed in with a
+ * publicKey; calling it on the logged-out redirect path can break the page.
+ */
 export function ProfilePage() {
   const { user, ensureShareSlug, updateProfile } = useSession();
+
+  if (!user || !user.publicKey) {
+    return <Navigate to="/?signin=1&next=%2Fprofile" replace />;
+  }
+
+  return (
+    <ProfileAuthed
+      user={user}
+      ensureShareSlug={ensureShareSlug}
+      updateProfile={updateProfile}
+    />
+  );
+}
+
+function ProfileAuthed({ user, ensureShareSlug, updateProfile }) {
   const { exportWallet } = useExportWallet();
   const isPrivy = user?.authProvider === "privy";
 
@@ -27,15 +46,15 @@ export function ProfilePage() {
   const [copyKeyLabel, setCopyKeyLabel] = useState("Copy key");
   const [privyExportBusy, setPrivyExportBusy] = useState(false);
 
+  useEffect(() => {
+    sessionStorage.removeItem("crowdcare_next");
+  }, []);
+
   useLayoutEffect(() => {
     if (user?.publicKey) {
       ensureShareSlug();
     }
   }, [user, ensureShareSlug]);
-
-  useEffect(() => {
-    if (user?.publicKey) sessionStorage.removeItem("crowdcare_next");
-  }, [user?.publicKey]);
 
   useEffect(() => {
     if (user?.username != null) {
@@ -51,10 +70,6 @@ export function ProfilePage() {
     setPendingAvatarDataUrl(null);
     setAvatarRemoved(false);
   }, [user?.sub, user?.avatarDataUrl, user?.username]);
-
-  if (!user || !user.publicKey) {
-    return <Navigate to="/?signin=1&next=%2Fprofile" replace />;
-  }
 
   const slug = user.shareSlug || "";
   const hubRel = slug ? `/app?hub=${encodeURIComponent(slug)}` : "/app";
