@@ -27,6 +27,51 @@ export function loadGisScript() {
   });
 }
 
+/**
+ * Ask Google for a fresh ID token (One Tap / returning user). Use when sessionStorage
+ * token is missing, expired, or the server returned 401 on sync.
+ * @param {string} clientId Web client ID (same as VITE_GOOGLE_CLIENT_ID)
+ * @returns {Promise<string|null>} credential JWT or null if not obtained
+ */
+export function requestGoogleCredentialOneTap(clientId) {
+  if (!clientId || typeof window === "undefined") {
+    return Promise.resolve(null);
+  }
+  return loadGisScript().then(
+    () =>
+      new Promise((resolve) => {
+        const id = window.google?.accounts?.id;
+        if (!id) {
+          resolve(null);
+          return;
+        }
+        let settled = false;
+        const done = (cred) => {
+          if (settled) return;
+          settled = true;
+          resolve(cred && typeof cred === "string" ? cred : null);
+        };
+
+        id.initialize({
+          client_id: clientId,
+          callback: (response) => {
+            done(response?.credential || null);
+          },
+          auto_select: true,
+          cancel_on_tap_outside: true,
+        });
+
+        id.prompt((notification) => {
+          if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+            window.setTimeout(() => {
+              if (!settled) done(null);
+            }, 1500);
+          }
+        });
+      })
+  );
+}
+
 /** Decode JWT payload from GIS credential (middle segment). */
 export function decodeGoogleCredentialJwt(credential) {
   const parts = String(credential).split(".");

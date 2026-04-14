@@ -5,14 +5,18 @@ import { useSession } from "../context/SessionContext.jsx";
 import {
   formatCampaignSyncError,
   hasFreshGoogleIdTokenForSync,
+  setGoogleIdToken,
   syncCampaignToApi,
 } from "../lib/crowdcareApi.js";
+import { requestGoogleCredentialOneTap } from "../lib/googleGis.js";
 import {
   addExtraCampaign,
   findCampaignById,
   idTaken,
 } from "../lib/crowdcareApp.js";
 import { getUser } from "../lib/session.js";
+
+const googleWebClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
 function parseStory(text) {
   return text
@@ -88,6 +92,29 @@ export function CreatePage() {
     return <Navigate to="/?signin=1" replace />;
   }
 
+  /** Proactively refresh GIS token, then POST; on 401 retry One Tap once. */
+  async function syncCampaignAfterSave(saved) {
+    if (!hasFreshGoogleIdTokenForSync() && googleWebClientId) {
+      const cred = await requestGoogleCredentialOneTap(googleWebClientId);
+      if (cred) setGoogleIdToken(cred);
+    }
+    let sync = await syncCampaignToApi(saved);
+    if (
+      !sync.ok &&
+      googleWebClientId &&
+      (sync.status === 401 ||
+        sync.error === "no_id_token" ||
+        sync.error === "id_token_expired")
+    ) {
+      const cred = await requestGoogleCredentialOneTap(googleWebClientId);
+      if (cred) {
+        setGoogleIdToken(cred);
+        sync = await syncCampaignToApi(saved);
+      }
+    }
+    return sync;
+  }
+
   async function retryPendingSync() {
     if (!pendingSyncSlug) return;
     setError("");
@@ -97,7 +124,7 @@ export function CreatePage() {
       setPendingSyncSlug(null);
       return;
     }
-    const sync = await syncCampaignToApi(saved);
+    const sync = await syncCampaignAfterSave(saved);
     if (!sync.ok) {
       setError(formatCampaignSyncError(sync));
       return;
@@ -187,7 +214,7 @@ export function CreatePage() {
 
     const saved = findCampaignById(slug);
     if (saved) {
-      const sync = await syncCampaignToApi(saved);
+      const sync = await syncCampaignAfterSave(saved);
       if (!sync.ok) {
         console.warn("[CrowdCare] Server sync failed:", sync.error, sync.status);
         setPendingSyncSlug(slug);
@@ -210,8 +237,9 @@ export function CreatePage() {
         <strong>SOL</strong>. We create the campaign URL when you save.
       </p>
       <p className="lead note-create-local note--tight">
-        Also kept in <strong>this browser</strong>; synced online when you save so
-        others can open your hub (demo).
+        Saving stores the campaign in <strong>this browser</strong> and then asks
+        Google (in the background) to authorize copying it to the live server so
+        others can see it in directories and hubs.
       </p>
       {!hasFreshGoogleIdTokenForSync() ? (
         <p className="note note--tight banner-warn">

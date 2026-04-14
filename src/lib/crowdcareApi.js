@@ -63,7 +63,7 @@ export function formatCampaignSyncError(result) {
     return "The live site is not connected to a database yet (server configuration). Your campaign is saved only in this browser until DATABASE_URL is set on the host.";
   }
   if (status === 401 || /invalid or expired token/i.test(err)) {
-    return "Google sign-in expired or was rejected by the server. Use “Sign in again for sync” below, then click Retry online sync.";
+    return "After you click Save, CrowdCare asks Google to prove it’s still you so the server can store the campaign for others. That check failed (token expired, wrong tab, or the site’s server Google client ID doesn’t match the app). Use Sign in again for sync, then Retry online sync. Your campaign is already saved in this browser.";
   }
   if (status === 403) {
     return "Server rejected this save (account mismatch). Sign out, sign in with the same Google account you used to create this profile, then try again.";
