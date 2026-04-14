@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { usePrivy } from "@privy-io/react-auth";
-import { useWallets } from "@privy-io/react-auth/solana";
+import { useCreateWallet, useWallets } from "@privy-io/react-auth/solana";
 import { useSession } from "../context/SessionContext.jsx";
 import { getUser, setUser, newShareSlug, signOut } from "../lib/session.js";
 
@@ -54,8 +54,10 @@ function pickSolanaAddress(privyUser, wallets) {
 export function CrowdCarePrivyBridge() {
   const { ready, authenticated, user: privyUser, refreshUser } = usePrivy();
   const { wallets } = useWallets();
+  const { createWallet: createSolanaEmbedded } = useCreateWallet();
   const { refresh } = useSession();
   const lastSyncedPrivyId = useRef(null);
+  const createSolanaAttemptedFor = useRef(null);
 
   const privyUserRef = useRef(privyUser);
   const walletsRef = useRef(wallets);
@@ -71,6 +73,39 @@ export function CrowdCarePrivyBridge() {
       refresh();
     }
   }, [ready, authenticated, refresh]);
+
+  useEffect(() => {
+    if (!authenticated) {
+      createSolanaAttemptedFor.current = null;
+    }
+  }, [authenticated]);
+
+  /**
+   * X OAuth often completes before embedded Solana exists on the user object.
+   * createOnLogin does not always run in time — explicitly create Solana embedded once per user.
+   */
+  useEffect(() => {
+    if (!ready || !authenticated || !privyUser?.id) return;
+    if (pickSolanaAddress(privyUser, wallets)) return;
+    if (createSolanaAttemptedFor.current === privyUser.id) return;
+    createSolanaAttemptedFor.current = privyUser.id;
+
+    void (async () => {
+      try {
+        await createSolanaEmbedded();
+      } catch (err) {
+        console.warn(
+          "[CrowdCare] createSolanaEmbedded (may already exist):",
+          err
+        );
+      }
+      try {
+        await refreshUser();
+      } catch (err2) {
+        console.warn("[CrowdCare] refreshUser after Solana create:", err2);
+      }
+    })();
+  }, [ready, authenticated, privyUser, wallets, createSolanaEmbedded, refreshUser]);
 
   useEffect(() => {
     if (!ready || !authenticated || !privyUser) return;
