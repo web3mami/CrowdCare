@@ -23,11 +23,18 @@ export function CampaignList({
   const showDelete = !!(deletable && typeof onDelete === "function");
   const showCreatorMeta = !!showCreator;
 
-  return (
-    <ul className="campaign-list">
-      {(campaigns || []).map((c) => {
+  const list = (campaigns || []).filter(
+    (c) => c != null && typeof c === "object"
+  );
+
+  const items = list.map((c) => {
+        const id =
+          c.id !== undefined && c.id !== null ? String(c.id).trim() : "";
+        if (!id) return null;
         const fund = getCampaignFunding(c);
-        const hue = hueFromCreatorSub(c.creatorSub);
+        const hue = hueFromCreatorSub(
+          typeof c.creatorSub === "string" ? c.creatorSub : ""
+        );
         const creatorLine = showCreatorMeta
           ? formatCampaignCreatorLine(c)
           : null;
@@ -38,13 +45,13 @@ export function CampaignList({
           c.creatorSub === viewerSub;
 
         return (
-          <li key={c.id} className="campaign-list__item">
+          <li key={id} className="campaign-list__item">
             <div className="campaign-list__card-column">
               {showCreatorMeta && creatorLine ? (
                 <div
                   className="campaign-list__creator-head"
                   style={{
-                    borderLeftColor: `hsl(${hue} 46% 52%)`,
+                    borderLeftColor: `hsl(${hue}, 46%, 52%)`,
                   }}
                 >
                   <div className="campaign-list__creator-head-inner">
@@ -74,7 +81,7 @@ export function CampaignList({
               ) : null}
               <Link
                 className="campaign-list__link"
-                to={`/campaign/${encodeURIComponent(c.id)}`}
+                to={`/campaign/${encodeURIComponent(id)}`}
               >
                 <p className="card-title">{c.title}</p>
                 {fund.pct != null && fund.goal ? (
@@ -118,7 +125,11 @@ export function CampaignList({
             ) : null}
           </li>
         );
-      })}
+  });
+
+  return (
+    <ul className="campaign-list">
+      {items.filter((node) => node != null)}
     </ul>
   );
 }

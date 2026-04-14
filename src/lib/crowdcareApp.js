@@ -62,6 +62,9 @@ export function hueFromCreatorSub(sub) {
  * @returns {{ displayName: string, hubSlug: string }}
  */
 export function formatCampaignCreatorLine(c) {
+  if (!c || typeof c !== "object") {
+    return { displayName: "Campaign creator", hubSlug: "" };
+  }
   const nameRaw =
     c.creatorDisplayName != null ? String(c.creatorDisplayName).trim() : "";
   const slugRaw =
@@ -79,6 +82,10 @@ export function formatCampaignCreatorLine(c) {
 function normalizeCampaignForDisplay(c) {
   if (!c || typeof c !== "object") return c;
   const n = { ...c };
+
+  if (n.id != null && typeof n.id !== "string") {
+    n.id = String(n.id);
+  }
 
   function num(x) {
     if (x == null) return x;

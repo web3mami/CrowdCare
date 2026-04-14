@@ -29,7 +29,13 @@ export function clearGoogleIdToken() {
 export async function fetchCampaignsDirectoryFromApi() {
   const r = await fetch("/api/campaigns");
   if (!r.ok) throw new Error(`campaigns ${r.status}`);
-  const data = await r.json();
+  const text = await r.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error("campaigns invalid json");
+  }
   const campaigns = Array.isArray(data.campaigns) ? data.campaigns : [];
   const databaseConfigured = data.databaseConfigured !== false;
   return { campaigns, databaseConfigured };
