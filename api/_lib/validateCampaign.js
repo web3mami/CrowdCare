@@ -36,11 +36,12 @@ export function validateCampaignPayload(c) {
     if (b < 0 || o < 0 || Math.abs(b + o - 100) > 0.001)
       return { ok: false, error: "Transparency must total 100%" };
   }
-  if (c.creatorDisplayName != null) {
-    if (typeof c.creatorDisplayName !== "string")
-      return { ok: false, error: "Invalid display name" };
-    if (c.creatorDisplayName.trim().length > 80)
-      return { ok: false, error: "Display name too long" };
+  if (
+    typeof c.creatorDisplayName !== "string" ||
+    !c.creatorDisplayName.trim() ||
+    c.creatorDisplayName.trim().length > 80
+  ) {
+    return { ok: false, error: "Public display name is required" };
   }
   return { ok: true };
 }

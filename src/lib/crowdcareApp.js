@@ -226,6 +226,11 @@ export function idTaken(id) {
 
 export function addExtraCampaign(campaign) {
   if (!isValidCampaign(campaign)) return false;
+  const dn =
+    campaign.creatorDisplayName != null
+      ? String(campaign.creatorDisplayName).trim()
+      : "";
+  if (!dn || dn.length > 80) return false;
   if (idTaken(campaign.id)) return false;
   const extra = getExtraCampaigns();
   extra.push(campaign);

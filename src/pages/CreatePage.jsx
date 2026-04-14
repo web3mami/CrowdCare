@@ -92,6 +92,29 @@ export function CreatePage() {
     return <Navigate to="/?signin=1" replace />;
   }
 
+  const publicDisplayName =
+    user.username != null ? String(user.username).trim() : "";
+  if (!publicDisplayName) {
+    return (
+      <>
+        <p className="back">
+          <Link to="/app">← Home</Link>
+        </p>
+        <h1 className="site-title">Create a campaign</h1>
+        <p className="note note--tight banner-warn">
+          Add a <strong>public display name</strong> on your Profile first. It is
+          shown next to your campaigns everywhere people browse CrowdCare, so they
+          can tell creators apart.
+        </p>
+        <p className="lead lead--compact">
+          <Link className="gate-start-btn" to="/profile">
+            Open Profile to set your name
+          </Link>
+        </p>
+      </>
+    );
+  }
+
   /** Proactively refresh GIS token, then POST; on 401 retry One Tap once. */
   async function syncCampaignAfterSave(saved) {
     if (!hasFreshGoogleIdTokenForSync() && googleWebClientId) {
@@ -190,10 +213,13 @@ export function CreatePage() {
       currency +
       " on Solana";
 
-    const creatorDisplayName =
-      fresh?.username != null
-        ? String(fresh.username).trim().slice(0, 80)
-        : "";
+    const creatorDisplayName = String(fresh?.username ?? "")
+      .trim()
+      .slice(0, 80);
+    if (!creatorDisplayName) {
+      setError("Set a display name on Profile before creating a campaign.");
+      return;
+    }
 
     const ok = addExtraCampaign({
       id: slug,
@@ -210,7 +236,7 @@ export function CreatePage() {
       body,
       creatorSub: user.sub,
       creatorShareSlug: hubSlug,
-      ...(creatorDisplayName ? { creatorDisplayName } : {}),
+      creatorDisplayName,
     });
 
     if (!ok) {

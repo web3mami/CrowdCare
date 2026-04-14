@@ -195,6 +195,12 @@ export function ProfilePage() {
     setError("");
     setSaved(false);
     const name = username.trim().slice(0, 40);
+    if (!name) {
+      setError(
+        "Display name is required. It is shown next to your campaigns in shared lists."
+      );
+      return;
+    }
     const updates = { username: name };
     if (avatarRemoved) {
       updates.avatarDataUrl = "";
@@ -663,12 +669,17 @@ export function ProfilePage() {
                     id="profile-username"
                     name="username"
                     type="text"
+                    required
                     maxLength={40}
                     autoComplete="nickname"
-                    placeholder="Optional"
+                    placeholder="How your name appears on campaigns"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                   />
+                  <p className="form-hint">
+                    Required to publish campaigns — shown in Active / Past lists and on
+                    your hub.
+                  </p>
                 </div>
 
                 <div className="profile-readonly-block">
