@@ -298,7 +298,7 @@ export function GatePage() {
                               <span className="gate-veltra-card-tag">Active</span>
                             </div>
                             <p className="gate-preview-title">
-                              Urgent medical bills
+                              Raising money for tuition
                             </p>
                             <p className="gate-preview-meta">
                               52% funded · Goal 12,500 USDC on Solana
