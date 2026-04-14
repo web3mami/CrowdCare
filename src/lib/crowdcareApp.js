@@ -90,6 +90,27 @@ export function backfillCreatorShareSlugs(sub, shareSlug) {
   return true;
 }
 
+/**
+ * Merge server-fetched hub campaigns with local lists (offline / legacy).
+ * @param {object[]} remote
+ * @param {object[]} local
+ * @param {{ viewingOwnHub: boolean }} opts
+ */
+export function mergeHubLists(remote, local, opts) {
+  const { viewingOwnHub } = opts;
+  const r = Array.isArray(remote) ? remote : [];
+  const l = Array.isArray(local) ? local : [];
+  if (!viewingOwnHub) {
+    if (r.length) return r;
+    return l;
+  }
+  const map = new Map(r.map((c) => [c.id, c]));
+  for (const c of l) {
+    if (!map.has(c.id)) map.set(c.id, c);
+  }
+  return Array.from(map.values());
+}
+
 export function findCampaignById(id) {
   if (!id) return null;
   const all = getAllCampaigns();

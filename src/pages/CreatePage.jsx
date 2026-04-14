@@ -2,8 +2,10 @@ import { useLayoutEffect, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { PublicKey } from "@solana/web3.js";
 import { useSession } from "../context/SessionContext.jsx";
+import { syncCampaignToApi } from "../lib/crowdcareApi.js";
 import {
   addExtraCampaign,
+  findCampaignById,
   idTaken,
 } from "../lib/crowdcareApp.js";
 import { getUser } from "../lib/session.js";
@@ -159,6 +161,15 @@ export function CreatePage() {
       return;
     }
 
+    const saved = findCampaignById(slug);
+    if (saved) {
+      void syncCampaignToApi(saved).then((r) => {
+        if (!r.ok) {
+          console.warn("[CrowdCare] Server sync failed:", r.error);
+        }
+      });
+    }
+
     navigate(`/campaign/${encodeURIComponent(slug)}`);
   }
 
@@ -173,7 +184,8 @@ export function CreatePage() {
         <strong>SOL</strong>. We create the campaign URL when you save.
       </p>
       <p className="lead note-create-local note--tight">
-        Saved in <strong>this browser</strong> only (demo).
+        Also kept in <strong>this browser</strong>; synced online when you save so
+        others can open your hub (demo).
       </p>
       <p id="form-error" className="form-error" hidden={!error}>
         {error}

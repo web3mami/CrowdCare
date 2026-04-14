@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { fetchCampaignByIdFromApi } from "../lib/crowdcareApi.js";
 import {
   findCampaignById,
   formatCampaignAmt,
@@ -8,7 +9,40 @@ import {
 
 export function CampaignPage() {
   const { id } = useParams();
-  const c = id ? findCampaignById(decodeURIComponent(id)) : null;
+  const decoded = id ? decodeURIComponent(id) : "";
+  const local = decoded ? findCampaignById(decoded) : null;
+
+  const [remote, setRemote] = useState(() => {
+    if (!decoded) return null;
+    return findCampaignById(decoded) ? null : undefined;
+  });
+
+  useEffect(() => {
+    if (!decoded) {
+      setRemote(null);
+      return;
+    }
+    if (findCampaignById(decoded)) {
+      setRemote(null);
+      return;
+    }
+    let cancelled = false;
+    setRemote(undefined);
+    fetchCampaignByIdFromApi(decoded)
+      .then((c) => {
+        if (!cancelled) setRemote(c || false);
+      })
+      .catch(() => {
+        if (!cancelled) setRemote(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [decoded]);
+
+  const c =
+    local || (remote && typeof remote === "object" ? remote : null);
+  const loading = !local && remote === undefined;
 
   useEffect(() => {
     if (c?.title) {
@@ -20,6 +54,17 @@ export function CampaignPage() {
   }, [c?.title]);
 
   const [copyLabel, setCopyLabel] = useState("Copy address");
+
+  if (loading) {
+    return (
+      <>
+        <p className="back">
+          <Link to="/app">← Home</Link>
+        </p>
+        <p className="lead">Loading campaign…</p>
+      </>
+    );
+  }
 
   if (!c) {
     return (

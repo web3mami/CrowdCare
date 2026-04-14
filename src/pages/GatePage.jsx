@@ -7,6 +7,7 @@ import {
   loadGisScript,
 } from "../lib/googleGis.js";
 import { deriveDemoKeypair } from "../lib/keypair.js";
+import { setGoogleIdToken } from "../lib/crowdcareApi.js";
 import { getUser, newShareSlug, setUser } from "../lib/session.js";
 
 const BROWSE_KEY = "crowdcare_browse_only";
@@ -92,6 +93,7 @@ export function GatePage() {
       if (!next.shareSlug) next.shareSlug = newShareSlug();
 
       setUser(next);
+      setGoogleIdToken(response.credential);
       refresh();
       sessionStorage.removeItem(BROWSE_KEY);
       const storedNext = safeInternalPath(
@@ -316,7 +318,8 @@ export function GatePage() {
                   ·
                 </span>
                 <span className="gate-landing-footer-meta">
-                  Demo — data in this browser only. Not financial advice.
+                  Demo — hub campaigns sync online for sharing; profile &amp; wallet
+                  stay in this browser. Not financial advice.
                 </span>
               </footer>
             </div>

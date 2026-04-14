@@ -6,6 +6,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { clearGoogleIdToken } from "../lib/crowdcareApi.js";
 import {
   getUser,
   signOut as clearLocalUser,
@@ -31,6 +32,7 @@ export function SessionProvider({ children }) {
 
   const signOut = useCallback(async () => {
     clearLocalUser();
+    clearGoogleIdToken();
     sessionStorage.removeItem("crowdcare_browse_only");
     setUserState(null);
     if (typeof window !== "undefined" && window.google?.accounts?.id) {

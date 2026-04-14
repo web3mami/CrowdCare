@@ -207,7 +207,7 @@ export function Layout() {
             ·
           </span>
           <span className="app-footer-meta">
-            Browser-only demo — verify anything on-chain yourself.
+            Demo — shared hubs use online storage; verify anything on-chain yourself.
           </span>
         </footer>
       </div>

@@ -1,13 +1,87 @@
-import { useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { useSession } from "../context/SessionContext.jsx";
 import { CampaignList } from "../components/CampaignList.jsx";
+import { fetchHubCampaignsFromApi } from "../lib/crowdcareApi.js";
 import {
   getCampaignsByCreatorSub,
   getCampaignsByShareSlug,
+  mergeHubLists,
 } from "../lib/crowdcareApp.js";
 
 const BROWSE_KEY = "crowdcare_browse_only";
+
+function HubSlugView({ slug, user }) {
+  const [remote, setRemote] = useState(undefined);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchHubCampaignsFromApi(slug)
+      .then((list) => {
+        if (!cancelled) setRemote(Array.isArray(list) ? list : []);
+      })
+      .catch(() => {
+        if (!cancelled) setRemote([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
+
+  const viewingOwnHub =
+    !!user?.sub &&
+    typeof user.shareSlug === "string" &&
+    user.shareSlug === slug;
+  const local = viewingOwnHub
+    ? getCampaignsByCreatorSub(user.sub)
+    : getCampaignsByShareSlug(slug);
+
+  const hubCampaigns = useMemo(() => {
+    if (remote === undefined) return null;
+    return mergeHubLists(remote, local, { viewingOwnHub });
+  }, [remote, local, viewingOwnHub]);
+
+  const loading = hubCampaigns === null;
+  const empty = !loading && hubCampaigns.length === 0;
+
+  return (
+    <div id="hub-view" className="hub-view">
+      <p className="back">
+        <Link to="/app">← Home</Link>
+      </p>
+      <div className="content-shell ft-panel hub-panel">
+        <p className="ft-kicker">Creator hub</p>
+        <h1 className="site-title hub-title">
+          {loading
+            ? "Loading hub…"
+            : empty
+              ? "This hub is empty"
+              : "Campaigns on this hub"}
+        </h1>
+        <p className="lead hub-lead">
+          Published campaigns load from CrowdCare for everyone. This browser also
+          keeps a copy when you&apos;re the creator.
+        </p>
+        {loading ? null : <CampaignList campaigns={hubCampaigns} />}
+        <p id="hub-empty" className="note note--tight" hidden={!empty || loading}>
+          {viewingOwnHub ? (
+            <>
+              Nothing synced yet. Create a campaign (you must be online once so
+              it can save), or{" "}
+              <Link to="/?signin=1">sign in again</Link> if saves keep failing.
+            </>
+          ) : (
+            <>
+              No public campaigns for this hub yet, or the creator hasn&apos;t
+              synced from the app. Ask them to open CrowdCare and create or
+              re-save after signing in.
+            </>
+          )}
+        </p>
+      </div>
+    </div>
+  );
+}
 
 export function AppHomePage() {
   const { user, ensureShareSlug } = useSession();
@@ -25,45 +99,7 @@ export function AppHomePage() {
   }, [user?.publicKey, ensureShareSlug]);
 
   if (hubSlug && hubSlug.trim()) {
-    const slug = hubSlug.trim();
-    /** Your hub link should list every campaign you created here, not only rows with `creatorShareSlug` set. */
-    const viewingOwnHub =
-      !!user?.sub &&
-      typeof user.shareSlug === "string" &&
-      user.shareSlug === slug;
-    const hubCampaigns = viewingOwnHub
-      ? getCampaignsByCreatorSub(user.sub)
-      : getCampaignsByShareSlug(slug);
-    const empty = hubCampaigns.length === 0;
-    return (
-      <div id="hub-view" className="hub-view">
-        <p className="back">
-          <Link to="/app">← Home</Link>
-        </p>
-        <div className="content-shell ft-panel hub-panel">
-          <p className="ft-kicker">Creator hub</p>
-          <h1 className="site-title hub-title">
-            {empty ? "This hub is empty" : "Campaigns on this hub"}
-          </h1>
-          <p className="lead hub-lead">Saved in this browser only.</p>
-          <CampaignList campaigns={hubCampaigns} />
-          <p id="hub-empty" className="note note--tight" hidden={!empty}>
-            {viewingOwnHub ? (
-              <>
-                You have no campaigns in this browser yet.{" "}
-                <Link to="/create">Create one</Link>.
-              </>
-            ) : (
-              <>
-                Nothing here—this link is for one creator&apos;s device. Open it
-                where their campaigns were saved, or they may not have published
-                any yet.
-              </>
-            )}
-          </p>
-        </div>
-      </div>
-    );
+    return <HubSlugView slug={hubSlug.trim()} user={user} />;
   }
 
   if (!user && !browseOnly) {
