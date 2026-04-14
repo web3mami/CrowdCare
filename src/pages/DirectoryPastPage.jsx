@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useSession } from "../context/SessionContext.jsx";
 import { CampaignList } from "../components/CampaignList.jsx";
 import { fetchCampaignsDirectoryFromApi } from "../lib/crowdcareApi.js";
 import {
@@ -65,7 +66,13 @@ export function DirectoryPastPage() {
         <p id="dir-empty" className="note note--tight" hidden={!empty || loading}>
           No completed campaigns here yet.
         </p>
-        {loading ? null : <CampaignList campaigns={camps} />}
+        {loading ? null : (
+          <CampaignList
+            campaigns={camps}
+            showCreator
+            viewerSub={user?.sub ?? null}
+          />
+        )}
       </div>
     </>
   );

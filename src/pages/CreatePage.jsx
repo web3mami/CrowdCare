@@ -190,6 +190,11 @@ export function CreatePage() {
       currency +
       " on Solana";
 
+    const creatorDisplayName =
+      fresh?.username != null
+        ? String(fresh.username).trim().slice(0, 80)
+        : "";
+
     const ok = addExtraCampaign({
       id: slug,
       title: title.trim(),
@@ -205,6 +210,7 @@ export function CreatePage() {
       body,
       creatorSub: user.sub,
       creatorShareSlug: hubSlug,
+      ...(creatorDisplayName ? { creatorDisplayName } : {}),
     });
 
     if (!ok) {

@@ -1701,6 +1701,14 @@ h1.site-title:not(.gate-title)::after {
   }
 }
 
+.campaign-list__card-column {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
 .campaign-list__item .campaign-list__link {
   flex: 1 1 auto;
   min-width: 0;
@@ -1803,6 +1811,59 @@ body.cc-motion-flow .campaign-list a:hover::after {
   font-size: 0.8125rem;
   color: var(--gold);
   margin: 0.35rem 0 0;
+}
+
+.campaign-list__creator-head {
+  border-left: 3px solid hsl(210 46% 52%);
+  padding: 0.5rem 0.65rem 0.55rem 0.75rem;
+  margin-bottom: 0.35rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-left-width: 3px;
+}
+
+.campaign-list__creator-head-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
+.campaign-list__creator-title {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.campaign-list__creator-sep {
+  color: rgba(255, 255, 255, 0.28);
+  user-select: none;
+}
+
+.campaign-list__hub-link {
+  color: var(--gold-bright);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.campaign-list__hub-link:hover {
+  text-decoration: underline;
+}
+
+.campaign-list__yours-badge {
+  display: inline-block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.12rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(212, 180, 92, 0.18);
+  color: var(--gold-bright);
+  border: 1px solid rgba(212, 180, 92, 0.35);
 }
 
 .back {

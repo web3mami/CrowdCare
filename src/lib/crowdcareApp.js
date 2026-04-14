@@ -40,7 +40,36 @@ export function isValidCampaign(c) {
     if (typeof b !== "number" || typeof o !== "number") return false;
     if (b < 0 || o < 0 || Math.abs(b + o - 100) > 0.001) return false;
   }
+  if (c.creatorDisplayName != null) {
+    if (typeof c.creatorDisplayName !== "string") return false;
+    const dn = c.creatorDisplayName.trim();
+    if (dn.length > 80) return false;
+  }
   return true;
+}
+
+/** Stable hue for subtle per-creator accents in lists (0–359). */
+export function hueFromCreatorSub(sub) {
+  if (!sub || typeof sub !== "string") return 210;
+  let h = 0;
+  for (let i = 0; i < sub.length; i++) {
+    h = (h * 31 + sub.charCodeAt(i)) >>> 0;
+  }
+  return h % 360;
+}
+
+/**
+ * @returns {{ displayName: string, hubSlug: string }}
+ */
+export function formatCampaignCreatorLine(c) {
+  const nameRaw =
+    c.creatorDisplayName != null ? String(c.creatorDisplayName).trim() : "";
+  const slugRaw =
+    c.creatorShareSlug != null ? String(c.creatorShareSlug).trim() : "";
+  return {
+    displayName: nameRaw || "Campaign creator",
+    hubSlug: slugRaw,
+  };
 }
 
 /**
@@ -71,6 +100,10 @@ function normalizeCampaignForDisplay(c) {
       .map((line) => (typeof line === "string" ? line : String(line ?? "")))
       .map((line) => line.trim())
       .filter(Boolean);
+  }
+
+  if (typeof n.creatorDisplayName === "string") {
+    n.creatorDisplayName = n.creatorDisplayName.trim();
   }
 
   return n;
