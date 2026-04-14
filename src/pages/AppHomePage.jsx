@@ -2,7 +2,10 @@ import { useLayoutEffect } from "react";
 import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { useSession } from "../context/SessionContext.jsx";
 import { CampaignList } from "../components/CampaignList.jsx";
-import { getCampaignsByShareSlug } from "../lib/crowdcareApp.js";
+import {
+  getCampaignsByCreatorSub,
+  getCampaignsByShareSlug,
+} from "../lib/crowdcareApp.js";
 
 const BROWSE_KEY = "crowdcare_browse_only";
 
@@ -22,7 +25,15 @@ export function AppHomePage() {
   }, [user?.publicKey, ensureShareSlug]);
 
   if (hubSlug && hubSlug.trim()) {
-    const hubCampaigns = getCampaignsByShareSlug(hubSlug.trim());
+    const slug = hubSlug.trim();
+    /** Your hub link should list every campaign you created here, not only rows with `creatorShareSlug` set. */
+    const viewingOwnHub =
+      !!user?.sub &&
+      typeof user.shareSlug === "string" &&
+      user.shareSlug === slug;
+    const hubCampaigns = viewingOwnHub
+      ? getCampaignsByCreatorSub(user.sub)
+      : getCampaignsByShareSlug(slug);
     const empty = hubCampaigns.length === 0;
     return (
       <div id="hub-view" className="hub-view">
@@ -37,7 +48,18 @@ export function AppHomePage() {
           <p className="lead hub-lead">Saved in this browser only.</p>
           <CampaignList campaigns={hubCampaigns} />
           <p id="hub-empty" className="note note--tight" hidden={!empty}>
-            Nothing here—wrong device or empty hub.
+            {viewingOwnHub ? (
+              <>
+                You have no campaigns in this browser yet.{" "}
+                <Link to="/create">Create one</Link>.
+              </>
+            ) : (
+              <>
+                Nothing here—this link is for one creator&apos;s device. Open it
+                where their campaigns were saved, or they may not have published
+                any yet.
+              </>
+            )}
           </p>
         </div>
       </div>

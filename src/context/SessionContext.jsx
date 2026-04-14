@@ -2,6 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useLayoutEffect,
   useMemo,
   useState,
 } from "react";
@@ -20,6 +21,13 @@ export function SessionProvider({ children }) {
   const refresh = useCallback(() => {
     setUserState(getUser());
   }, []);
+
+  useLayoutEffect(() => {
+    if (!user?.publicKey) return;
+    if (sessionEnsureShareSlug()) {
+      refresh();
+    }
+  }, [user?.publicKey, user?.shareSlug, refresh]);
 
   const signOut = useCallback(async () => {
     clearLocalUser();

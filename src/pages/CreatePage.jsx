@@ -6,6 +6,7 @@ import {
   addExtraCampaign,
   idTaken,
 } from "../lib/crowdcareApp.js";
+import { getUser } from "../lib/session.js";
 
 function parseStory(text) {
   return text
@@ -122,6 +123,14 @@ export function CreatePage() {
       return;
     }
 
+    ensureShareSlug();
+    const fresh = getUser();
+    const hubSlug = fresh?.shareSlug;
+    if (!hubSlug) {
+      setError("Could not resolve your hub link. Open Profile, then try again.");
+      return;
+    }
+
     const goalLabel =
       goal.toLocaleString("en-US", { maximumFractionDigits: 2 }) +
       " " +
@@ -142,7 +151,7 @@ export function CreatePage() {
       wallet: wallet.trim(),
       body,
       creatorSub: user.sub,
-      creatorShareSlug: user.shareSlug,
+      creatorShareSlug: hubSlug,
     });
 
     if (!ok) {

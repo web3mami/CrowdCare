@@ -1,4 +1,5 @@
 import { deriveDemoKeypair } from "./keypair.js";
+import { backfillCreatorShareSlugs } from "./crowdcareApp.js";
 
 const STORAGE_KEY = "crowdcare_user";
 
@@ -60,12 +61,16 @@ export function newShareSlug() {
 export function ensureShareSlug() {
   const u = getUser();
   if (!u) return false;
+  let changed = false;
   if (!u.shareSlug) {
     u.shareSlug = newShareSlug();
     setUser(u);
-    return true;
+    changed = true;
   }
-  return false;
+  if (u.sub && u.shareSlug && backfillCreatorShareSlugs(u.sub, u.shareSlug)) {
+    changed = true;
+  }
+  return changed;
 }
 
 export function updateProfile(updates) {

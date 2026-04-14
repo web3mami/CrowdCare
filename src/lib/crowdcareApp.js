@@ -70,6 +70,26 @@ export function getCampaignsByShareSlug(slug) {
   return getAllCampaigns().filter((c) => c.creatorShareSlug === slug);
 }
 
+/**
+ * Older saves omitted `creatorShareSlug` (or user had no slug yet). Hub links filter by slug,
+ * so attach the current hub id to this creator's campaigns in localStorage.
+ * @returns {boolean} whether extra campaigns storage was updated
+ */
+export function backfillCreatorShareSlugs(sub, shareSlug) {
+  if (!sub || !shareSlug || typeof shareSlug !== "string") return false;
+  const extra = getExtraCampaigns();
+  let changed = false;
+  const next = extra.map((c) => {
+    if (c.creatorSub !== sub) return c;
+    if (c.creatorShareSlug) return c;
+    changed = true;
+    return { ...c, creatorShareSlug: shareSlug };
+  });
+  if (!changed) return false;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  return true;
+}
+
 export function findCampaignById(id) {
   if (!id) return null;
   const all = getAllCampaigns();
