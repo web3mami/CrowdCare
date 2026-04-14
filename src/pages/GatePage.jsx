@@ -60,7 +60,9 @@ export function GatePage() {
     navigate("/app", { replace: true });
   }
 
-  if (user || browseOnly) {
+  // Same bar as Layout/Profile: need a Solana address. Else /profile sends you
+  // to /?signin=1 and this redirect would immediately send you back to /app.
+  if (user?.publicKey || browseOnly) {
     return <Navigate to="/app" replace />;
   }
 
