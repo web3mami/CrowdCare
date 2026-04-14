@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
+const ADMIN_LOGIN_NAME = "Mami";
+
 export function AdminPage() {
-  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [userCount, setUserCount] = useState(null);
@@ -58,25 +59,18 @@ export function AdminPage() {
         <h1 className="site-title">Admin</h1>
         <p className="lead lead--compact admin-page-lead">
           Signed-in Google accounts recorded by the server (unique{" "}
-          <code>sub</code>). Use the credentials configured in{" "}
-          <code>ADMIN_USERNAME</code> / <code>ADMIN_PASSWORD</code> on the host.
+          <code>sub</code>). Admin login is <strong>{ADMIN_LOGIN_NAME}</strong>; set{" "}
+          <code>ADMIN_PASSWORD</code> on the host.
         </p>
 
         <form className="admin-page-form" onSubmit={onSubmit}>
           <div className="form-field">
-            <label htmlFor="admin-user">Admin username</label>
-            <input
-              id="admin-user"
-              name="username"
-              type="text"
-              autoComplete="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
+            <p className="admin-page-fixed-user">
+              Username: <strong>{ADMIN_LOGIN_NAME}</strong>
+            </p>
           </div>
           <div className="form-field">
-            <label htmlFor="admin-pass">Admin password</label>
+            <label htmlFor="admin-pass">Password</label>
             <input
               id="admin-pass"
               name="password"

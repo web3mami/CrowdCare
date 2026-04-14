@@ -4,6 +4,8 @@ import {
 } from "../_lib/crowdcareUsers.js";
 import { getSql } from "../_lib/db.js";
 
+const ADMIN_LOGIN_NAME = "Mami";
+
 function parseBasicAuth(header) {
   if (!header || typeof header !== "string") return null;
   const m = header.match(/^Basic\s+(.+)$/i);
@@ -30,18 +32,17 @@ export default async function handler(req, res) {
     return;
   }
 
-  const adminUser = process.env.ADMIN_USERNAME?.trim();
   const adminPass = process.env.ADMIN_PASSWORD?.trim();
-  if (!adminUser || !adminPass) {
+  if (!adminPass) {
     res.status(503).json({
       error:
-        "Admin is not configured (set ADMIN_USERNAME and ADMIN_PASSWORD on the server)",
+        "Admin is not configured (set ADMIN_PASSWORD on the server; username is Mami)",
     });
     return;
   }
 
   const creds = parseBasicAuth(req.headers.authorization || "");
-  if (!creds || creds.user !== adminUser || creds.pass !== adminPass) {
+  if (!creds || creds.user !== ADMIN_LOGIN_NAME || creds.pass !== adminPass) {
     res.setHeader("WWW-Authenticate", 'Basic realm="CrowdCare Admin"');
     res.status(401).json({ error: "Unauthorized" });
     return;

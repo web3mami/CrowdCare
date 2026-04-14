@@ -4012,6 +4012,12 @@ body.cc-motion-flow .bare:hover {
   font-size: 0.8em;
 }
 
+.admin-page-fixed-user {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--text-muted);
+}
+
 .admin-page-form {
   margin-bottom: 1rem;
 }

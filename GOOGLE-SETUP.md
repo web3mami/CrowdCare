@@ -92,15 +92,18 @@ Add for **Production** (and Preview if you use it):
 
 | Key | Value |
 | --- | --- |
-| `ADMIN_USERNAME` | Your chosen login name (e.g. `admin`) |
 | `ADMIN_PASSWORD` | A long random password (only you know it) |
 
+The admin **username is fixed** as **`Mami`** in the app; you only configure the password.
+
 `DATABASE_URL` must already be set (same Neon DB as campaigns). Redeploy after adding variables.
+
+Remove any old `ADMIN_USERNAME` variable if you added it earlier — it is no longer used.
 
 ### 6b. Using `/admin`
 
 1. Open `https://your-deployment.vercel.app/admin` (use your real host).
-2. Enter the same **username** and **password** as in §6a.
+2. Sign in as **Mami** with the **password** from `ADMIN_PASSWORD` (the page only asks for the password).
 3. The page shows **Accounts recorded** (unique Google `sub` values seen by the server).
 
-If you see “Admin is not configured”, the server is missing `ADMIN_USERNAME` / `ADMIN_PASSWORD`. If the count stays `0`, confirm `DATABASE_URL` is set and users have signed in against production (local `npm run dev` only counts if `vercel dev` or API hits your Neon URL).
+If you see “Admin is not configured”, the server is missing `ADMIN_PASSWORD`. If the count stays `0`, confirm `DATABASE_URL` is set and users have signed in against production (local `npm run dev` only counts if `vercel dev` or API hits your Neon URL).
