@@ -10,6 +10,7 @@ import {
 } from "../lib/crowdcareApp.js";
 
 export function DirectoryActivePage() {
+  const { user } = useSession();
   const [remote, setRemote] = useState(undefined);
   const [databaseConfigured, setDatabaseConfigured] = useState(true);
 
