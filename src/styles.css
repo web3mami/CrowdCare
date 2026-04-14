@@ -1296,6 +1296,50 @@ a.campaign-x-link:hover {
   text-decoration: underline;
 }
 
+a.campaign-x-link--row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+a.campaign-x-link--row .campaign-x-brand {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+a.campaign-x-link--row:hover .campaign-x-brand,
+a.campaign-x-link--row:focus-visible .campaign-x-brand {
+  color: var(--gold-bright, #e8c547);
+}
+
+.campaign-creator-line--x {
+  margin: 0.15rem 0;
+}
+
+.campaign-x-brand {
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
+}
+
+.campaign-x-icon {
+  width: 0.95rem;
+  height: 0.95rem;
+  flex-shrink: 0;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .ft-panel {
   position: relative;
   border-left: none;

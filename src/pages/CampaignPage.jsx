@@ -7,6 +7,24 @@ import {
   getCampaignFunding,
 } from "../lib/crowdcareApp.js";
 
+/** X (Twitter) logomark for creator line — path aligned with common brand SVG. */
+function XLogoMark({ className }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path
+        fill="currentColor"
+        d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"
+      />
+    </svg>
+  );
+}
+
 export function CampaignPage() {
   const { id } = useParams();
   const decoded = id ? decodeURIComponent(id) : "";
@@ -120,18 +138,25 @@ export function CampaignPage() {
               </p>
             ) : null}
             {c.creatorXUsername ? (
-              <p className="campaign-creator-line">
-                <span className="campaign-creator-label">X</span>{" "}
+              <p className="campaign-creator-line campaign-creator-line--x">
                 <a
-                  className="campaign-x-link"
+                  className="campaign-x-link campaign-x-link--row"
                   href={`https://x.com/${encodeURIComponent(
                     String(c.creatorXUsername).replace(/^@/, "")
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  @
-                  {String(c.creatorXUsername).replace(/^@/, "")}
+                  <span className="campaign-x-brand" aria-hidden="true">
+                    <XLogoMark className="campaign-x-icon" />
+                  </span>
+                  <span className="campaign-x-handle">
+                    @
+                    {String(c.creatorXUsername).replace(/^@/, "")}
+                  </span>
+                  <span className="visually-hidden">
+                    (opens profile on X)
+                  </span>
                 </a>
               </p>
             ) : null}
