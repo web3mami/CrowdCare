@@ -98,6 +98,7 @@ export function GatePage() {
       };
       if (prev && prev.sub === sub) {
         if (prev.username) next.username = prev.username;
+        if (prev.xUsername) next.xUsername = prev.xUsername;
         if (prev.avatarDataUrl) next.avatarDataUrl = prev.avatarDataUrl;
         if (prev.shareSlug) next.shareSlug = prev.shareSlug;
       }

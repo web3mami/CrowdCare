@@ -80,6 +80,9 @@ export function updateProfile(updates) {
   if (updates.username !== undefined) {
     u.username = updates.username;
   }
+  if (updates.xUsername !== undefined) {
+    u.xUsername = updates.xUsername;
+  }
   if (updates.avatarDataUrl !== undefined) {
     if (updates.avatarDataUrl === "") {
       delete u.avatarDataUrl;

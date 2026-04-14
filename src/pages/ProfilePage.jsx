@@ -24,11 +24,16 @@ import {
   transactionExplorerUrl,
   transferSolFromDemoWallet,
 } from "../lib/solanaWallet.js";
+import {
+  isValidXUsername,
+  normalizeXUsernameInput,
+} from "../lib/xUsername.js";
 
 export function ProfilePage() {
   const { user, ensureShareSlug, updateProfile } = useSession();
 
   const [username, setUsername] = useState("");
+  const [xUsername, setXUsername] = useState("");
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
@@ -112,6 +117,11 @@ export function ProfilePage() {
     if (user?.username != null) {
       setUsername(String(user.username).trim());
     }
+    if (user?.xUsername != null) {
+      setXUsername(String(user.xUsername).trim());
+    } else {
+      setXUsername("");
+    }
     if (user?.avatarDataUrl) {
       setPreviewUrl(user.avatarDataUrl);
       setPlaceholderHidden(true);
@@ -121,7 +131,7 @@ export function ProfilePage() {
     }
     setPendingAvatarDataUrl(null);
     setAvatarRemoved(false);
-  }, [user?.sub, user?.avatarDataUrl, user?.username]);
+  }, [user?.sub, user?.avatarDataUrl, user?.username, user?.xUsername]);
 
   if (!user || !user.publicKey) {
     return <Navigate to="/?signin=1&next=%2Fprofile" replace />;
@@ -201,7 +211,14 @@ export function ProfilePage() {
       );
       return;
     }
-    const updates = { username: name };
+    const xNorm = normalizeXUsernameInput(xUsername);
+    if (!isValidXUsername(xNorm)) {
+      setError(
+        "X username is required. Use 1–20 characters: letters, numbers, or underscore only (you can include or omit @)."
+      );
+      return;
+    }
+    const updates = { username: name, xUsername: xNorm };
     if (avatarRemoved) {
       updates.avatarDataUrl = "";
     } else if (pendingAvatarDataUrl) {
@@ -679,6 +696,25 @@ export function ProfilePage() {
                   <p className="form-hint">
                     Required to publish campaigns — shown in Active / Past lists and on
                     your hub.
+                  </p>
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="profile-x-username">X (Twitter) username</label>
+                  <input
+                    id="profile-x-username"
+                    name="xUsername"
+                    type="text"
+                    required
+                    maxLength={22}
+                    autoComplete="username"
+                    placeholder="yourhandle"
+                    value={xUsername}
+                    onChange={(e) => setXUsername(e.target.value)}
+                  />
+                  <p className="form-hint">
+                    Required. Shown on every campaign page with a link to your profile on
+                    X. Letters, numbers, and underscore only (max 20 after removing @).
                   </p>
                 </div>
 

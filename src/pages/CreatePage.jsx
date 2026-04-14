@@ -15,6 +15,10 @@ import {
   idTaken,
 } from "../lib/crowdcareApp.js";
 import { getUser } from "../lib/session.js";
+import {
+  isValidXUsername,
+  normalizeXUsernameInput,
+} from "../lib/xUsername.js";
 
 const googleWebClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
@@ -94,7 +98,8 @@ export function CreatePage() {
 
   const publicDisplayName =
     user.username != null ? String(user.username).trim() : "";
-  if (!publicDisplayName) {
+  const publicX = normalizeXUsernameInput(user.xUsername);
+  if (!publicDisplayName || !isValidXUsername(publicX)) {
     return (
       <>
         <p className="back">
@@ -102,13 +107,13 @@ export function CreatePage() {
         </p>
         <h1 className="site-title">Create a campaign</h1>
         <p className="note note--tight banner-warn">
-          Add a <strong>public display name</strong> on your Profile first. It is
-          shown next to your campaigns everywhere people browse CrowdCare, so they
-          can tell creators apart.
+          Add your <strong>public display name</strong> and{" "}
+          <strong>X (Twitter) username</strong> on Profile first. They appear on
+          shared lists and on each campaign page.
         </p>
         <p className="lead lead--compact">
           <Link className="gate-start-btn" to="/profile">
-            Open Profile to set your name
+            Open Profile
           </Link>
         </p>
       </>
@@ -221,6 +226,12 @@ export function CreatePage() {
       return;
     }
 
+    const creatorXUsername = normalizeXUsernameInput(fresh?.xUsername);
+    if (!isValidXUsername(creatorXUsername)) {
+      setError("Set a valid X username on Profile before creating a campaign.");
+      return;
+    }
+
     const ok = addExtraCampaign({
       id: slug,
       title: title.trim(),
@@ -237,6 +248,7 @@ export function CreatePage() {
       creatorSub: user.sub,
       creatorShareSlug: hubSlug,
       creatorDisplayName,
+      creatorXUsername,
     });
 
     if (!ok) {

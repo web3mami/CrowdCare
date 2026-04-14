@@ -43,5 +43,10 @@ export function validateCampaignPayload(c) {
   ) {
     return { ok: false, error: "Public display name is required" };
   }
+  const xu =
+    typeof c.creatorXUsername === "string" ? c.creatorXUsername.trim() : "";
+  if (!xu || xu.length > 20 || !/^[A-Za-z0-9_]+$/.test(xu)) {
+    return { ok: false, error: "Valid X username is required" };
+  }
   return { ok: true };
 }

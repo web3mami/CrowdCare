@@ -112,6 +112,11 @@ function normalizeCampaignForDisplay(c) {
   if (typeof n.creatorDisplayName === "string") {
     n.creatorDisplayName = n.creatorDisplayName.trim();
   }
+  if (typeof n.creatorXUsername === "string") {
+    let x = n.creatorXUsername.trim();
+    if (x.startsWith("@")) x = x.slice(1).trim();
+    n.creatorXUsername = x;
+  }
 
   return n;
 }
@@ -230,7 +235,12 @@ export function addExtraCampaign(campaign) {
     campaign.creatorDisplayName != null
       ? String(campaign.creatorDisplayName).trim()
       : "";
-  if (!dn || dn.length > 80) return false;
+   if (!dn || dn.length > 80) return false;
+  const xu =
+    campaign.creatorXUsername != null
+      ? String(campaign.creatorXUsername).trim()
+      : "";
+  if (!xu || xu.length > 20 || !/^[A-Za-z0-9_]+$/.test(xu)) return false;
   if (idTaken(campaign.id)) return false;
   const extra = getExtraCampaigns();
   extra.push(campaign);

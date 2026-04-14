@@ -111,6 +111,32 @@ export function CampaignPage() {
 
       <article id="campaign-article" className="content-shell ft-campaign-hero">
         <h1 id="campaign-title">{c.title}</h1>
+        {c.creatorDisplayName || c.creatorXUsername ? (
+          <div className="campaign-creator-bar" id="campaign-creator-meta">
+            {c.creatorDisplayName ? (
+              <p className="campaign-creator-line">
+                <span className="campaign-creator-label">Organizer</span>{" "}
+                <span className="campaign-creator-name">{c.creatorDisplayName}</span>
+              </p>
+            ) : null}
+            {c.creatorXUsername ? (
+              <p className="campaign-creator-line">
+                <span className="campaign-creator-label">X</span>{" "}
+                <a
+                  className="campaign-x-link"
+                  href={`https://x.com/${encodeURIComponent(
+                    String(c.creatorXUsername).replace(/^@/, "")
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  @
+                  {String(c.creatorXUsername).replace(/^@/, "")}
+                </a>
+              </p>
+            ) : null}
+          </div>
+        ) : null}
         <div id="campaign-story">
           {c.body.map((text, i) => (
             <p key={i}>{text}</p>

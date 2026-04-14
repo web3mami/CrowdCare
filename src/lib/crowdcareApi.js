@@ -80,6 +80,9 @@ export function formatCampaignSyncError(result) {
   if (/public display name|display name is required/i.test(err)) {
     return "The server requires a public display name. Set it on Profile, then try Retry online sync or create the campaign again.";
   }
+  if (/x username|X username/i.test(err)) {
+    return "The server requires a valid X username on your Profile. Update Profile, then try Retry online sync or create the campaign again.";
+  }
   return `Could not sync online: ${err || "unknown error"}. Your campaign is still saved in this browser.`;
 }
 

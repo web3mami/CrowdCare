@@ -1254,6 +1254,48 @@ body.cc-motion-flow .gate-auth-back:hover {
   border-left: 3px solid var(--gold-bright);
 }
 
+.campaign-creator-bar {
+  margin: 0.75rem 0 1.15rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-md, 8px);
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.campaign-creator-line {
+  margin: 0.15rem 0;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.campaign-creator-line + .campaign-creator-line {
+  margin-top: 0.35rem;
+}
+
+.campaign-creator-label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.45);
+  margin-right: 0.35rem;
+}
+
+.campaign-creator-name {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+a.campaign-x-link {
+  color: var(--gold-bright, #e8c547);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+a.campaign-x-link:hover {
+  text-decoration: underline;
+}
+
 .ft-panel {
   position: relative;
   border-left: none;
