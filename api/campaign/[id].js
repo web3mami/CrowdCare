@@ -1,19 +1,6 @@
 import { verifyGoogleIdToken } from "../_lib/auth.js";
 import { getSql } from "../_lib/db.js";
-
-function parsePayload(row) {
-  const p = row?.payload;
-  if (p == null) return null;
-  if (typeof p === "object") return p;
-  if (typeof p === "string") {
-    try {
-      return JSON.parse(p);
-    } catch {
-      return null;
-    }
-  }
-  return null;
-}
+import { parsePayload } from "../_lib/parsePayload.js";
 
 export default async function handler(req, res) {
   const raw = req.query?.id;

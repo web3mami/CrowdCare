@@ -20,6 +20,14 @@ export function clearGoogleIdToken() {
   sessionStorage.removeItem(ID_TOKEN_KEY);
 }
 
+/** Public list of all campaigns synced to CrowdCare (for Active / Past directories). */
+export async function fetchAllCampaignsDirectoryFromApi() {
+  const r = await fetch("/api/campaigns");
+  if (!r.ok) throw new Error(`campaigns ${r.status}`);
+  const data = await r.json();
+  return Array.isArray(data.campaigns) ? data.campaigns : [];
+}
+
 export async function fetchHubCampaignsFromApi(slug) {
   const r = await fetch(`/api/hub/${encodeURIComponent(slug)}`);
   if (!r.ok) throw new Error(`hub ${r.status}`);

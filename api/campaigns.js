@@ -1,14 +1,41 @@
 import { verifyGoogleIdToken } from "./_lib/auth.js";
 import { getSql } from "./_lib/db.js";
+import { parsePayload } from "./_lib/parsePayload.js";
 import { validateCampaignPayload } from "./_lib/validateCampaign.js";
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    res.status(405).setHeader("Allow", "POST").json({ error: "Method not allowed" });
+  const sql = getSql();
+
+  if (req.method === "GET") {
+    if (!sql) {
+      res.status(200).json({ campaigns: [] });
+      return;
+    }
+    try {
+      const rows = await sql`
+        SELECT payload FROM campaigns ORDER BY updated_at DESC
+      `;
+      const campaigns = [];
+      for (const row of rows) {
+        const c = parsePayload(row);
+        if (c && typeof c.id === "string") campaigns.push(c);
+      }
+      res.status(200).json({ campaigns });
+    } catch (e) {
+      console.error("[api/campaigns GET]", e);
+      res.status(500).json({ error: "Database error" });
+    }
     return;
   }
 
-  const sql = getSql();
+  if (req.method !== "POST") {
+    res
+      .status(405)
+      .setHeader("Allow", "GET, POST")
+      .json({ error: "Method not allowed" });
+    return;
+  }
+
   if (!sql) {
     res.status(503).json({ error: "Database not configured" });
     return;

@@ -96,6 +96,21 @@ export function backfillCreatorShareSlugs(sub, shareSlug) {
  * @param {object[]} local
  * @param {{ viewingOwnHub: boolean }} opts
  */
+/**
+ * Merge server directory listing with local-only campaigns (remote wins on id clash).
+ * @param {object[]} remote
+ * @param {object[]} local
+ */
+export function mergeDirectoryCampaigns(remote, local) {
+  const r = Array.isArray(remote) ? remote : [];
+  const l = Array.isArray(local) ? local : [];
+  const map = new Map(r.map((c) => [c.id, c]));
+  for (const c of l) {
+    if (c && typeof c.id === "string" && !map.has(c.id)) map.set(c.id, c);
+  }
+  return Array.from(map.values()).filter(isValidCampaign);
+}
+
 export function mergeHubLists(remote, local, opts) {
   const { viewingOwnHub } = opts;
   const r = Array.isArray(remote) ? remote : [];
