@@ -2,6 +2,10 @@ import {
   getGoogleWebClientIdForServer,
   verifyGoogleIdToken,
 } from "./_lib/auth.js";
+import {
+  ensureCrowdcareUsersTable,
+  upsertCrowdcareUser,
+} from "./_lib/crowdcareUsers.js";
 import { getSql } from "./_lib/db.js";
 import { parsePayload } from "./_lib/parsePayload.js";
 import { validateCampaignPayload } from "./_lib/validateCampaign.js";
@@ -84,6 +88,14 @@ export default async function handler(req, res) {
   if (campaign.creatorSub !== tokenUser.sub) {
     res.status(403).json({ error: "creatorSub does not match signed-in user" });
     return;
+  }
+
+  try {
+    await ensureCrowdcareUsersTable(sql);
+    await upsertCrowdcareUser(sql, tokenUser);
+  } catch (e) {
+    console.error("[api/campaigns POST] user upsert", e);
+ /* continue — campaign save is primary */
   }
 
   const sub = tokenUser.sub;

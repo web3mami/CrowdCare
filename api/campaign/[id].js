@@ -1,4 +1,8 @@
 import { verifyGoogleIdToken } from "../_lib/auth.js";
+import {
+  ensureCrowdcareUsersTable,
+  upsertCrowdcareUser,
+} from "../_lib/crowdcareUsers.js";
 import { getSql } from "../_lib/db.js";
 import { parsePayload } from "../_lib/parsePayload.js";
 
@@ -53,6 +57,12 @@ export default async function handler(req, res) {
     if (!tokenUser) {
       res.status(401).json({ error: "Invalid or expired token" });
       return;
+    }
+    try {
+      await ensureCrowdcareUsersTable(sql);
+      await upsertCrowdcareUser(sql, tokenUser);
+    } catch (e) {
+      console.error("[api/campaign DELETE] user upsert", e);
     }
     const sub = tokenUser.sub;
     try {

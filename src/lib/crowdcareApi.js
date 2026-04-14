@@ -164,3 +164,22 @@ export async function deleteCampaignFromApi(id) {
   }
   return { ok: false, error: msg, status: r.status };
 }
+
+/**
+ * Record this Google account on the server (for admin user counts). Fire-and-forget.
+ */
+export async function pingUserSeenToApi() {
+  const token = getGoogleIdToken();
+  if (!token) return;
+  try {
+    const r = await fetch("/api/users/ping", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!r.ok && r.status !== 401) {
+      console.warn("[CrowdCare] users/ping", r.status);
+    }
+  } catch (e) {
+    console.warn("[CrowdCare] users/ping", e);
+  }
+}

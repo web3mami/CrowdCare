@@ -8,11 +8,13 @@ import { DirectoryPastPage } from "./pages/DirectoryPastPage.jsx";
 import { GatePage } from "./pages/GatePage.jsx";
 import { MyCampaignsPage } from "./pages/MyCampaignsPage.jsx";
 import { ProfilePage } from "./pages/ProfilePage.jsx";
+import { AdminPage } from "./pages/AdminPage.jsx";
 
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<GatePage />} />
+      <Route path="/admin" element={<AdminPage />} />
       <Route element={<Layout />}>
         <Route path="/app" element={<AppHomePage />} />
         <Route path="/create" element={<CreatePage />} />

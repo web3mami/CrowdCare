@@ -4,9 +4,14 @@ import {
   useContext,
   useLayoutEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
-import { clearGoogleIdToken } from "../lib/crowdcareApi.js";
+import {
+  clearGoogleIdToken,
+  getGoogleIdToken,
+  pingUserSeenToApi,
+} from "../lib/crowdcareApi.js";
 import {
   getUser,
   signOut as clearLocalUser,
@@ -18,6 +23,7 @@ const SessionContext = createContext(null);
 
 export function SessionProvider({ children }) {
   const [user, setUserState] = useState(() => getUser());
+  const lastPingSubRef = useRef(null);
 
   const refresh = useCallback(() => {
     setUserState(getUser());
@@ -30,7 +36,17 @@ export function SessionProvider({ children }) {
     }
   }, [user?.publicKey, user?.shareSlug, refresh]);
 
+  /** Count signed-in Google accounts on the server (Neon) — once per sub when a GIS token exists. */
+  useLayoutEffect(() => {
+    if (!user?.publicKey || !user?.sub) return;
+    if (!getGoogleIdToken()) return;
+    if (lastPingSubRef.current === user.sub) return;
+    lastPingSubRef.current = user.sub;
+    void pingUserSeenToApi();
+  }, [user?.publicKey, user?.sub]);
+
   const signOut = useCallback(async () => {
+    lastPingSubRef.current = null;
     clearLocalUser();
     clearGoogleIdToken();
     sessionStorage.removeItem("crowdcare_browse_only");

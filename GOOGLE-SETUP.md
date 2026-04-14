@@ -79,3 +79,28 @@ Google returns a **credential JWT**. CrowdCare reads your Google `sub` and **der
 - **Google button missing or “Setup” banner:** `VITE_GOOGLE_CLIENT_ID` is empty in the **built** app — fix Vercel env (§3) and **redeploy**.
 - **Sign-in fails after click:** Open the browser **console**; confirm **Authorized JavaScript origins** in Google Cloud include the **exact** origin you’re using (`https://crowd-care-ten.vercel.app`, no trailing slash).
 - **Still see old Privy UI:** That was an older deployment; confirm latest commit is deployed and do a hard refresh.
+
+---
+
+## 6. Admin dashboard (`/admin`)
+
+The app records **distinct Google accounts** (`sub`) in Neon when users sign in (or sync/delete a campaign). Only you can read the total via **`/admin`** using HTTP Basic auth.
+
+### 6a. Environment variables (Vercel)
+
+Add for **Production** (and Preview if you use it):
+
+| Key | Value |
+| --- | --- |
+| `ADMIN_USERNAME` | Your chosen login name (e.g. `admin`) |
+| `ADMIN_PASSWORD` | A long random password (only you know it) |
+
+`DATABASE_URL` must already be set (same Neon DB as campaigns). Redeploy after adding variables.
+
+### 6b. Using `/admin`
+
+1. Open `https://your-deployment.vercel.app/admin` (use your real host).
+2. Enter the same **username** and **password** as in §6a.
+3. The page shows **Accounts recorded** (unique Google `sub` values seen by the server).
+
+If you see “Admin is not configured”, the server is missing `ADMIN_USERNAME` / `ADMIN_PASSWORD`. If the count stays `0`, confirm `DATABASE_URL` is set and users have signed in against production (local `npm run dev` only counts if `vercel dev` or API hits your Neon URL).
