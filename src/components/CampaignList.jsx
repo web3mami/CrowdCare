@@ -4,14 +4,24 @@ import {
   getCampaignFunding,
 } from "../lib/crowdcareApp.js";
 
-export function CampaignList({ campaigns }) {
+/**
+ * @param {object[]} campaigns
+ * @param {boolean} [deletable] — show Delete (caller must own these campaigns)
+ * @param {(campaign: object) => void} [onDelete]
+ */
+export function CampaignList({ campaigns, deletable, onDelete }) {
+  const showDelete = !!(deletable && typeof onDelete === "function");
+
   return (
     <ul className="campaign-list">
       {(campaigns || []).map((c) => {
         const fund = getCampaignFunding(c);
         return (
-          <li key={c.id}>
-            <Link to={`/campaign/${encodeURIComponent(c.id)}`}>
+          <li key={c.id} className="campaign-list__item">
+            <Link
+              className="campaign-list__link"
+              to={`/campaign/${encodeURIComponent(c.id)}`}
+            >
               <p className="card-title">{c.title}</p>
               {fund.pct != null && fund.goal ? (
                 <div className="campaign-card-funding">
@@ -37,6 +47,20 @@ export function CampaignList({ campaigns }) {
               ) : null}
               <p className="meta">Goal: {c.goalLabel}</p>
             </Link>
+            {showDelete ? (
+              <button
+                type="button"
+                className="secondary-btn campaign-list__delete"
+                aria-label={`Delete campaign ${c.title}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onDelete(c);
+                }}
+              >
+                Delete
+              </button>
+            ) : null}
           </li>
         );
       })}

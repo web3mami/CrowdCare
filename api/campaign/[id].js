@@ -1,3 +1,4 @@
+import { verifyGoogleIdToken } from "../_lib/auth.js";
 import { getSql } from "../_lib/db.js";
 
 function parsePayload(row) {
@@ -15,17 +16,6 @@ function parsePayload(row) {
 }
 
 export default async function handler(req, res) {
-  if (req.method !== "GET") {
-    res.status(405).setHeader("Allow", "GET").json({ error: "Method not allowed" });
-    return;
-  }
-
-  const sql = getSql();
-  if (!sql) {
-    res.status(404).json({ error: "Not found" });
-    return;
-  }
-
   const raw = req.query?.id;
   const id = Array.isArray(raw) ? raw[0] : raw;
   if (!id || typeof id !== "string" || id.length > 200) {
@@ -33,22 +23,76 @@ export default async function handler(req, res) {
     return;
   }
 
-  try {
-    const rows = await sql`
-      SELECT payload FROM campaigns WHERE id = ${id} LIMIT 1
-    `;
-    if (!rows.length) {
+  const sql = getSql();
+
+  if (req.method === "GET") {
+    if (!sql) {
       res.status(404).json({ error: "Not found" });
       return;
     }
-    const campaign = parsePayload(rows[0]);
-    if (!campaign) {
-      res.status(404).json({ error: "Not found" });
-      return;
+    try {
+      const rows = await sql`
+        SELECT payload FROM campaigns WHERE id = ${id} LIMIT 1
+      `;
+      if (!rows.length) {
+        res.status(404).json({ error: "Not found" });
+        return;
+      }
+      const campaign = parsePayload(rows[0]);
+      if (!campaign) {
+        res.status(404).json({ error: "Not found" });
+        return;
+      }
+      res.status(200).json({ campaign });
+    } catch (e) {
+      console.error("[api/campaign GET]", e);
+      res.status(500).json({ error: "Database error" });
     }
-    res.status(200).json({ campaign });
-  } catch (e) {
-    console.error("[api/campaign]", e);
-    res.status(500).json({ error: "Database error" });
+    return;
   }
+
+  if (req.method === "DELETE") {
+    if (!sql) {
+      res.status(503).json({ error: "Database not configured" });
+      return;
+    }
+    const auth = req.headers.authorization || "";
+    const m = auth.match(/^Bearer\s+(.+)$/i);
+    if (!m) {
+      res.status(401).json({ error: "Missing Authorization bearer token" });
+      return;
+    }
+    const tokenUser = await verifyGoogleIdToken(m[1].trim());
+    if (!tokenUser) {
+      res.status(401).json({ error: "Invalid or expired token" });
+      return;
+    }
+    const sub = tokenUser.sub;
+    try {
+      const rows = await sql`
+        SELECT creator_sub FROM campaigns WHERE id = ${id} LIMIT 1
+      `;
+      if (!rows.length) {
+        res.status(404).json({ error: "Not found" });
+        return;
+      }
+      if (rows[0].creator_sub !== sub) {
+        res.status(403).json({ error: "Forbidden" });
+        return;
+      }
+      await sql`
+        DELETE FROM campaigns WHERE id = ${id} AND creator_sub = ${sub}
+      `;
+      res.status(200).json({ ok: true });
+    } catch (e) {
+      console.error("[api/campaign DELETE]", e);
+      res.status(500).json({ error: "Database error" });
+    }
+    return;
+  }
+
+  res
+    .status(405)
+    .setHeader("Allow", "GET, DELETE")
+    .json({ error: "Method not allowed" });
 }

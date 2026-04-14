@@ -134,6 +134,32 @@ export function addExtraCampaign(campaign) {
 }
 
 /**
+ * Remove a user-created campaign from localStorage (not built-in samples).
+ * @returns {boolean} whether a row was removed
+ */
+export function deleteExtraCampaignById(id) {
+  if (!id || typeof id !== "string") return false;
+  let raw;
+  try {
+    raw = localStorage.getItem(STORAGE_KEY);
+  } catch {
+    return false;
+  }
+  if (!raw) return false;
+  let extra;
+  try {
+    extra = JSON.parse(raw);
+  } catch {
+    return false;
+  }
+  if (!Array.isArray(extra)) return false;
+  const next = extra.filter((c) => !c || c.id !== id);
+  if (next.length === extra.length) return false;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  return true;
+}
+
+/**
  * @returns {{ goal: number|null, raised: number, pct: number|null, currency: string }}
  */
 export function getCampaignFunding(c) {

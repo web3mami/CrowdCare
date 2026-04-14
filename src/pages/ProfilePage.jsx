@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useLayoutEffect, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from "react";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { Link, Navigate } from "react-router-dom";
 import { useSession } from "../context/SessionContext.jsx";
@@ -42,6 +48,7 @@ export function ProfilePage() {
   const [withdrawBusy, setWithdrawBusy] = useState(false);
   const [withdrawError, setWithdrawError] = useState("");
   const [withdrawSig, setWithdrawSig] = useState("");
+  const [campaignListTick, setCampaignListTick] = useState(0);
 
   useEffect(() => {
     sessionStorage.removeItem("crowdcare_next");
@@ -473,7 +480,11 @@ export function ProfilePage() {
               >
                 None yet. <Link to="/create">Create a campaign</Link>.
               </p>
-              <CampaignList campaigns={mine} />
+              <CampaignList
+                campaigns={mine}
+                deletable
+                onDelete={handleDeleteCampaign}
+              />
             </section>
           </div>
 

@@ -60,5 +60,32 @@ export async function syncCampaignToApi(campaign) {
   } catch {
     /* ignore */
   }
+   return { ok: false, error: msg, status: r.status };
+}
+
+/**
+ * Delete campaign on the server (must own the row).
+ * @returns {{ ok: boolean, error?: string, status?: number }}
+ */
+export async function deleteCampaignFromApi(id) {
+  const token = getGoogleIdToken();
+  if (!token) {
+    return { ok: false, error: "no_id_token" };
+  }
+  const r = await fetch(`/api/campaign/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (r.ok) return { ok: true };
+  if (r.status === 404) return { ok: true };
+  let msg = `HTTP ${r.status}`;
+  try {
+    const j = await r.json();
+    if (j?.error) msg = j.error;
+  } catch {
+    /* ignore */
+  }
   return { ok: false, error: msg, status: r.status };
 }
