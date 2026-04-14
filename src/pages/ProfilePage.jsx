@@ -9,7 +9,11 @@ import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { Link, Navigate } from "react-router-dom";
 import { useSession } from "../context/SessionContext.jsx";
 import { CampaignList } from "../components/CampaignList.jsx";
-import { getCampaignsByCreatorSub } from "../lib/crowdcareApp.js";
+import { deleteCampaignFromApi } from "../lib/crowdcareApi.js";
+import {
+  deleteExtraCampaignById,
+  getCampaignsByCreatorSub,
+} from "../lib/crowdcareApp.js";
 import { demoSecretKeyBase58 } from "../lib/keypair.js";
 import {
   SOL_TRANSFER_FEE_BUFFER_LAMPORTS,
@@ -49,6 +53,30 @@ export function ProfilePage() {
   const [withdrawError, setWithdrawError] = useState("");
   const [withdrawSig, setWithdrawSig] = useState("");
   const [campaignListTick, setCampaignListTick] = useState(0);
+
+  const mine = useMemo(
+    () => (user?.sub ? getCampaignsByCreatorSub(user.sub) : []),
+    [user?.sub, campaignListTick]
+  );
+
+  const handleDeleteCampaign = useCallback(
+    (c) => {
+      if (!user?.sub || c.creatorSub !== user.sub) return;
+      if (
+        !window.confirm(
+          `Delete “${c.title}”? It will be removed here and from your online hub (when signed in).`
+        )
+      ) {
+        return;
+      }
+      deleteExtraCampaignById(c.id);
+      setCampaignListTick((t) => t + 1);
+      void deleteCampaignFromApi(c.id).then((r) => {
+        if (!r.ok) console.warn("[CrowdCare] Server delete:", r.error);
+      });
+    },
+    [user?.sub]
+  );
 
   useEffect(() => {
     sessionStorage.removeItem("crowdcare_next");
@@ -107,8 +135,6 @@ export function ProfilePage() {
   } catch {
     /* keep relative */
   }
-
-  const mine = getCampaignsByCreatorSub(user.sub);
 
   function copyHub() {
     function done() {
