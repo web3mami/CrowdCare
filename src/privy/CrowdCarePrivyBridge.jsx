@@ -19,35 +19,62 @@ function pickPrivyEmail(privyUser) {
 
 function isSolanaChain(chain) {
   const s = String(chain ?? "").toLowerCase();
-  return s === "solana" || s === "solana:mainnet" || s === "sol";
+  return (
+    s === "solana" ||
+    s === "solana:mainnet" ||
+    s === "solana:devnet" ||
+    s === "solana:testnet" ||
+    s === "sol"
+  );
 }
 
-/** Solana address: external connectors first, then embedded / linked wallets on the Privy user. */
+function isPrivyEmbeddedWallet(a) {
+  const t = String(a?.walletClientType ?? "").toLowerCase();
+  return t === "privy" || t === "privy-v2" || t.startsWith("privy");
+}
+
+/** Base58 pubkey shape; excludes 0x (EVM). */
+function looksLikeSolanaPubkey(addr) {
+  if (!addr || typeof addr !== "string") return false;
+  if (addr.startsWith("0x")) return false;
+  if (addr.length < 32 || addr.length > 52) return false;
+  return /^[1-9A-HJ-NP-Za-km-z]+$/.test(addr);
+}
+
+/**
+ * Solana address: connector accounts first, then linked embedded wallets.
+ * Privy sometimes omits chainType on fresh embedded wallets; SDK filters require
+ * chainType === "solana" exactly, which would hide the account from useWallets().
+ */
 function pickSolanaAddress(privyUser, wallets) {
   const fromConnectors = wallets?.[0]?.address;
-  if (fromConnectors) return fromConnectors;
+  if (fromConnectors && looksLikeSolanaPubkey(fromConnectors)) {
+    return fromConnectors;
+  }
 
-  const linked = privyUser?.linkedAccounts?.filter((a) => a.type === "wallet");
-  if (linked?.length) {
-    const solana = linked.filter((a) =>
-      isSolanaChain(a.chainType ?? a.chain)
-    );
-    const embedded = solana.find(
-      (a) =>
-        a.walletClientType === "privy" ||
-        a.walletClientType === "privy-v2"
-    );
-    if (embedded && "address" in embedded && embedded.address) {
+  const linked =
+    privyUser?.linkedAccounts?.filter((a) => a.type === "wallet") ?? [];
+
+  const isSolanaLinked = (a) =>
+    isSolanaChain(a.chainType ?? a.chain) ||
+    (isPrivyEmbeddedWallet(a) && looksLikeSolanaPubkey(a.address));
+
+  const candidates = linked.filter(isSolanaLinked);
+  if (candidates.length) {
+    const embedded = candidates.find(isPrivyEmbeddedWallet);
+    if (embedded?.address && looksLikeSolanaPubkey(embedded.address)) {
       return embedded.address;
     }
-    const any = solana[0];
-    if (any && "address" in any && any.address) return any.address;
+    const any = candidates[0];
+    if (any?.address && looksLikeSolanaPubkey(any.address)) return any.address;
   }
 
   const first = privyUser?.wallet;
   if (
     first?.address &&
-    isSolanaChain(first.chainType ?? first.chain)
+    looksLikeSolanaPubkey(first.address) &&
+    (isSolanaChain(first.chainType ?? first.chain) ||
+      isPrivyEmbeddedWallet(first))
   ) {
     return first.address;
   }
@@ -69,17 +96,25 @@ export function CrowdCarePrivyBridge() {
 
   const privyUserRef = useRef(privyUser);
   const walletsRef = useRef(wallets);
+  const authenticatedRef = useRef(authenticated);
   privyUserRef.current = privyUser;
   walletsRef.current = wallets;
+  authenticatedRef.current = authenticated;
 
+  // Debounce: during OAuth return, Privy can briefly report unauthenticated.
+  // Clearing localStorage immediately was wiping session and breaking the flow.
   useEffect(() => {
     if (!ready || authenticated) return;
-    const u = getUser();
-    if (u?.authProvider === "privy") {
-      signOut();
-      lastSyncedPrivyId.current = null;
-      refresh();
-    }
+    const t = window.setTimeout(() => {
+      if (authenticatedRef.current) return;
+      const u = getUser();
+      if (u?.authProvider === "privy") {
+        signOut();
+        lastSyncedPrivyId.current = null;
+        refresh();
+      }
+    }, 1500);
+    return () => window.clearTimeout(t);
   }, [ready, authenticated, refresh]);
 
   useEffect(() => {
