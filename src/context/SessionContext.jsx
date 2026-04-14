@@ -35,8 +35,9 @@ export function SessionProvider({ children }) {
   }, []);
 
   const ensureShareSlug = useCallback(() => {
-    sessionEnsureShareSlug();
-    refresh();
+    if (sessionEnsureShareSlug()) {
+      refresh();
+    }
   }, [refresh]);
 
   const updateProfile = useCallback(

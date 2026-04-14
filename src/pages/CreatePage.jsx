@@ -73,7 +73,7 @@ export function CreatePage() {
       ensureShareSlug();
       setWallet(user.publicKey);
     }
-  }, [user, ensureShareSlug]);
+  }, [user?.publicKey, ensureShareSlug]);
 
   if (!user || !user.publicKey) {
     return <Navigate to="/?signin=1" replace />;

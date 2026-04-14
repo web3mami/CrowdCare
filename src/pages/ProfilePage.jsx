@@ -1,9 +1,19 @@
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useState } from "react";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { Link, Navigate } from "react-router-dom";
 import { useSession } from "../context/SessionContext.jsx";
 import { CampaignList } from "../components/CampaignList.jsx";
 import { getCampaignsByCreatorSub } from "../lib/crowdcareApp.js";
 import { demoSecretKeyBase58 } from "../lib/keypair.js";
+import {
+  SOL_TRANSFER_FEE_BUFFER_LAMPORTS,
+  fetchWalletBalanceLamports,
+  getSolanaRpcUrl,
+  isValidSolanaAddress,
+  lamportsToSolDisplay,
+  transactionExplorerUrl,
+  transferSolFromDemoWallet,
+} from "../lib/solanaWallet.js";
 
 export function ProfilePage() {
   const { user, ensureShareSlug, updateProfile } = useSession();
@@ -23,6 +33,16 @@ export function ProfilePage() {
   const [exportError, setExportError] = useState("");
   const [copyKeyLabel, setCopyKeyLabel] = useState("Copy key");
 
+  const [balanceLamports, setBalanceLamports] = useState(null);
+  const [balanceLoading, setBalanceLoading] = useState(false);
+  const [balanceError, setBalanceError] = useState("");
+  const [withdrawOpen, setWithdrawOpen] = useState(false);
+  const [withdrawTo, setWithdrawTo] = useState("");
+  const [withdrawAmountSol, setWithdrawAmountSol] = useState("");
+  const [withdrawBusy, setWithdrawBusy] = useState(false);
+  const [withdrawError, setWithdrawError] = useState("");
+  const [withdrawSig, setWithdrawSig] = useState("");
+
   useEffect(() => {
     sessionStorage.removeItem("crowdcare_next");
   }, []);
@@ -31,7 +51,27 @@ export function ProfilePage() {
     if (user?.publicKey) {
       ensureShareSlug();
     }
-  }, [user, ensureShareSlug]);
+  }, [user?.publicKey, ensureShareSlug]);
+
+  const loadBalance = useCallback(async () => {
+    if (!user?.publicKey) return;
+    setBalanceError("");
+    setBalanceLoading(true);
+    try {
+      const lamports = await fetchWalletBalanceLamports(user.publicKey);
+      setBalanceLamports(lamports);
+    } catch {
+      setBalanceError("Could not load balance. Check your network or RPC URL.");
+      setBalanceLamports(null);
+    } finally {
+      setBalanceLoading(false);
+    }
+  }, [user?.publicKey]);
+
+  useEffect(() => {
+    if (!user?.publicKey) return;
+    void loadBalance();
+  }, [user?.publicKey, loadBalance]);
 
   useEffect(() => {
     if (user?.username != null) {
@@ -158,6 +198,74 @@ export function ProfilePage() {
     setExportAck(false);
   }
 
+  function parseWithdrawLamports() {
+    const t = String(withdrawAmountSol).trim().replace(/,/g, "");
+    const n = Number(t);
+    if (!Number.isFinite(n) || n <= 0) return null;
+    const lamports = Math.floor(n * LAMPORTS_PER_SOL);
+    return lamports > 0 ? lamports : null;
+  }
+
+  function setMaxWithdraw() {
+    if (balanceLamports == null) return;
+    const spendable = Math.max(0, balanceLamports - SOL_TRANSFER_FEE_BUFFER_LAMPORTS);
+    if (spendable <= 0) {
+      setWithdrawAmountSol("0");
+      return;
+    }
+    const sol = spendable / LAMPORTS_PER_SOL;
+    setWithdrawAmountSol(
+      sol < 0.000001 ? String(sol) : sol.toFixed(9).replace(/\.?0+$/, "")
+    );
+  }
+
+  async function submitWithdraw(e) {
+    e.preventDefault();
+    setWithdrawError("");
+    setWithdrawSig("");
+    const to = withdrawTo.trim();
+    if (!isValidSolanaAddress(to)) {
+      setWithdrawError("Enter a valid Solana address.");
+      return;
+    }
+    if (to === user.publicKey) {
+      setWithdrawError("Recipient must be a different address.");
+      return;
+    }
+    const lamports = parseWithdrawLamports();
+    if (lamports == null) {
+      setWithdrawError("Enter an amount greater than zero.");
+      return;
+    }
+    if (balanceLamports == null) {
+      setWithdrawError("Balance not loaded yet.");
+      return;
+    }
+    if (lamports + SOL_TRANSFER_FEE_BUFFER_LAMPORTS > balanceLamports) {
+      setWithdrawError(
+        "Not enough SOL for this amount plus network fees. Try Max or a smaller amount."
+      );
+      return;
+    }
+    setWithdrawBusy(true);
+    try {
+      const sig = await transferSolFromDemoWallet(user.sub, to, lamports);
+      setWithdrawSig(sig);
+      setWithdrawTo("");
+      setWithdrawAmountSol("");
+      await loadBalance();
+    } catch (err) {
+      console.error("[CrowdCare] Withdraw failed:", err);
+      setWithdrawError(
+        err?.message?.includes("insufficient")
+          ? "Insufficient funds (fees or amount)."
+          : "Transfer failed. Check the address, amount, and console."
+      );
+    } finally {
+      setWithdrawBusy(false);
+    }
+  }
+
   function copyKey() {
     const t = exportSecret;
     if (!t) return;
@@ -174,220 +282,380 @@ export function ProfilePage() {
     }
   }
 
+  const rpcHost = (() => {
+    try {
+      return new URL(getSolanaRpcUrl()).host;
+    } catch {
+      return "RPC";
+    }
+  })();
+
   return (
-    <>
+    <div className="profile-page-wrap">
       <p className="back">
         <Link to="/app">← Home</Link>
       </p>
 
-      <article className="content-shell profile-shell">
-        <h1 className="site-title">Profile</h1>
-        <p className="lead lead--compact">
-          Stored in this browser. Hub link lists your campaigns here only until
-          you add a server.
-        </p>
-
-        <div className="content-shell ft-panel share-link-panel">
-          <p className="ft-kicker">Share</p>
-          <p className="ft-panel-title share-link-title">Hub link</p>
-          <p className="share-link-explainer share-link-explainer--short">
-            One URL for all your campaigns on this device.
+      <div className="profile-layout">
+        <header className="profile-layout-head">
+          <h1 className="site-title">Profile</h1>
+          <p className="lead lead--compact profile-layout-lead">
+            Stored in this browser. Hub link lists your campaigns here only until
+            you add a server.
           </p>
-          <div className="share-link-row">
-            <code id="profile-hub-url" className="share-link-url">
-              {hubRel}
-            </code>
-            <button
-              type="button"
-              className="secondary-btn"
-              id="profile-copy-hub"
-              onClick={copyHub}
-            >
-              Copy
-            </button>
+        </header>
+
+        <section className="content-shell ft-panel profile-wallet-panel">
+          <p className="ft-kicker">On-chain</p>
+          <p className="ft-panel-title">Balance</p>
+          <div className="profile-wallet-top">
+            <div className="profile-balance-block">
+              <p className="profile-balance-label">Available SOL</p>
+              <p className="profile-balance-amount" aria-live="polite">
+                {balanceLoading && balanceLamports === null
+                  ? "…"
+                  : balanceLamports != null
+                    ? lamportsToSolDisplay(balanceLamports)
+                    : "—"}
+                {balanceLamports != null ? (
+                  <span className="profile-balance-unit"> SOL</span>
+                ) : null}
+              </p>
+              <p className="profile-balance-meta">
+                Via <span className="mono">{rpcHost}</span>
+                {balanceLamports != null
+                  ? ` · ~${lamportsToSolDisplay(SOL_TRANSFER_FEE_BUFFER_LAMPORTS)} SOL reserved for fees when withdrawing`
+                  : null}
+              </p>
+            </div>
+            <div className="profile-wallet-actions">
+              <button
+                type="button"
+                className="secondary-btn"
+                id="profile-refresh-balance"
+                disabled={balanceLoading}
+                onClick={() => void loadBalance()}
+              >
+                {balanceLoading ? "Refreshing…" : "Refresh"}
+              </button>
+              <button
+                type="button"
+                className="profile-withdraw-toggle"
+                id="profile-withdraw-toggle"
+                onClick={() => {
+                  setWithdrawOpen((o) => !o);
+                  setWithdrawError("");
+                  setWithdrawSig("");
+                }}
+              >
+                {withdrawOpen ? "Close withdraw" : "Withdraw"}
+              </button>
+            </div>
           </div>
-        </div>
-
-        <section className="content-shell ft-panel profile-campaigns-panel">
-          <p className="ft-kicker">Campaigns</p>
-          <p className="ft-panel-title">Yours</p>
           <p
-            id="profile-campaigns-empty"
-            className="note note--tight"
-            hidden={mine.length > 0}
+            id="profile-balance-error"
+            className="form-error profile-balance-error"
+            hidden={!balanceError}
           >
-            None yet. <Link to="/create">Create a campaign</Link>.
+            {balanceError}
           </p>
-          <CampaignList campaigns={mine} />
+
+          <div className="profile-withdraw-panel" hidden={!withdrawOpen}>
+            <p className="profile-withdraw-lead note--tight">
+              Send SOL from this CrowdCare-derived address to any wallet. The
+              transaction is signed in this browser only.
+            </p>
+            <form
+              id="profile-withdraw-form"
+              className="profile-withdraw-form"
+              onSubmit={submitWithdraw}
+            >
+              <div className="form-field">
+                <label htmlFor="profile-withdraw-to">Recipient address</label>
+                <input
+                  id="profile-withdraw-to"
+                  name="withdrawTo"
+                  type="text"
+                  autoComplete="off"
+                  placeholder="Solana public key"
+                  value={withdrawTo}
+                  onChange={(e) => setWithdrawTo(e.target.value)}
+                />
+              </div>
+              <div className="form-field profile-withdraw-amount-row">
+                <label htmlFor="profile-withdraw-amount">Amount (SOL)</label>
+                <div className="profile-withdraw-amount-inner">
+                  <input
+                    id="profile-withdraw-amount"
+                    name="withdrawAmount"
+                    type="text"
+                    inputMode="decimal"
+                    autoComplete="off"
+                    placeholder="0"
+                    value={withdrawAmountSol}
+                    onChange={(e) => setWithdrawAmountSol(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="secondary-btn profile-withdraw-max"
+                    id="profile-withdraw-max"
+                    disabled={
+                      balanceLoading ||
+                      balanceLamports == null ||
+                      balanceLamports <= SOL_TRANSFER_FEE_BUFFER_LAMPORTS
+                    }
+                    onClick={setMaxWithdraw}
+                  >
+                    Max
+                  </button>
+                </div>
+              </div>
+              <p
+                id="profile-withdraw-error"
+                className="form-error"
+                hidden={!withdrawError}
+              >
+                {withdrawError}
+              </p>
+              {withdrawSig ? (
+                <p className="form-success profile-withdraw-success">
+                  Sent.{" "}
+                  <a
+                    href={transactionExplorerUrl(withdrawSig)}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    View transaction
+                  </a>
+                </p>
+              ) : null}
+              <button
+                type="submit"
+                className="profile-withdraw-submit"
+                disabled={withdrawBusy || balanceLoading}
+              >
+                {withdrawBusy ? "Sending…" : "Send SOL"}
+              </button>
+            </form>
+          </div>
         </section>
 
-        <div
-          id="wallet-export-panel"
-          className="content-shell ft-panel wallet-export-panel"
-        >
-          <p className="ft-kicker">Wallet</p>
-          <p className="ft-panel-title">Use in Phantom / Solflare</p>
-
-          <p className="wallet-export-lead note--tight">
-            Your Solana address is <strong>derived in this browser</strong> from
-            your Google account id (demo-style seed). Anyone with the private
-            key controls funds.
-          </p>
-          <ol className="wallet-export-steps">
-            <li>Reveal and copy the key below.</li>
-            <li>
-              Phantom: Settings → Add / Connect wallet → Import private key.
-              (Solflare: similar.)
-            </li>
-            <li>Paste the key. Hide it again when done.</li>
-          </ol>
-          <label className="wallet-export-ack-label">
-            <input
-              type="checkbox"
-              id="wallet-export-ack"
-              checked={exportAck}
-              onChange={(e) => setExportAck(e.target.checked)}
-            />
-            I understand exposing this key can drain the wallet.
-          </label>
-          <p
-            id="wallet-export-error"
-            className="form-error"
-            hidden={!exportError}
-          >
-            {exportError}
-          </p>
-          <div className="wallet-export-actions">
-            {!exportShown ? (
-              <button
-                type="button"
-                className="secondary-btn"
-                id="wallet-export-reveal"
-                disabled={exportLoading}
-                onClick={revealDemoKey}
-              >
-                {exportLoading ? "Loading…" : "Show private key"}
-              </button>
-            ) : null}
-            {exportShown ? (
-              <>
+        <div className="profile-layout-columns">
+          <div className="profile-layout-col">
+            <div className="content-shell ft-panel share-link-panel">
+              <p className="ft-kicker">Share</p>
+              <p className="ft-panel-title share-link-title">Hub link</p>
+              <p className="share-link-explainer share-link-explainer--short">
+                One URL for all your campaigns on this device.
+              </p>
+              <div className="share-link-row">
+                <code id="profile-hub-url" className="share-link-url">
+                  {hubRel}
+                </code>
                 <button
                   type="button"
                   className="secondary-btn"
-                  id="wallet-export-copy"
-                  onClick={copyKey}
+                  id="profile-copy-hub"
+                  onClick={copyHub}
                 >
-                  {copyKeyLabel}
+                  Copy
                 </button>
-                <button
-                  type="button"
-                  className="secondary-btn"
-                  id="wallet-export-hide"
-                  onClick={hideKey}
-                >
-                  Hide
-                </button>
-              </>
-            ) : null}
-          </div>
-          <textarea
-            id="wallet-export-secret"
-            className="wallet-export-secret"
-            readOnly
-            hidden={!exportShown}
-            rows={3}
-            autoComplete="off"
-            aria-label="Exported private key"
-            value={exportSecret}
-            onChange={() => {}}
-          />
-        </div>
-
-        <p id="profile-error" className="form-error" hidden={!error}>
-          {error}
-        </p>
-        <p id="profile-saved" className="form-success" hidden={!saved}>
-          Saved.
-        </p>
-
-        <form id="profile-form" className="profile-form" noValidate onSubmit={onSubmit}>
-          <h2 className="section-heading section-heading--inline">Account</h2>
-          <div className="profile-avatar-row">
-            <div className="profile-avatar-preview-wrap">
-              {previewUrl ? (
-                <img
-                  id="profile-avatar-preview"
-                  className="profile-avatar-preview"
-                  src={previewUrl}
-                  alt=""
-                  width="120"
-                  height="120"
-                />
-              ) : null}
-              <div
-                id="profile-avatar-placeholder"
-                className="profile-avatar-placeholder"
-                hidden={placeholderHidden}
-              >
-                No photo
               </div>
             </div>
-            <div className="profile-avatar-actions">
-              <div className="form-field">
-                <label htmlFor="profile-avatar">Photo</label>
-                <input
-                  id="profile-avatar"
-                  name="avatar"
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp,image/gif"
-                  onChange={onAvatarChange}
-                />
-                <p className="form-hint">Max ~750 KB.</p>
-              </div>
-              <button
-                type="button"
-                className="secondary-btn"
-                id="profile-remove-avatar"
-                onClick={removeAvatar}
+
+            <section className="content-shell ft-panel profile-campaigns-panel">
+              <p className="ft-kicker">Campaigns</p>
+              <p className="ft-panel-title">Yours</p>
+              <p
+                id="profile-campaigns-empty"
+                className="note note--tight"
+                hidden={mine.length > 0}
               >
-                Remove photo
-              </button>
-            </div>
+                None yet. <Link to="/create">Create a campaign</Link>.
+              </p>
+              <CampaignList campaigns={mine} />
+            </section>
           </div>
 
-          <div className="form-field">
-            <label htmlFor="profile-username">Display name</label>
-            <input
-              id="profile-username"
-              name="username"
-              type="text"
-              maxLength={40}
-              autoComplete="nickname"
-              placeholder="Optional"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-          </div>
-
-          <div className="profile-readonly-block">
-            <p className="profile-readonly-label">Email</p>
-            <p id="profile-email" className="profile-readonly-value">
-              {user.email || "—"}
-            </p>
-          </div>
-          <div className="profile-readonly-block">
-            <p className="profile-readonly-label">Solana address</p>
-            <p
-              id="profile-address"
-              className="profile-readonly-value mono profile-address-wrap"
+          <div className="profile-layout-col">
+            <div
+              id="wallet-export-panel"
+              className="content-shell ft-panel wallet-export-panel"
             >
-              {user.publicKey}
-            </p>
-          </div>
+              <p className="ft-kicker">Export</p>
+              <p className="ft-panel-title">Use in Phantom / Solflare</p>
 
-          <button type="submit">Save</button>
-        </form>
-      </article>
-    </>
+              <p className="wallet-export-lead note--tight">
+                Your Solana address is <strong>derived in this browser</strong>{" "}
+                from your Google account id (demo-style seed). Anyone with the
+                private key controls funds.
+              </p>
+              <ol className="wallet-export-steps">
+                <li>Reveal and copy the key below.</li>
+                <li>
+                  Phantom: Settings → Add / Connect wallet → Import private key.
+                  (Solflare: similar.)
+                </li>
+                <li>Paste the key. Hide it again when done.</li>
+              </ol>
+              <label className="wallet-export-ack-label">
+                <input
+                  type="checkbox"
+                  id="wallet-export-ack"
+                  checked={exportAck}
+                  onChange={(e) => setExportAck(e.target.checked)}
+                />
+                I understand exposing this key can drain the wallet.
+              </label>
+              <p
+                id="wallet-export-error"
+                className="form-error"
+                hidden={!exportError}
+              >
+                {exportError}
+              </p>
+              <div className="wallet-export-actions">
+                {!exportShown ? (
+                  <button
+                    type="button"
+                    className="secondary-btn"
+                    id="wallet-export-reveal"
+                    disabled={exportLoading}
+                    onClick={revealDemoKey}
+                  >
+                    {exportLoading ? "Loading…" : "Show private key"}
+                  </button>
+                ) : null}
+                {exportShown ? (
+                  <>
+                    <button
+                      type="button"
+                      className="secondary-btn"
+                      id="wallet-export-copy"
+                      onClick={copyKey}
+                    >
+                      {copyKeyLabel}
+                    </button>
+                    <button
+                      type="button"
+                      className="secondary-btn"
+                      id="wallet-export-hide"
+                      onClick={hideKey}
+                    >
+                      Hide
+                    </button>
+                  </>
+                ) : null}
+              </div>
+              <textarea
+                id="wallet-export-secret"
+                className="wallet-export-secret"
+                readOnly
+                hidden={!exportShown}
+                rows={3}
+                autoComplete="off"
+                aria-label="Exported private key"
+                value={exportSecret}
+                onChange={() => {}}
+              />
+            </div>
+
+            <div className="content-shell ft-panel profile-account-panel">
+              <p id="profile-error" className="form-error" hidden={!error}>
+                {error}
+              </p>
+              <p id="profile-saved" className="form-success" hidden={!saved}>
+                Saved.
+              </p>
+
+              <form
+                id="profile-form"
+                className="profile-form"
+                noValidate
+                onSubmit={onSubmit}
+              >
+                <h2 className="section-heading section-heading--inline">
+                  Account
+                </h2>
+                <div className="profile-avatar-row">
+                  <div className="profile-avatar-preview-wrap">
+                    {previewUrl ? (
+                      <img
+                        id="profile-avatar-preview"
+                        className="profile-avatar-preview"
+                        src={previewUrl}
+                        alt=""
+                        width="120"
+                        height="120"
+                      />
+                    ) : null}
+                    <div
+                      id="profile-avatar-placeholder"
+                      className="profile-avatar-placeholder"
+                      hidden={placeholderHidden}
+                    >
+                      No photo
+                    </div>
+                  </div>
+                  <div className="profile-avatar-actions">
+                    <div className="form-field">
+                      <label htmlFor="profile-avatar">Photo</label>
+                      <input
+                        id="profile-avatar"
+                        name="avatar"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        onChange={onAvatarChange}
+                      />
+                      <p className="form-hint">Max ~750 KB.</p>
+                    </div>
+                    <button
+                      type="button"
+                      className="secondary-btn"
+                      id="profile-remove-avatar"
+                      onClick={removeAvatar}
+                    >
+                      Remove photo
+                    </button>
+                  </div>
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="profile-username">Display name</label>
+                  <input
+                    id="profile-username"
+                    name="username"
+                    type="text"
+                    maxLength={40}
+                    autoComplete="nickname"
+                    placeholder="Optional"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                  />
+                </div>
+
+                <div className="profile-readonly-block">
+                  <p className="profile-readonly-label">Email</p>
+                  <p id="profile-email" className="profile-readonly-value">
+                    {user.email || "—"}
+                  </p>
+                </div>
+                <div className="profile-readonly-block">
+                  <p className="profile-readonly-label">Solana address</p>
+                  <p
+                    id="profile-address"
+                    className="profile-readonly-value mono profile-address-wrap"
+                  >
+                    {user.publicKey}
+                  </p>
+                </div>
+
+                <button type="submit">Save</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -32,11 +32,13 @@ export function GatePage() {
   const credentialHandlerRef = useRef(() => {});
   const gisInitializedRef = useRef(false);
 
-  const [browseOnly] = useState(
-    () =>
-      typeof sessionStorage !== "undefined" &&
-      sessionStorage.getItem(BROWSE_KEY) === "1"
-  );
+  /** Must not use a one-time useState snapshot — sign-in clears BROWSE_KEY in an effect, and stale `true` bounced users away from the gate. */
+  const signingInIntent =
+    searchParams.get("signin") === "1" && !user?.publicKey;
+  const browseOnly =
+    typeof sessionStorage !== "undefined" &&
+    !signingInIntent &&
+    sessionStorage.getItem(BROWSE_KEY) === "1";
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.location.protocol === "file:") {
@@ -91,7 +93,12 @@ export function GatePage() {
 
       setUser(next);
       refresh();
-      navigate("/app", { replace: true });
+      sessionStorage.removeItem(BROWSE_KEY);
+      const storedNext = safeInternalPath(
+        sessionStorage.getItem(NEXT_KEY) || ""
+      );
+      if (storedNext) sessionStorage.removeItem(NEXT_KEY);
+      navigate(storedNext || "/app", { replace: true });
     } catch (err) {
       console.error("[CrowdCare] Google sign-in failed:", err);
       setGisError("Sign-in failed. Check console and Google Cloud OAuth settings.");
@@ -164,10 +171,8 @@ export function GatePage() {
     navigate("/app", { replace: true });
   }
 
-  if (user?.publicKey || browseOnly) {
-    if (browseOnly) {
-      return <Navigate to="/app" replace />;
-    }
+  if (user?.publicKey) {
+    sessionStorage.removeItem(BROWSE_KEY);
     const nextFromQuery = safeInternalPath(searchParams.get("next") || "");
     const stored = sessionStorage.getItem(NEXT_KEY);
     const to = nextFromQuery || safeInternalPath(stored || "");
@@ -176,6 +181,10 @@ export function GatePage() {
       return <Navigate to={to} replace />;
     }
     sessionStorage.removeItem(NEXT_KEY);
+    return <Navigate to="/app" replace />;
+  }
+
+  if (browseOnly) {
     return <Navigate to="/app" replace />;
   }
 
@@ -188,40 +197,128 @@ export function GatePage() {
       <div className="layout-content">
         <div id="gate" className="gate-screen">
           {!gateStarted ? (
-            <div className="gate-welcome gate-welcome--pop-in">
-              <img
-                className="gate-welcome-logo"
-                src="/assets/logo-mark.svg"
-                width="64"
-                height="64"
-                alt=""
-                decoding="async"
-              />
-              <p className="gate-welcome-name">CrowdCare</p>
-              <p className="gate-welcome-tagline">
-                Crowdfunding on <strong>Solana</strong>
-              </p>
-              <button
-                type="button"
-                className="gate-start-btn"
-                id="gate-start-btn"
-                onClick={startGate}
-              >
-                Start CrowdCare
-              </button>
-              <p className="gate-welcome-skip">
+            <div className="gate-welcome-outer gate-welcome--pop-in">
+              <div className="gate-welcome-card gate-landing-card">
+                <p className="gate-welcome-kicker">Solana · transparent funding</p>
+
+                <div className="gate-landing-hero">
+                  <div className="gate-landing-hero-main">
+                    <img
+                      className="gate-welcome-logo"
+                      src="/assets/logo-mark.svg"
+                      width="64"
+                      height="64"
+                      alt=""
+                      decoding="async"
+                    />
+                    <p className="gate-welcome-name">CrowdCare</p>
+                    <p className="gate-welcome-tagline">
+                      Crowdfunding on <strong>Solana</strong>
+                    </p>
+                    <p className="gate-value-prop">
+                      One <strong>hub link</strong> lists every campaign you run. Supporters
+                      send funds to <strong>your Solana address</strong>—this app never
+                      holds money. This build is a <strong>browser demo</strong>; add a
+                      server when you are ready to go live.
+                    </p>
+                  </div>
+                  <div className="gate-landing-preview" aria-hidden="true">
+                    <div className="gate-preview-window">
+                      <div className="gate-preview-window-dots">
+                        <span />
+                        <span />
+                        <span />
+                      </div>
+                      <p className="gate-preview-window-url">crowdcare.app/hub/your-name</p>
+                    </div>
+                    <div className="gate-preview-card">
+                      <span className="gate-preview-badge">Active</span>
+                      <p className="gate-preview-title">Neighborhood storm relief</p>
+                      <p className="gate-preview-meta">Goal 85 SOL · on-chain totals not verified here</p>
+                      <div
+                        className="gate-preview-bar"
+                        role="presentation"
+                      >
+                        <span className="gate-preview-bar-fill" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <ul className="gate-trust-list">
+                  <li>Donations use the wallet address shown on each campaign page.</li>
+                  <li>
+                    We do not custody or reconcile on-chain activity—always verify yourself.
+                  </li>
+                </ul>
+
+                <div className="gate-steps" aria-label="How CrowdCare works">
+                  <div className="gate-step">
+                    <span className="gate-step-num" aria-hidden="true">
+                      1
+                    </span>
+                    <div className="gate-step-body">
+                      <p className="gate-step-title">Sign in</p>
+                      <p className="gate-step-text">
+                        Google verifies you; a demo wallet is derived in this browser only.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="gate-step">
+                    <span className="gate-step-num" aria-hidden="true">
+                      2
+                    </span>
+                    <div className="gate-step-body">
+                      <p className="gate-step-title">Create &amp; share</p>
+                      <p className="gate-step-text">
+                        Publish campaigns and share one hub link with your community.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="gate-step">
+                    <span className="gate-step-num" aria-hidden="true">
+                      3
+                    </span>
+                    <div className="gate-step-body">
+                      <p className="gate-step-title">Receive on Solana</p>
+                      <p className="gate-step-text">
+                        Supporters send to your public address—same as any Solana wallet.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 <button
                   type="button"
-                  className="bare"
-                  id="browse-skip-welcome"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    goBrowse();
-                  }}
+                  className="gate-start-btn"
+                  id="gate-start-btn"
+                  onClick={startGate}
                 >
-                  Browse only
+                  Start CrowdCare
                 </button>
-              </p>
+                <p className="gate-welcome-skip">
+                  <button
+                    type="button"
+                    className="bare gate-browse-link"
+                    id="browse-skip-welcome"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      goBrowse();
+                    }}
+                  >
+                    See active &amp; past campaigns without signing in
+                  </button>
+                </p>
+              </div>
+              <footer className="gate-landing-footer">
+                <span className="gate-landing-footer-brand">CrowdCare</span>
+                <span className="gate-landing-footer-sep" aria-hidden>
+                  ·
+                </span>
+                <span className="gate-landing-footer-meta">
+                  Demo — data in this browser only. Not financial advice.
+                </span>
+              </footer>
             </div>
           ) : (
             <div
@@ -242,8 +339,8 @@ export function GatePage() {
               <img
                 className="gate-welcome-logo"
                 src="/assets/logo-mark.svg"
-                width="64"
-                height="64"
+                width="48"
+                height="48"
                 alt=""
                 decoding="async"
               />
@@ -289,14 +386,14 @@ export function GatePage() {
               <p className="gate-welcome-skip gate-skip-centered">
                 <button
                   type="button"
-                  className="bare"
+                  className="bare gate-browse-link"
                   id="browse-skip-auth"
                   onClick={(e) => {
                     e.preventDefault();
                     goBrowse();
                   }}
                 >
-                  Browse only
+                  See campaigns without signing in
                 </button>
               </p>
             </div>

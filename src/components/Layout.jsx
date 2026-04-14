@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useSession } from "../context/SessionContext.jsx";
 
 export function Layout() {
@@ -36,6 +36,12 @@ export function Layout() {
     return () => document.body.classList.remove("campaigns-directory-page");
   }, [location.pathname]);
 
+  useEffect(() => {
+    const on = location.pathname === "/profile";
+    document.body.classList.toggle("profile-page", on);
+    return () => document.body.classList.remove("profile-page");
+  }, [location.pathname]);
+
   function closeDrawer() {
     setDrawerOpen(false);
   }
@@ -61,7 +67,10 @@ export function Layout() {
               alt=""
               decoding="async"
             />
-            <span className="brand-text">CrowdCare</span>
+            <span className="brand-text-stack">
+              <span className="brand-text">CrowdCare</span>
+              <span className="brand-desc">Solana crowdfunding</span>
+            </span>
           </Link>
           <button
             type="button"
@@ -92,7 +101,7 @@ export function Layout() {
               aria-modal="true"
               aria-labelledby="nav-drawer-title"
               onClick={(e) => {
-                if (e.target.closest?.(".nav-drawer-list a")) closeDrawer();
+                if (e.target.closest?.(".nav-drawer-body a")) closeDrawer();
               }}
             >
               <div className="nav-drawer-header">
@@ -112,34 +121,77 @@ export function Layout() {
                   ×
                 </button>
               </div>
-              <ul className="nav-drawer-list">
-                <li hidden={!signedIn}>
-                  <Link to="/profile">Profile</Link>
-                </li>
-                <li>
-                  <Link to="/campaigns/active">Active campaigns</Link>
-                </li>
-                <li>
-                  <Link to="/campaigns/past">Past campaigns</Link>
-                </li>
-                <li hidden={!signedIn}>
-                  <Link to="/create">Create a campaign</Link>
-                </li>
-                <li hidden={!signedIn}>
-                  <Link to="/my-campaigns">My campaigns</Link>
-                </li>
-                <li>
-                  {signedIn ? (
-                    <a href="#" id="drawer-auth" onClick={onAuthClick}>
-                      Sign out
-                    </a>
-                  ) : (
-                    <Link to="/?signin=1" id="drawer-auth">
-                      Sign in
-                    </Link>
-                  )}
-                </li>
-              </ul>
+              <div className="nav-drawer-body">
+                <p className="nav-drawer-group-label">Explore</p>
+                <ul className="nav-drawer-list">
+                  <li>
+                    <NavLink
+                      to="/campaigns/active"
+                      className={({ isActive }) => (isActive ? "is-active" : "")}
+                    >
+                      Active campaigns
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to="/campaigns/past"
+                      className={({ isActive }) => (isActive ? "is-active" : "")}
+                    >
+                      Past campaigns
+                    </NavLink>
+                  </li>
+                </ul>
+                {signedIn ? (
+                  <>
+                    <p className="nav-drawer-group-label">Your space</p>
+                    <ul className="nav-drawer-list">
+                      <li>
+                        <NavLink
+                          to="/profile"
+                          className={({ isActive }) =>
+                            isActive ? "is-active" : ""
+                          }
+                        >
+                          Profile
+                        </NavLink>
+                      </li>
+                      <li>
+                        <NavLink
+                          to="/create"
+                          className={({ isActive }) =>
+                            isActive ? "is-active" : ""
+                          }
+                        >
+                          Create a campaign
+                        </NavLink>
+                      </li>
+                      <li>
+                        <NavLink
+                          to="/my-campaigns"
+                          className={({ isActive }) =>
+                            isActive ? "is-active" : ""
+                          }
+                        >
+                          My campaigns
+                        </NavLink>
+                      </li>
+                    </ul>
+                  </>
+                ) : null}
+                <ul className="nav-drawer-list nav-drawer-list--auth">
+                  <li>
+                    {signedIn ? (
+                      <a href="#" id="drawer-auth" onClick={onAuthClick}>
+                        Sign out
+                      </a>
+                    ) : (
+                      <Link to="/?signin=1" id="drawer-auth">
+                        Sign in
+                      </Link>
+                    )}
+                  </li>
+                </ul>
+              </div>
               <p className="nav-drawer-note">
                 Campaign lists use data stored in <strong>this browser</strong>.
                 With a server, you could show every creator on the site.
@@ -149,6 +201,15 @@ export function Layout() {
         ) : null}
 
         <Outlet />
+        <footer className="app-footer">
+          <span className="app-footer-brand">CrowdCare</span>
+          <span className="app-footer-sep" aria-hidden>
+            ·
+          </span>
+          <span className="app-footer-meta">
+            Browser-only demo — verify anything on-chain yourself.
+          </span>
+        </footer>
       </div>
     </>
   );

@@ -1,3 +1,5 @@
+import { deriveDemoKeypair } from "./keypair.js";
+
 const STORAGE_KEY = "crowdcare_user";
 
 export function getUser() {
@@ -28,6 +30,23 @@ export function migratePrivySessionToSignOut() {
   }
 }
 
+/** Re-derive wallet if Google session exists but `publicKey` is missing (partial save / old bug). */
+export async function repairGoogleUserIfNeeded() {
+  const u = getUser();
+  if (!u?.sub || u.authProvider !== "google") return false;
+  if (typeof u.publicKey === "string" && u.publicKey.length >= 32) return false;
+  try {
+    const kp = await deriveDemoKeypair(u.sub);
+    u.publicKey = kp.publicKey.toBase58();
+    if (!u.shareSlug) u.shareSlug = newShareSlug();
+    u.chain = u.chain || "solana";
+    setUser(u);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function newShareSlug() {
   const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
   let s = "";
@@ -37,14 +56,16 @@ export function newShareSlug() {
   return s;
 }
 
+/** Ensures `shareSlug` exists; returns whether local storage was updated. */
 export function ensureShareSlug() {
   const u = getUser();
-  if (!u) return null;
+  if (!u) return false;
   if (!u.shareSlug) {
     u.shareSlug = newShareSlug();
     setUser(u);
+    return true;
   }
-  return u.shareSlug;
+  return false;
 }
 
 export function updateProfile(updates) {
