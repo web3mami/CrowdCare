@@ -1,4 +1,7 @@
-import { verifyGoogleIdToken } from "./_lib/auth.js";
+import {
+  getGoogleWebClientIdForServer,
+  verifyGoogleIdToken,
+} from "./_lib/auth.js";
 import { getSql } from "./_lib/db.js";
 import { parsePayload } from "./_lib/parsePayload.js";
 import { validateCampaignPayload } from "./_lib/validateCampaign.js";
@@ -41,10 +44,11 @@ export default async function handler(req, res) {
     return;
   }
 
-  if (!process.env.GOOGLE_CLIENT_ID?.trim()) {
-    res
-      .status(503)
-      .json({ error: "GOOGLE_CLIENT_ID not configured on server" });
+  if (!getGoogleWebClientIdForServer()) {
+    res.status(503).json({
+      error:
+        "Google Web client ID not configured on server (set GOOGLE_CLIENT_ID or VITE_GOOGLE_CLIENT_ID)",
+    });
     return;
   }
 

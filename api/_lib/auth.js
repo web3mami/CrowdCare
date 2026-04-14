@@ -1,15 +1,25 @@
 /**
  * Verify Google Sign-In ID token (GIS credential JWT).
- * Uses google-auth-library (signature + expiry); set GOOGLE_CLIENT_ID to the same
- * Web client ID as VITE_GOOGLE_CLIENT_ID.
+ * Uses google-auth-library (signature + expiry).
+ *
+ * Audience: `GOOGLE_CLIENT_ID` **or** `VITE_GOOGLE_CLIENT_ID` (Vercel often only sets the latter).
  */
 import { OAuth2Client } from "google-auth-library";
 
 const client = new OAuth2Client();
 
+/** Web OAuth client ID available to serverless (either name works on Vercel). */
+export function getGoogleWebClientIdForServer() {
+  return (
+    process.env.GOOGLE_CLIENT_ID?.trim() ||
+    process.env.VITE_GOOGLE_CLIENT_ID?.trim() ||
+    ""
+  );
+}
+
 export async function verifyGoogleIdToken(idToken) {
   if (!idToken || typeof idToken !== "string") return null;
-  const expectedAud = process.env.GOOGLE_CLIENT_ID?.trim();
+  const expectedAud = getGoogleWebClientIdForServer();
   if (!expectedAud) return null;
 
   try {
