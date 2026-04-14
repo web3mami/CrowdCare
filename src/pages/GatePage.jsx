@@ -211,114 +211,164 @@ export function GatePage() {
 
   return (
     <>
-      <div className="layout-backdrop" aria-hidden="true" />
-      <div className="layout-content">
-        <div id="gate" className="gate-screen">
+      <div
+        className={`layout-backdrop${!gateStarted ? " layout-backdrop--veltra" : ""}`}
+        aria-hidden="true"
+      />
+      <div
+        className={`layout-content${!gateStarted ? " layout-content--veltra" : ""}`}
+      >
+        <div
+          id="gate"
+          className={`gate-screen${!gateStarted ? " gate-screen--veltra" : ""}`}
+        >
           {!gateStarted ? (
             <div className="gate-welcome-outer gate-welcome--pop-in">
-              <div className="gate-welcome-card gate-landing-card">
-                <p className="gate-welcome-kicker">Solana · transparent funding</p>
-
-                <div className="gate-landing-hero">
-                  <div className="gate-landing-hero-main">
-                    <img
-                      className="gate-welcome-logo"
-                      src="/assets/logo-mark.svg"
-                      width="64"
-                      height="64"
-                      alt=""
-                      decoding="async"
-                    />
-                    <p className="gate-welcome-name">CrowdCare</p>
-                    <p className="gate-welcome-tagline">
-                      Crowdfunding on <strong>Solana</strong>
-                    </p>
-                    <p className="gate-value-prop">
-                      One <strong>hub link</strong> lists every campaign you run. Supporters
-                      send funds to <strong>your Solana address</strong>—this app never
-                      holds money. This build is a <strong>browser demo</strong>; add a
-                      server when you are ready to go live.
-                    </p>
-                  </div>
-                  <div className="gate-landing-preview" aria-hidden="true">
-                    <div className="gate-preview-window">
-                      <div className="gate-preview-window-dots">
-                        <span />
-                        <span />
-                        <span />
-                      </div>
-                      <p className="gate-preview-window-url">crowdcare.app/hub/your-name</p>
+              <div className="gate-welcome-card gate-landing-card gate-landing-card--hero">
+                <div className="gate-veltra-hero">
+                  <div className="gate-veltra-left">
+                    <div className="gate-veltra-badge">
+                      <span className="gate-veltra-badge-dot" aria-hidden="true" />
+                      <span>Solana hub · Live demo</span>
                     </div>
-                    <div className="gate-preview-card">
-                      <span className="gate-preview-badge">Active</span>
-                      <p className="gate-preview-title">Neighborhood storm relief</p>
-                      <p className="gate-preview-meta">Goal 85 SOL · on-chain totals not verified here</p>
-                      <div
-                        className="gate-preview-bar"
-                        role="presentation"
+
+                    <h1 className="gate-veltra-title">
+                      <span className="gate-veltra-title-line">
+                        Crowdfunding on Solana
+                      </span>
+                      <span className="gate-veltra-title-accent">
+                        at hub speed
+                      </span>
+                    </h1>
+
+                    <p className="gate-veltra-lead">
+                      One hub link lists every campaign you run. Supporters send to{" "}
+                      <strong>your wallet</strong>—nothing is custodied here. This build is a
+                      browser demo; add a server when you go live. Always verify on-chain
+                      yourself.
+                    </p>
+
+                    <div className="gate-veltra-actions">
+                      <button
+                        type="button"
+                        className="gate-veltra-btn-primary"
+                        id="gate-start-btn"
+                        onClick={startGate}
                       >
-                        <span className="gate-preview-bar-fill" />
+                        Start CrowdCare
+                      </button>
+                      <button
+                        type="button"
+                        className="gate-veltra-btn-secondary"
+                        id="browse-skip-welcome"
+                        onClick={() => goBrowse()}
+                      >
+                        Browse campaigns
+                      </button>
+                    </div>
+
+                    <div className="gate-veltra-tags" aria-label="Stack">
+                      <span className="gate-veltra-pill">Solana</span>
+                      <span className="gate-veltra-pill">USDC</span>
+                      <span className="gate-veltra-pill">SOL</span>
+                      <span className="gate-veltra-pill">Google sign-in</span>
+                      <span className="gate-veltra-pill">Shareable hub</span>
+                    </div>
+                  </div>
+
+                  <div className="gate-veltra-right" aria-hidden="true">
+                    <div className="gate-veltra-float-scene">
+                      <div className="gate-veltra-float">
+                        <div className="gate-veltra-float-logo-ring">
+                          <img
+                            className="gate-veltra-float-logo"
+                            src="/assets/logo-mark.svg"
+                            width="88"
+                            height="88"
+                            alt=""
+                            decoding="async"
+                          />
+                        </div>
+                        <div className="gate-landing-preview gate-landing-preview--veltra">
+                          <div className="gate-preview-window">
+                            <div className="gate-preview-window-dots">
+                              <span />
+                              <span />
+                              <span />
+                            </div>
+                            <p className="gate-preview-window-url">
+                              crowdcare.app/hub/your-name
+                            </p>
+                          </div>
+                          <div className="gate-preview-card gate-preview-card--veltra">
+                            <div className="gate-veltra-card-head">
+                              <span className="gate-veltra-card-brand">CrowdCare</span>
+                              <span className="gate-veltra-card-tag">Active</span>
+                            </div>
+                            <p className="gate-preview-title">
+                              Neighborhood storm relief
+                            </p>
+                            <p className="gate-veltra-metric">
+                              <span className="gate-veltra-metric-value">68%</span>
+                              <span className="gate-veltra-metric-label">
+                                funded · Goal 85 SOL
+                              </span>
+                            </p>
+                            <div className="gate-veltra-depth" role="presentation">
+                              <div className="gate-veltra-depth-row gate-veltra-depth-row--ask">
+                                <span
+                                  className="gate-veltra-depth-bar"
+                                  style={{ width: "72%" }}
+                                />
+                                <span className="gate-veltra-depth-txt">72</span>
+                              </div>
+                              <div className="gate-veltra-depth-row gate-veltra-depth-row--ask">
+                                <span
+                                  className="gate-veltra-depth-bar"
+                                  style={{ width: "58%" }}
+                                />
+                                <span className="gate-veltra-depth-txt">58</span>
+                              </div>
+                              <div className="gate-veltra-depth-row gate-veltra-depth-row--bid">
+                                <span
+                                  className="gate-veltra-depth-bar"
+                                  style={{ width: "64%" }}
+                                />
+                                <span className="gate-veltra-depth-txt">64</span>
+                              </div>
+                              <div className="gate-veltra-depth-row gate-veltra-depth-row--bid">
+                                <span
+                                  className="gate-veltra-depth-bar"
+                                  style={{ width: "81%" }}
+                                />
+                                <span className="gate-veltra-depth-txt">81</span>
+                              </div>
+                            </div>
+                            <div
+                              className="gate-preview-bar gate-preview-bar--veltra"
+                              role="presentation"
+                            >
+                              <span className="gate-preview-bar-fill gate-preview-bar-fill--veltra" />
+                            </div>
+                            <div className="gate-veltra-card-actions">
+                              <span className="gate-veltra-pill-btn gate-veltra-pill-btn--long">
+                                Donate
+                              </span>
+                              <span className="gate-veltra-pill-btn gate-veltra-pill-btn--short">
+                                Share
+                              </span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <ul className="gate-trust-list">
-                  <li>Donations use the wallet address shown on each campaign page.</li>
-                  <li>
-                    We do not custody or reconcile on-chain activity—always verify yourself.
-                  </li>
-                </ul>
-
-                <div className="gate-steps" aria-label="How CrowdCare works">
-                  <div className="gate-step">
-                    <span className="gate-step-num" aria-hidden="true">
-                      1
-                    </span>
-                    <div className="gate-step-body">
-                      <p className="gate-step-title">Sign in</p>
-                      <p className="gate-step-text">
-                        Google verifies you; a demo wallet is derived in this browser only.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="gate-step">
-                    <span className="gate-step-num" aria-hidden="true">
-                      2
-                    </span>
-                    <div className="gate-step-body">
-                      <p className="gate-step-title">Create &amp; share</p>
-                      <p className="gate-step-text">
-                        Publish campaigns and share one hub link with your community.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="gate-step">
-                    <span className="gate-step-num" aria-hidden="true">
-                      3
-                    </span>
-                    <div className="gate-step-body">
-                      <p className="gate-step-title">Receive on Solana</p>
-                      <p className="gate-step-text">
-                        Supporters send to your public address—same as any Solana wallet.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  className="gate-start-btn"
-                  id="gate-start-btn"
-                  onClick={startGate}
-                >
-                  Start CrowdCare
-                </button>
-                <p className="gate-welcome-skip">
+                <p className="gate-veltra-skip">
                   <button
                     type="button"
-                    className="bare gate-browse-link"
-                    id="browse-skip-welcome"
+                    className="bare gate-browse-link gate-browse-link--veltra"
                     onClick={(e) => {
                       e.preventDefault();
                       goBrowse();
@@ -328,7 +378,7 @@ export function GatePage() {
                   </button>
                 </p>
               </div>
-              <footer className="gate-landing-footer">
+              <footer className="gate-landing-footer gate-landing-footer--veltra">
                 <span className="gate-landing-footer-brand">CrowdCare</span>
                 <span className="gate-landing-footer-sep" aria-hidden>
                   ·
