@@ -60,6 +60,9 @@ export function formatCampaignSyncError(result) {
     return "Online sync needs a fresh Google sign-in in this tab. Use “Sign in again for sync” below, then click Retry online sync (your campaign is already saved on this device).";
   }
   if (status === 503 || /not configured/i.test(err)) {
+    if (/GOOGLE_CLIENT_ID/i.test(err)) {
+      return "The server is missing GOOGLE_CLIENT_ID (must match VITE_GOOGLE_CLIENT_ID). Campaigns cannot sync online until that env var is set on the host.";
+    }
     return "The live site is not connected to a database yet (server configuration). Your campaign is saved only in this browser until DATABASE_URL is set on the host.";
   }
   if (status === 401 || /invalid or expired token/i.test(err)) {

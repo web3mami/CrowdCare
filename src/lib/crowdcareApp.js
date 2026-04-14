@@ -43,6 +43,39 @@ export function isValidCampaign(c) {
   return true;
 }
 
+/**
+ * Coerce JSON/JSONB quirks (numeric strings) so shared campaigns from the API pass
+ * `isValidCampaign` and show in directory/hub lists.
+ */
+function normalizeCampaignForDisplay(c) {
+  if (!c || typeof c !== "object") return c;
+  const n = { ...c };
+
+  function num(x) {
+    if (x == null) return x;
+    if (typeof x === "number" && Number.isFinite(x)) return x;
+    if (typeof x === "string" && x.trim() !== "") {
+      const v = parseFloat(x, 10);
+      return Number.isFinite(v) ? v : x;
+    }
+    return x;
+  }
+
+  n.goalAmount = num(n.goalAmount);
+  n.raisedAmount = num(n.raisedAmount);
+  n.transparencyBeneficiaryPct = num(n.transparencyBeneficiaryPct);
+  n.transparencyOtherPct = num(n.transparencyOtherPct);
+
+  if (Array.isArray(n.body)) {
+    n.body = n.body
+      .map((line) => (typeof line === "string" ? line : String(line ?? "")))
+      .map((line) => line.trim())
+      .filter(Boolean);
+  }
+
+  return n;
+}
+
 export function getExtraCampaigns() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -104,7 +137,11 @@ export function backfillCreatorShareSlugs(sub, shareSlug) {
 export function mergeDirectoryCampaigns(remote, local) {
   const r = Array.isArray(remote) ? remote : [];
   const l = Array.isArray(local) ? local : [];
-  const map = new Map(r.map((c) => [c.id, c]));
+  const map = new Map();
+  for (const c of r) {
+    const x = normalizeCampaignForDisplay(c);
+    if (x && typeof x.id === "string") map.set(x.id, x);
+  }
   for (const c of l) {
     if (c && typeof c.id === "string" && !map.has(c.id)) map.set(c.id, c);
   }
@@ -116,12 +153,20 @@ export function mergeHubLists(remote, local, opts) {
   const r = Array.isArray(remote) ? remote : [];
   const l = Array.isArray(local) ? local : [];
   if (!viewingOwnHub) {
-    if (r.length) return r;
+    if (r.length) {
+      return r
+        .map(normalizeCampaignForDisplay)
+        .filter((c) => c && typeof c.id === "string");
+    }
     return l;
   }
-  const map = new Map(r.map((c) => [c.id, c]));
+  const map = new Map();
+  for (const c of r) {
+    const x = normalizeCampaignForDisplay(c);
+    if (x && typeof x.id === "string") map.set(x.id, x);
+  }
   for (const c of l) {
-    if (!map.has(c.id)) map.set(c.id, c);
+    if (c && typeof c.id === "string" && !map.has(c.id)) map.set(c.id, c);
   }
   return Array.from(map.values());
 }

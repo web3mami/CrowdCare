@@ -41,6 +41,13 @@ export default async function handler(req, res) {
     return;
   }
 
+  if (!process.env.GOOGLE_CLIENT_ID?.trim()) {
+    res
+      .status(503)
+      .json({ error: "GOOGLE_CLIENT_ID not configured on server" });
+    return;
+  }
+
   const auth = req.headers.authorization || "";
   const m = auth.match(/^Bearer\s+(.+)$/i);
   if (!m) {
