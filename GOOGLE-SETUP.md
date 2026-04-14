@@ -107,3 +107,10 @@ Remove any old `ADMIN_USERNAME` variable if you added it earlier — it is no lo
 3. The page shows **Accounts recorded** (unique Google `sub` values seen by the server).
 
 If you see “Admin is not configured”, the server is missing `ADMIN_PASSWORD`. If the count stays `0`, confirm `DATABASE_URL` is set and users have signed in against production (local `npm run dev` only counts if `vercel dev` or API hits your Neon URL).
+
+### 6c. “Failed to fetch” on `/admin`
+
+- **Production:** In a new tab, open `https://YOUR-DOMAIN/api/health`. You should see `{"ok":true,"service":"crowdcare-api"}`. If the page errors or shows HTML, API routes are not deployed with that URL (wrong host or static-only hosting).
+- **Local `npm run dev`:** Vite does not run `api/` itself. Either:
+1. Add to `.env.local`: `VITE_DEV_API_PROXY=https://YOUR-DEPLOYMENT.vercel.app` (no trailing slash), restart `npm run dev` — all `/api/*` requests proxy to production; or  
+  2. Run `npm run dev:vercel` so API runs locally with Vercel.

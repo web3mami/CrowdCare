@@ -3,6 +3,12 @@ import { Link } from "react-router-dom";
 
 const ADMIN_LOGIN_NAME = "Mami";
 
+/** Always same-origin: in Vite dev, `vite.config` proxies `/api` → `VITE_DEV_API_PROXY` (no browser CORS). */
+function adminStatsUrl() {
+  if (typeof window === "undefined") return "/api/admin/stats";
+  return new URL("/api/admin/stats", window.location.origin).href;
+}
+
 /** HTTP Basic credentials (supports non-ASCII passwords; `btoa` alone cannot). */
 function basicAuthHeader(user, pass) {
   const raw = `${user}:${pass}`;
@@ -32,7 +38,9 @@ export function AdminPage() {
     setRecordedAt("");
     setBusy(true);
     try {
-      const r = await fetch("/api/admin/stats", {
+      const url = adminStatsUrl();
+      const r = await fetch(url, {
+        cache: "no-store",
         headers: { Authorization: basicAuthHeader(ADMIN_LOGIN_NAME, password) },
       });
       let data = {};
@@ -56,9 +64,16 @@ export function AdminPage() {
         setError("Unexpected response from server.");
       }
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Could not reach the server. Try again."
-      );
+      const msg = err instanceof Error ? err.message : String(err);
+      if (/failed to fetch|networkerror|load failed/i.test(msg)) {
+        setError(
+          import.meta.env.DEV && !import.meta.env.VITE_DEV_API_PROXY
+            ? "Could not reach the API. With npm run dev, add VITE_DEV_API_PROXY=https://your-site.vercel.app to .env.local (no trailing slash), restart the dev server, so /api is proxied. Or run npm run dev:vercel. On production, open /api/health — it should show JSON {\"ok\":true}."
+            : "Could not reach the server (network, extension, or offline). Open /api/health in a new tab on this same site — if that fails, API routes are not reachable. Try disabling extensions or another browser."
+        );
+      } else {
+        setError(msg);
+      }
     } finally {
       setBusy(false);
     }
