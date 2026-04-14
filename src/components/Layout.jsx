@@ -68,7 +68,7 @@ export function Layout() {
             className="nav-menu-toggle"
             ref={toggleRef}
             aria-expanded={drawerOpen}
-            aria-controls="nav-drawer-panel"
+            aria-controls={drawerOpen ? "nav-drawer-panel" : undefined}
             aria-label="Open menu"
             onClick={() => setDrawerOpen((o) => !o)}
           >
@@ -76,74 +76,77 @@ export function Layout() {
           </button>
         </nav>
 
-        <div id="nav-drawer" className="nav-drawer" hidden={!drawerOpen}>
-          <div
-            className="nav-drawer-backdrop"
-            id="nav-drawer-backdrop"
-            onClick={closeDrawer}
-            role="presentation"
-          />
-          <div
-            className="nav-drawer-panel content-shell"
-            id="nav-drawer-panel"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="nav-drawer-title"
-            onClick={(e) => {
-              if (e.target.closest?.(".nav-drawer-list a")) closeDrawer();
-            }}
-          >
-            <div className="nav-drawer-header">
-              <span id="nav-drawer-title" className="nav-drawer-title">
-                Menu
-              </span>
-              <button
-                type="button"
-                className="nav-drawer-close"
-                id="nav-drawer-close"
-                aria-label="Close menu"
-                onClick={() => {
-                  closeDrawer();
-                  toggleRef.current?.focus();
-                }}
-              >
-                ×
-              </button>
+        {/* Only mount while open so the fixed backdrop cannot intercept clicks when the menu is closed. */}
+        {drawerOpen ? (
+          <div id="nav-drawer" className="nav-drawer">
+            <div
+              className="nav-drawer-backdrop"
+              id="nav-drawer-backdrop"
+              onClick={closeDrawer}
+              role="presentation"
+            />
+            <div
+              className="nav-drawer-panel content-shell"
+              id="nav-drawer-panel"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="nav-drawer-title"
+              onClick={(e) => {
+                if (e.target.closest?.(".nav-drawer-list a")) closeDrawer();
+              }}
+            >
+              <div className="nav-drawer-header">
+                <span id="nav-drawer-title" className="nav-drawer-title">
+                  Menu
+                </span>
+                <button
+                  type="button"
+                  className="nav-drawer-close"
+                  id="nav-drawer-close"
+                  aria-label="Close menu"
+                  onClick={() => {
+                    closeDrawer();
+                    toggleRef.current?.focus();
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+              <ul className="nav-drawer-list">
+                <li hidden={!signedIn}>
+                  <Link to="/profile">Profile</Link>
+                </li>
+                <li>
+                  <Link to="/campaigns/active">Active campaigns</Link>
+                </li>
+                <li>
+                  <Link to="/campaigns/past">Past campaigns</Link>
+                </li>
+                <li hidden={!signedIn}>
+                  <Link to="/create">Create a campaign</Link>
+                </li>
+                <li hidden={!signedIn}>
+                  <Link to="/my-campaigns">My campaigns</Link>
+                </li>
+                <li>
+                  {signedIn ? (
+                    <a href="#" id="drawer-auth" onClick={onAuthClick}>
+                      Sign out
+                    </a>
+                  ) : (
+                    <Link to="/?signin=1" id="drawer-auth">
+                      Sign in
+                    </Link>
+                  )}
+                </li>
+              </ul>
+              <p className="nav-drawer-note">
+                Campaign lists use data stored in <strong>this browser</strong>.
+                With a server, you could show every creator on the site.
+              </p>
             </div>
-            <ul className="nav-drawer-list">
-              <li hidden={!signedIn}>
-                <Link to="/profile">Profile</Link>
-              </li>
-              <li>
-                <Link to="/campaigns/active">Active campaigns</Link>
-              </li>
-              <li>
-                <Link to="/campaigns/past">Past campaigns</Link>
-              </li>
-              <li hidden={!signedIn}>
-                <Link to="/create">Create a campaign</Link>
-              </li>
-              <li hidden={!signedIn}>
-                <Link to="/my-campaigns">My campaigns</Link>
-              </li>
-              <li>
-                {signedIn ? (
-                  <a href="#" id="drawer-auth" onClick={onAuthClick}>
-                    Sign out
-                  </a>
-                ) : (
-                  <Link to="/?signin=1" id="drawer-auth">
-                    Sign in
-                  </Link>
-                )}
-              </li>
-            </ul>
-            <p className="nav-drawer-note">
-              Campaign lists use data stored in <strong>this browser</strong>.
-              With a server, you could show every creator on the site.
-            </p>
           </div>
-        </div>
+        ) : null}
 
         <Outlet />
       </div>

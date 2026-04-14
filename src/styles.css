@@ -1393,14 +1393,11 @@ body.cc-motion-flow .campaign-list a:hover {
   top: 6px;
 }
 
+/* Drawer DOM is only mounted while open (see Layout.jsx), so this layer is never a hidden click-blocker. */
 .nav-drawer {
   position: fixed;
   inset: 0;
   z-index: 100;
-  pointer-events: none;
-}
-
-.nav-drawer:not([hidden]) {
   pointer-events: auto;
 }
 
