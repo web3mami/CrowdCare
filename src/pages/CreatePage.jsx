@@ -268,19 +268,6 @@ export function CreatePage() {
         Public page: story, goal, wallet. Pick <strong>USDC</strong> or{" "}
         <strong>SOL</strong>. We create the campaign URL when you save.
       </p>
-      <p className="lead note-create-local note--tight">
-        Saving stores the campaign in <strong>this browser</strong> and then asks
-        Google (in the background) to authorize copying it to the live server so
-        others can see it in directories and hubs.
-      </p>
-      {!hasFreshGoogleIdTokenForSync() ? (
-        <p className="note note--tight banner-warn">
-          <strong>Online sync needs Google in this tab.</strong> If you only see your
-          own campaigns on the live site, open{" "}
-          <Link to="/?signin=1&next=/create">Sign in again for sync</Link> (same
-          account), return here, then save or use Retry online sync.
-        </p>
-      ) : null}
       <p id="form-error" className="form-error" hidden={!error}>
         {error}
       </p>
