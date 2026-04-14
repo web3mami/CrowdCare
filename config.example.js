@@ -13,6 +13,7 @@
  *   http://localhost:5173
  *
  * No client secret is used in the browser (GIS only needs the client ID).
+ * See GOOGLE-SETUP.md in the repo.
  */
 window.CROWDCARE_CONFIG = {
   googleClientId: "YOUR_CLIENT_ID.apps.googleusercontent.com",
