@@ -727,6 +727,12 @@ body.cc-motion-flow .gate-auth-back:hover {
   width: 100%;
 }
 
+.gate-gis-button-host {
+  display: flex;
+  justify-content: center;
+  min-height: 44px;
+}
+
 .gate-skip-centered {
   text-align: center;
 }

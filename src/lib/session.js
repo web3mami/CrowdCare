@@ -18,6 +18,16 @@ export function signOut() {
   localStorage.removeItem(STORAGE_KEY);
 }
 
+/** Old builds used Privy; clear so users re-sign-in with Google (GIS). */
+export function migratePrivySessionToSignOut() {
+  try {
+    const u = getUser();
+    if (u?.authProvider === "privy") signOut();
+  } catch {
+    /* ignore */
+  }
+}
+
 export function newShareSlug() {
   const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
   let s = "";

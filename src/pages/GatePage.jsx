@@ -1,26 +1,36 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
-import { useLoginWithOAuth, usePrivy } from "@privy-io/react-auth";
 import { useSession } from "../context/SessionContext.jsx";
 import { safeInternalPath } from "../lib/safeRedirectPath.js";
+import {
+  decodeGoogleCredentialJwt,
+  loadGisScript,
+} from "../lib/googleGis.js";
+import { deriveDemoKeypair } from "../lib/keypair.js";
+import { getUser, newShareSlug, setUser } from "../lib/session.js";
 
 const BROWSE_KEY = "crowdcare_browse_only";
 const NEXT_KEY = "crowdcare_next";
 
-const privyAppId = import.meta.env.VITE_PRIVY_APP_ID || "";
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
 /**
- * `/`: welcome with “Start CrowdCare”, then Google sign-in via Privy (embedded Solana after login).
- * Gate step is not persisted—each visit lands on Start CrowdCare first.
+ * `/`: welcome, then Sign in with Google (GIS) — no third-party auth modal.
+ * Solana address is derived locally from Google `sub` (see keypair.js).
  */
 export function GatePage() {
-  const { ready, authenticated, login } = usePrivy();
-  const { initOAuth, loading: oauthLoading } = useLoginWithOAuth();
-  const { user } = useSession();
+  const { user, refresh } = useSession();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [gateStarted, setGateStarted] = useState(false);
+  const [gisReady, setGisReady] = useState(false);
+  const [gisError, setGisError] = useState("");
+  const [signInBusy, setSignInBusy] = useState(false);
+
+  const buttonHostRef = useRef(null);
+  const credentialHandlerRef = useRef(() => {});
+  const gisInitializedRef = useRef(false);
 
   const [browseOnly] = useState(
     () =>
@@ -43,7 +53,6 @@ export function GatePage() {
 
   useEffect(() => {
     if (searchParams.get("signin") !== "1") return;
-    // Signed-in users leave via <Navigate> on the same tick; running this would race after `next` was cleared from the URL.
     if (user?.publicKey) return;
     sessionStorage.removeItem(BROWSE_KEY);
     setGateStarted(false);
@@ -52,12 +61,102 @@ export function GatePage() {
     setSearchParams({}, { replace: true });
   }, [searchParams, setSearchParams, user?.publicKey]);
 
+  credentialHandlerRef.current = async (response) => {
+    if (!response?.credential) return;
+    setGisError("");
+    setSignInBusy(true);
+    try {
+      const payload = decodeGoogleCredentialJwt(response.credential);
+      const sub = payload.sub;
+      if (!sub) throw new Error("No subject in credential");
+      const email = payload.email || "";
+      const kp = await deriveDemoKeypair(sub);
+      const publicKey = kp.publicKey.toBase58();
+
+      const prev = getUser();
+      const next = {
+        sub,
+        email,
+        publicKey,
+        chain: "solana",
+        at: Date.now(),
+        authProvider: "google",
+      };
+      if (prev && prev.sub === sub) {
+        if (prev.username) next.username = prev.username;
+        if (prev.avatarDataUrl) next.avatarDataUrl = prev.avatarDataUrl;
+        if (prev.shareSlug) next.shareSlug = prev.shareSlug;
+      }
+      if (!next.shareSlug) next.shareSlug = newShareSlug();
+
+      setUser(next);
+      refresh();
+      navigate("/app", { replace: true });
+    } catch (err) {
+      console.error("[CrowdCare] Google sign-in failed:", err);
+      setGisError("Sign-in failed. Check console and Google Cloud OAuth settings.");
+    } finally {
+      setSignInBusy(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!gateStarted || !googleClientId) return;
+    let cancelled = false;
+    loadGisScript()
+      .then(() => {
+        if (cancelled) return;
+        setGisReady(true);
+        setGisError("");
+      })
+      .catch((e) => {
+        console.error(e);
+        if (!cancelled) setGisError("Could not load Google Sign-In.");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [gateStarted]);
+
+  const initGoogleButton = useCallback(() => {
+    if (!gisReady || !googleClientId || !buttonHostRef.current) return;
+    const id = window.google?.accounts?.id;
+    if (!id) return;
+
+    if (!gisInitializedRef.current) {
+      id.initialize({
+        client_id: googleClientId,
+        callback: (r) => void credentialHandlerRef.current(r),
+        auto_select: false,
+        cancel_on_tap_outside: true,
+      });
+      gisInitializedRef.current = true;
+    }
+
+    buttonHostRef.current.innerHTML = "";
+    id.renderButton(buttonHostRef.current, {
+      theme: "filled_black",
+      size: "large",
+      width: 320,
+      text: "continue_with",
+      shape: "rectangular",
+      locale: "en",
+    });
+  }, [gisReady, googleClientId]);
+
+  useEffect(() => {
+    if (!gateStarted || !gisReady) return;
+    initGoogleButton();
+  }, [gateStarted, gisReady, initGoogleButton]);
+
   function startGate() {
     setGateStarted(true);
   }
 
   function backToWelcome() {
     setGateStarted(false);
+    setGisReady(false);
+    setGisError("");
   }
 
   function goBrowse() {
@@ -65,13 +164,10 @@ export function GatePage() {
     navigate("/app", { replace: true });
   }
 
-  // Same bar as Layout/Profile: need a Solana address. Else /profile sends you
-  // to /?signin=1 and this redirect would immediately send you back to /app.
   if (user?.publicKey || browseOnly) {
     if (browseOnly) {
       return <Navigate to="/app" replace />;
     }
-    // Read `next` from the URL here (sync). sessionStorage is filled in useEffect only after paint — too late if we only read storage.
     const nextFromQuery = safeInternalPath(searchParams.get("next") || "");
     const stored = sessionStorage.getItem(NEXT_KEY);
     const to = nextFromQuery || safeInternalPath(stored || "");
@@ -83,22 +179,8 @@ export function GatePage() {
     return <Navigate to="/app" replace />;
   }
 
-  const missingPrivy =
-    !privyAppId || privyAppId.startsWith("set-VITE_PRIVY_APP_ID");
-  const waitingForWallet = ready && authenticated && !user?.publicKey;
-
-  async function continueWithGoogle() {
-    try {
-      await initOAuth({ provider: "google" });
-    } catch (err) {
-      console.error("[CrowdCare] Google login (OAuth) failed:", err);
-      try {
-        login({ loginMethods: ["google"] });
-      } catch (e2) {
-        console.error("[CrowdCare] Google login (modal) failed:", e2);
-      }
-    }
-  }
+  const missingClient =
+    !googleClientId || googleClientId.includes("YOUR_");
 
   return (
     <>
@@ -174,25 +256,33 @@ export function GatePage() {
               <div
                 id="gate-client-setup"
                 className="banner-warn gate-modal-banner"
-                hidden={!missingPrivy}
+                hidden={!missingClient}
               >
-                <strong>Setup:</strong> add <code>VITE_PRIVY_APP_ID</code> to{" "}
-                <code>.env</code> (see <code>PRIVY-SETUP.md</code>).
+                <strong>Setup:</strong> add{" "}
+                <code>VITE_GOOGLE_CLIENT_ID</code> to <code>.env</code> (see{" "}
+                <code>GOOGLE-SETUP.md</code>). Use a Web application OAuth client
+                ID from Google Cloud Console.
               </div>
 
-              {waitingForWallet ? (
-                <p className="lead lead--compact">Finishing sign-in…</p>
+              {gisError ? (
+                <p className="form-error" role="alert">
+                  {gisError}
+                </p>
+              ) : null}
+
+              {signInBusy ? (
+                <p className="lead lead--compact">Signing you in…</p>
               ) : (
                 <div className="gate-google-row gate-google-row--modal">
-                  <button
-                    type="button"
-                    className="ft-create-cta gate-signin-primary"
-                    style={{ width: "100%", maxWidth: 320 }}
-                    disabled={!ready || missingPrivy || oauthLoading}
-                    onClick={() => void continueWithGoogle()}
-                  >
-                    {oauthLoading ? "Redirecting…" : "Continue with Google"}
-                  </button>
+                  {!missingClient && gisReady ? (
+                    <div
+                      ref={buttonHostRef}
+                      className="gate-gis-button-host"
+                      id="gate-gis-button-host"
+                    />
+                  ) : !missingClient ? (
+                    <p className="lead lead--compact">Loading Google…</p>
+                  ) : null}
                 </div>
               )}
 

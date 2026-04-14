@@ -1,34 +1,12 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
-import { useExportWallet } from "@privy-io/react-auth/solana";
 import { useSession } from "../context/SessionContext.jsx";
 import { CampaignList } from "../components/CampaignList.jsx";
 import { getCampaignsByCreatorSub } from "../lib/crowdcareApp.js";
 import { demoSecretKeyBase58 } from "../lib/keypair.js";
 
-/**
- * Privy’s useExportWallet must run only when the user is signed in with a
- * publicKey; calling it on the logged-out redirect path can break the page.
- */
 export function ProfilePage() {
   const { user, ensureShareSlug, updateProfile } = useSession();
-
-  if (!user || !user.publicKey) {
-    return <Navigate to="/?signin=1&next=%2Fprofile" replace />;
-  }
-
-  return (
-    <ProfileAuthed
-      user={user}
-      ensureShareSlug={ensureShareSlug}
-      updateProfile={updateProfile}
-    />
-  );
-}
-
-function ProfileAuthed({ user, ensureShareSlug, updateProfile }) {
-  const { exportWallet } = useExportWallet();
-  const isPrivy = user?.authProvider === "privy";
 
   const [username, setUsername] = useState("");
   const [error, setError] = useState("");
@@ -44,7 +22,6 @@ function ProfileAuthed({ user, ensureShareSlug, updateProfile }) {
   const [exportLoading, setExportLoading] = useState(false);
   const [exportError, setExportError] = useState("");
   const [copyKeyLabel, setCopyKeyLabel] = useState("Copy key");
-  const [privyExportBusy, setPrivyExportBusy] = useState(false);
 
   useEffect(() => {
     sessionStorage.removeItem("crowdcare_next");
@@ -70,6 +47,10 @@ function ProfileAuthed({ user, ensureShareSlug, updateProfile }) {
     setPendingAvatarDataUrl(null);
     setAvatarRemoved(false);
   }, [user?.sub, user?.avatarDataUrl, user?.username]);
+
+  if (!user || !user.publicKey) {
+    return <Navigate to="/?signin=1&next=%2Fprofile" replace />;
+  }
 
   const slug = user.shareSlug || "";
   const hubRel = slug ? `/app?hub=${encodeURIComponent(slug)}` : "/app";
@@ -153,7 +134,7 @@ function ProfileAuthed({ user, ensureShareSlug, updateProfile }) {
     setAvatarRemoved(false);
   }
 
-  async function revealLegacyDemoKey() {
+  async function revealDemoKey() {
     setExportError("");
     if (!exportAck) {
       setExportError("Confirm the box above first.");
@@ -190,18 +171,6 @@ function ProfileAuthed({ user, ensureShareSlug, updateProfile }) {
       });
     } else {
       window.prompt("Copy:", t);
-    }
-  }
-
-  async function openPrivyExport() {
-    setExportError("");
-    setPrivyExportBusy(true);
-    try {
-      await exportWallet({ address: user.publicKey });
-    } catch {
-      setExportError("Export was cancelled or failed. Try again.");
-    } finally {
-      setPrivyExportBusy(false);
     }
   }
 
@@ -259,108 +228,79 @@ function ProfileAuthed({ user, ensureShareSlug, updateProfile }) {
           <p className="ft-kicker">Wallet</p>
           <p className="ft-panel-title">Use in Phantom / Solflare</p>
 
-          {isPrivy ? (
-            <>
-              <p className="wallet-export-lead note--tight">
-                Your Solana address is managed by <strong>Privy</strong>. Open
-                Privy’s export flow to copy a private key into another wallet.
-                The key is shown in Privy’s secure window, not inside this page.
-              </p>
-              <p
-                id="wallet-export-error"
-                className="form-error"
-                hidden={!exportError}
+          <p className="wallet-export-lead note--tight">
+            Your Solana address is <strong>derived in this browser</strong> from
+            your Google account id (demo-style seed). Anyone with the private
+            key controls funds.
+          </p>
+          <ol className="wallet-export-steps">
+            <li>Reveal and copy the key below.</li>
+            <li>
+              Phantom: Settings → Add / Connect wallet → Import private key.
+              (Solflare: similar.)
+            </li>
+            <li>Paste the key. Hide it again when done.</li>
+          </ol>
+          <label className="wallet-export-ack-label">
+            <input
+              type="checkbox"
+              id="wallet-export-ack"
+              checked={exportAck}
+              onChange={(e) => setExportAck(e.target.checked)}
+            />
+            I understand exposing this key can drain the wallet.
+          </label>
+          <p
+            id="wallet-export-error"
+            className="form-error"
+            hidden={!exportError}
+          >
+            {exportError}
+          </p>
+          <div className="wallet-export-actions">
+            {!exportShown ? (
+              <button
+                type="button"
+                className="secondary-btn"
+                id="wallet-export-reveal"
+                disabled={exportLoading}
+                onClick={revealDemoKey}
               >
-                {exportError}
-              </p>
-              <div className="wallet-export-actions">
+                {exportLoading ? "Loading…" : "Show private key"}
+              </button>
+            ) : null}
+            {exportShown ? (
+              <>
                 <button
                   type="button"
                   className="secondary-btn"
-                  disabled={privyExportBusy}
-                  onClick={openPrivyExport}
+                  id="wallet-export-copy"
+                  onClick={copyKey}
                 >
-                  {privyExportBusy ? "Opening…" : "Export private key (Privy)"}
+                  {copyKeyLabel}
                 </button>
-              </div>
-            </>
-          ) : (
-            <>
-              <p className="wallet-export-lead note--tight">
-                <strong>Legacy demo key</strong> (old Google-only sign-in): derived
-                in-browser from your saved session id. Anyone with the private
-                key controls funds.
-              </p>
-              <ol className="wallet-export-steps">
-                <li>Reveal and copy the key below.</li>
-                <li>
-                  Phantom: Settings → Add / Connect wallet → Import private key.
-                  (Solflare: similar.)
-                </li>
-                <li>Paste the key. Hide it again when done.</li>
-              </ol>
-              <label className="wallet-export-ack-label">
-                <input
-                  type="checkbox"
-                  id="wallet-export-ack"
-                  checked={exportAck}
-                  onChange={(e) => setExportAck(e.target.checked)}
-                />
-                I understand exposing this key can drain the wallet.
-              </label>
-              <p
-                id="wallet-export-error"
-                className="form-error"
-                hidden={!exportError}
-              >
-                {exportError}
-              </p>
-              <div className="wallet-export-actions">
-                {!exportShown ? (
-                  <button
-                    type="button"
-                    className="secondary-btn"
-                    id="wallet-export-reveal"
-                    disabled={exportLoading}
-                    onClick={revealLegacyDemoKey}
-                  >
-                    {exportLoading ? "Loading…" : "Show private key"}
-                  </button>
-                ) : null}
-                {exportShown ? (
-                  <>
-                    <button
-                      type="button"
-                      className="secondary-btn"
-                      id="wallet-export-copy"
-                      onClick={copyKey}
-                    >
-                      {copyKeyLabel}
-                    </button>
-                    <button
-                      type="button"
-                      className="secondary-btn"
-                      id="wallet-export-hide"
-                      onClick={hideKey}
-                    >
-                      Hide
-                    </button>
-                  </>
-                ) : null}
-              </div>
-              <textarea
-                id="wallet-export-secret"
-                className="wallet-export-secret"
-                readOnly
-                hidden={!exportShown}
-                rows={3}
-                autoComplete="off"
-                aria-label="Exported private key"
-                value={exportSecret}
-                onChange={() => {}}
-              />
-            </>
-          )}
+                <button
+                  type="button"
+                  className="secondary-btn"
+                  id="wallet-export-hide"
+                  onClick={hideKey}
+                >
+                  Hide
+                </button>
+              </>
+            ) : null}
+          </div>
+          <textarea
+            id="wallet-export-secret"
+            className="wallet-export-secret"
+            readOnly
+            hidden={!exportShown}
+            rows={3}
+            autoComplete="off"
+            aria-label="Exported private key"
+            value={exportSecret}
+            onChange={() => {}}
+          />
         </div>
 
         <p id="profile-error" className="form-error" hidden={!error}>

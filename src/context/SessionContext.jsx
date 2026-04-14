@@ -5,7 +5,6 @@ import {
   useMemo,
   useState,
 } from "react";
-import { usePrivy } from "@privy-io/react-auth";
 import {
   getUser,
   signOut as clearLocalUser,
@@ -16,7 +15,6 @@ import {
 const SessionContext = createContext(null);
 
 export function SessionProvider({ children }) {
-  const { logout } = usePrivy();
   const [user, setUserState] = useState(() => getUser());
 
   const refresh = useCallback(() => {
@@ -27,8 +25,14 @@ export function SessionProvider({ children }) {
     clearLocalUser();
     sessionStorage.removeItem("crowdcare_browse_only");
     setUserState(null);
-    await logout();
-  }, [logout]);
+    if (typeof window !== "undefined" && window.google?.accounts?.id) {
+      try {
+        window.google.accounts.id.disableAutoSelect();
+      } catch {
+        /* ignore */
+      }
+    }
+  }, []);
 
   const ensureShareSlug = useCallback(() => {
     sessionEnsureShareSlug();
