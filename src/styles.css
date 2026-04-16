@@ -63,8 +63,20 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+::selection {
+  background: rgba(212, 180, 92, 0.32);
+  color: var(--text);
+}
+
 html {
   height: 100%;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 body {
@@ -409,6 +421,15 @@ body.cc-motion-flow .layout-backdrop::after {
 
 .layout-content .campaign-list a:hover {
   color: inherit;
+}
+
+.layout-content a:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 3px;
+}
+
+.layout-content a.ft-create-cta:focus-visible {
+  outline-offset: 4px;
 }
 
 /* —— Cinematic motion: gate + app home only (body.cc-motion-flow) —— */
@@ -1654,6 +1675,28 @@ body.cc-motion-flow .gate-auth-back:hover {
   border-left: 3px solid var(--gold-bright);
 }
 
+#campaign-title {
+  font-size: clamp(1.65rem, 4.2vw, 2.15rem);
+  font-weight: 700;
+  letter-spacing: -0.032em;
+  line-height: 1.12;
+  margin: 0 0 0.65rem;
+  color: var(--text);
+}
+
+#campaign-story {
+  max-width: 65ch;
+}
+
+#campaign-story p {
+  margin: 0 0 0.85rem;
+  color: rgba(236, 238, 242, 0.92);
+}
+
+#campaign-story p:last-child {
+  margin-bottom: 0;
+}
+
 .campaign-creator-bar {
   margin: 0.75rem 0 1.15rem;
   padding: 0.65rem 0.85rem;
@@ -1761,6 +1804,10 @@ a.campaign-x-link--row:focus-visible .campaign-x-brand {
   background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 55%, var(--gold-deep) 100%);
   opacity: 0.88;
   pointer-events: none;
+}
+
+.content-shell.ft-panel {
+  padding-left: 1.85rem;
 }
 
 .ft-panel-head {
@@ -2119,6 +2166,44 @@ button:focus-visible {
   outline-offset: 2px;
 }
 
+.ft-send-panel .address-row button,
+#copy-btn {
+  flex-shrink: 0;
+  align-self: stretch;
+  background: transparent;
+  color: var(--gold-bright);
+  border: 2px solid var(--gold-border-strong);
+  box-shadow: none;
+  font-weight: 600;
+  padding: 0.55rem 1.1rem;
+}
+
+.ft-send-panel .address-row button:hover,
+#copy-btn:hover {
+  background: var(--gold-faint);
+  filter: none;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+}
+
+.ft-send-panel .address-row button:focus-visible,
+#copy-btn:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+  .ft-send-panel .address-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ft-send-panel .address-row button,
+  #copy-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 .site-title {
   font-size: clamp(1.5rem, 2.5vw, 1.75rem);
   font-weight: 700;
@@ -2286,6 +2371,15 @@ body.cc-motion-flow .campaign-list a:hover::after {
   transform: translateY(-50%) translateX(5px);
 }
 
+.campaign-list a:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 3px;
+}
+
+.campaign-list a:focus-visible::after {
+  opacity: 0.75;
+}
+
 .campaign-list .card-title {
   font-weight: 600;
   margin: 0;
@@ -2380,6 +2474,11 @@ body.cc-motion-flow .campaign-list a:hover::after {
   background: rgba(212, 180, 92, 0.13);
   border-color: rgba(212, 180, 92, 0.28);
   color: var(--accent-link-hover);
+}
+
+.back a:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 3px;
 }
 
 .actions {
@@ -2628,6 +2727,12 @@ body.cc-motion-flow .campaign-list a:hover::after {
 .nav-drawer-close:hover {
   color: var(--text);
   background: var(--gold-faint);
+}
+
+.nav-drawer-close:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 2px;
+  color: var(--text);
 }
 
 .nav-drawer-body {
@@ -3550,6 +3655,8 @@ body.cc-motion-flow .bare:hover {
 
 .hub-lead {
   margin-bottom: 1rem;
+  max-width: 62ch;
+  line-height: 1.55;
 }
 
 .browse-home {
