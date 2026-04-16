@@ -79,23 +79,52 @@ export function CampaignPage() {
   }, [c?.title]);
 
   const [copyLabel, setCopyLabel] = useState("Copy address");
-  const [activity, setActivity] = useState(
-    /** @type {{ signature: string, amountUi: string, blockTime: string|null, fromAddress: string|null }[]|null} */
-    (null)
-  );
+  /** USDC activity panel: hidden when not USDC; otherwise loading → done with rows / messages. */
+  const [activityPanel, setActivityPanel] = useState(() => ({
+    phase: /** @type {"hidden"|"loading"|"done"} */ ("hidden"),
+    rows: /** @type {{ signature: string, amountUi: string, blockTime: string|null, fromAddress: string|null }[]} */ (
+      []
+    ),
+    databaseConfigured: false,
+    loadError: false,
+  }));
 
   useEffect(() => {
     if (!c?.id || cur !== "USDC") {
-      setActivity(null);
+      setActivityPanel({
+        phase: "hidden",
+        rows: [],
+        databaseConfigured: false,
+        loadError: false,
+      });
       return;
     }
     let cancelled = false;
+    setActivityPanel((p) => ({
+      ...p,
+      phase: "loading",
+      loadError: false,
+    }));
     fetchCampaignActivityFromApi(String(c.id), 30)
-      .then((rows) => {
-        if (!cancelled) setActivity(rows);
+      .then(({ activity, databaseConfigured }) => {
+        if (!cancelled) {
+          setActivityPanel({
+            phase: "done",
+            rows: activity,
+            databaseConfigured,
+            loadError: false,
+          });
+        }
       })
       .catch(() => {
-        if (!cancelled) setActivity([]);
+        if (!cancelled) {
+          setActivityPanel({
+            phase: "done",
+            rows: [],
+            databaseConfigured: false,
+            loadError: true,
+          });
+        }
       });
     return () => {
       cancelled = true;
@@ -249,7 +278,7 @@ export function CampaignPage() {
         </p>
       </section>
 
-      {cur === "USDC" && activity && activity.length > 0 ? (
+      {cur === "USDC" && activityPanel.phase !== "hidden" ? (
         <section
           id="campaign-activity"
           className="content-shell ft-panel ft-activity-panel"
@@ -263,26 +292,50 @@ export function CampaignPage() {
             wallet. Rows appear after the scheduled sync runs (about every 15
             minutes on the host).
           </p>
-          <ul className="ft-activity-list">
-            {activity.map((row) => (
-              <li key={row.signature} className="ft-activity-item">
-                <span className="ft-activity-amt">+{row.amountUi} USDC</span>
-                <a
-                  className="ft-activity-tx"
-                  href={transactionExplorerUrl(row.signature)}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  View transaction
-                </a>
-                {row.blockTime ? (
-                  <span className="ft-activity-time">
-                    {new Date(row.blockTime).toLocaleString()}
-                  </span>
-                ) : null}
-              </li>
-            ))}
-          </ul>
+          {activityPanel.phase === "loading" ? (
+            <p className="ft-activity-empty">Loading activity…</p>
+          ) : activityPanel.loadError ? (
+            <p className="ft-activity-empty">
+              Could not load activity. Try again in a moment.
+            </p>
+          ) : !activityPanel.databaseConfigured ? (
+            <p className="ft-activity-empty">
+              Activity is not available until the site has a database: set{" "}
+              <strong>DATABASE_URL</strong> on the host (see project{" "}
+              <code className="ft-mono-inline">DEPLOY.md</code>). Fundraising
+              progress can still use on-chain balance; this list is separate.
+            </p>
+          ) : activityPanel.rows.length === 0 ? (
+                       <p className="ft-activity-empty">
+              No indexed deposits yet. After someone sends USDC, allow up to
+              ~15 minutes for the sync job to add rows (or check the wallet on
+              Solscan). If nothing ever appears, confirm{" "}
+              <strong>CRON_SECRET</strong> is set on the host so{" "}
+              <code className="ft-mono-inline">/api/cron/sync-ledger</code> can
+              run — see <code className="ft-mono-inline">DEPLOY.md</code>.
+            </p>
+          ) : (
+            <ul className="ft-activity-list">
+              {activityPanel.rows.map((row) => (
+                <li key={row.signature} className="ft-activity-item">
+                  <span className="ft-activity-amt">+{row.amountUi} USDC</span>
+                  <a
+                    className="ft-activity-tx"
+                    href={transactionExplorerUrl(row.signature)}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    View transaction
+                  </a>
+                  {row.blockTime ? (
+                    <span className="ft-activity-time">
+                      {new Date(row.blockTime).toLocaleString()}
+                    </span>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
       ) : null}
 
