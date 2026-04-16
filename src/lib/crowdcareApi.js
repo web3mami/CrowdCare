@@ -114,17 +114,20 @@ export async function fetchHubCampaignsFromApi(slug) {
 }
 
 /**
- * Recent USDC inflow rows indexed for this campaign (see cron sync-ledger).
+ * Recent USDC inflow rows (GET campaign with includeActivity=1; see cron in DEPLOY.md).
  * @param {string} id
  * @param {number} [limit]
  * @returns {Promise<{ activity: { signature: string, slot: string|null, blockTime: string|null, mint: string, amountUi: string, fromAddress: string|null }[], databaseConfigured: boolean }>}
  */
 export async function fetchCampaignActivityFromApi(id, limit = 40) {
-  const u = new URL("/api/campaignActivity", window.location.origin);
-  u.searchParams.set("id", id);
-  u.searchParams.set("limit", String(limit));
+  const u = new URL(
+    `/api/campaign/${encodeURIComponent(id)}`,
+    window.location.origin
+  );
+  u.searchParams.set("includeActivity", "1");
+  u.searchParams.set("activityLimit", String(limit));
   const r = await fetch(u.toString());
-  if (!r.ok) throw new Error(`campaignActivity ${r.status}`);
+  if (!r.ok) throw new Error(`campaign activity ${r.status}`);
   const data = await r.json();
   return {
     activity: Array.isArray(data.activity) ? data.activity : [],

@@ -1,7 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/sync-ledger",
+      "path": "/api/campaigns?syncLedger=1",
       "schedule": "*/15 * * * *"
     }
   ],

@@ -1,5 +1,9 @@
 import { verifyGoogleIdToken } from "../_lib/auth.js";
 import {
+  ensureCrowdcareLedgerTable,
+  listLedgerForCampaign,
+} from "../_lib/crowdcareLedger.js";
+import {
   ensureCrowdcareUsersTable,
   upsertCrowdcareUser,
 } from "../_lib/crowdcareUsers.js";
@@ -36,7 +40,43 @@ export default async function handler(req, res) {
         return;
       }
       const [enriched] = await attachChainFundingToCampaigns([campaign]);
-      res.status(200).json({ campaign: enriched });
+      const incRaw = Array.isArray(req.query?.includeActivity)
+        ? req.query.includeActivity[0]
+        : req.query?.includeActivity;
+      if (incRaw !== "1") {
+        res.status(200).json({ campaign: enriched });
+        return;
+      }
+      try {
+        await ensureCrowdcareLedgerTable(sql);
+        const limRaw = req.query?.activityLimit;
+        const lim = Array.isArray(limRaw) ? limRaw[0] : limRaw;
+        const payerRaw = req.query?.includePayer;
+        const includePayer =
+          (Array.isArray(payerRaw) ? payerRaw[0] : payerRaw) === "1";
+        const ledgerRows = await listLedgerForCampaign(sql, id, lim);
+        const activity = ledgerRows.map((r) => {
+          const row = {
+            signature: r.signature,
+            slot: r.slot != null ? String(r.slot) : null,
+            blockTime: r.block_time,
+            mint: r.mint,
+            amountUi: r.amount_ui != null ? String(r.amount_ui) : "0",
+          };
+          if (includePayer) {
+            row.fromAddress = r.from_address;
+          }
+          return row;
+        });
+        res.status(200).json({
+          campaign: enriched,
+          activity,
+          databaseConfigured: true,
+        });
+      } catch (ledgerErr) {
+        console.error("[api/campaign GET] ledger", ledgerErr);
+        res.status(500).json({ error: "Database error" });
+      }
     } catch (e) {
       console.error("[api/campaign GET]", e);
       res.status(500).json({ error: "Database error" });

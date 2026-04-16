@@ -9,17 +9,46 @@ import {
 import { getSql } from "./_lib/db.js";
 import { pickAllowedCampaignPayload } from "./_lib/campaignPayloadAllowlist.js";
 import { attachChainFundingToCampaigns } from "./_lib/chainFundingServer.js";
+import { authorizeCronRequest } from "./_lib/cronAuth.js";
 import {
   decodeCampaignsCursor,
   parseCampaignsLimit,
   selectCampaignsPage,
 } from "./_lib/campaignsPagination.js";
+import { runCrowdcareLedgerSync } from "./_lib/runLedgerSync.js";
 import { validateCampaignPayload } from "./_lib/validateCampaign.js";
 
 export default async function handler(req, res) {
   const sql = getSql();
 
   if (req.method === "GET") {
+    const syncRaw = Array.isArray(req.query?.syncLedger)
+      ? req.query.syncLedger[0]
+      : req.query?.syncLedger;
+    if (syncRaw === "1") {
+      if (!authorizeCronRequest(req)) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+      if (!sql) {
+        res.status(503).json({ error: "Database not configured" });
+        return;
+      }
+      try {
+        const { campaignsScanned, insertsAttempted } =
+          await runCrowdcareLedgerSync(sql);
+        res.status(200).json({
+          ok: true,
+          campaignsScanned,
+          insertsAttempted,
+        });
+      } catch (e) {
+        console.error("[api/campaigns GET syncLedger]", e);
+        res.status(500).json({ error: "Sync failed" });
+      }
+      return;
+    }
+
     if (!sql) {
       res.status(200).json({ campaigns: [], databaseConfigured: false });
       return;
