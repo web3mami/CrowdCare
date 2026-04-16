@@ -24,15 +24,24 @@ export default async function handler(req, res) {
     await ensureCrowdcareLedgerTable(sql);
     const limRaw = req.query?.limit;
     const lim = Array.isArray(limRaw) ? limRaw[0] : limRaw;
+    const payerRaw = req.query?.includePayer;
+    const includePayer =
+      (Array.isArray(payerRaw) ? payerRaw[0] : payerRaw) === "1";
+
     const rows = await listLedgerForCampaign(sql, id, lim);
-    const activity = rows.map((r) => ({
-      signature: r.signature,
-      slot: r.slot != null ? String(r.slot) : null,
-      blockTime: r.block_time,
-      mint: r.mint,
-      amountUi: r.amount_ui != null ? String(r.amount_ui) : "0",
-      fromAddress: r.from_address,
-    }));
+    const activity = rows.map((r) => {
+      const row = {
+        signature: r.signature,
+        slot: r.slot != null ? String(r.slot) : null,
+        blockTime: r.block_time,
+        mint: r.mint,
+        amountUi: r.amount_ui != null ? String(r.amount_ui) : "0",
+      };
+      if (includePayer) {
+        row.fromAddress = r.from_address;
+      }
+      return row;
+    });
     res.status(200).json({ activity, databaseConfigured: true });
   } catch (e) {
     console.error("[api/campaign-activity]", e);

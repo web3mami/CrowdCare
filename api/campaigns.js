@@ -7,8 +7,13 @@ import {
   upsertCrowdcareUser,
 } from "./_lib/crowdcareUsers.js";
 import { getSql } from "./_lib/db.js";
+import { pickAllowedCampaignPayload } from "./_lib/campaignPayloadAllowlist.js";
 import { attachChainFundingToCampaigns } from "./_lib/chainFundingServer.js";
-import { parsePayload } from "./_lib/parsePayload.js";
+import {
+  decodeCampaignsCursor,
+  parseCampaignsLimit,
+  selectCampaignsPage,
+} from "./_lib/campaignsPagination.js";
 import { validateCampaignPayload } from "./_lib/validateCampaign.js";
 
 export default async function handler(req, res) {
@@ -20,16 +25,20 @@ export default async function handler(req, res) {
       return;
     }
     try {
-      const rows = await sql`
-        SELECT payload FROM campaigns ORDER BY updated_at DESC
-      `;
-      const campaigns = [];
-      for (const row of rows) {
-        const c = parsePayload(row);
-        if (c && typeof c.id === "string") campaigns.push(c);
-      }
+      const lim = parseCampaignsLimit(req.query?.limit);
+      const cursor = decodeCampaignsCursor(
+        Array.isArray(req.query?.cursor) ? req.query.cursor[0] : req.query?.cursor
+      );
+      const { campaigns, nextCursor } = await selectCampaignsPage(sql, {
+        limit: lim,
+        cursor,
+      });
       const enriched = await attachChainFundingToCampaigns(campaigns);
-      res.status(200).json({ campaigns: enriched, databaseConfigured: true });
+      res.status(200).json({
+        campaigns: enriched,
+        nextCursor,
+        databaseConfigured: true,
+      });
     } catch (e) {
       console.error("[api/campaigns GET]", e);
       res.status(500).json({ error: "Database error" });
@@ -87,7 +96,13 @@ export default async function handler(req, res) {
     return;
   }
 
-  if (campaign.creatorSub !== tokenUser.sub) {
+  const picked = pickAllowedCampaignPayload(campaign);
+  if (!picked.ok) {
+    res.status(400).json({ error: picked.error });
+    return;
+  }
+
+  if (picked.campaign.creatorSub !== tokenUser.sub) {
     res.status(403).json({ error: "creatorSub does not match signed-in user" });
     return;
   }
@@ -101,9 +116,9 @@ export default async function handler(req, res) {
   }
 
   const sub = tokenUser.sub;
-  const id = campaign.id;
-  const shareSlug = campaign.creatorShareSlug;
-  const { chainFunding: _stripChain, ...campaignForStorage } = campaign;
+  const id = picked.campaign.id;
+  const shareSlug = picked.campaign.creatorShareSlug;
+  const campaignForStorage = picked.campaign;
 
   try {
     const existing = await sql`

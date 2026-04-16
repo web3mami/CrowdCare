@@ -24,21 +24,41 @@ export function clearGoogleIdToken() {
 
 /**
  * Public list of campaigns synced to CrowdCare plus whether the server has a database.
+ * Follows `nextCursor` pages until exhausted (cap avoids runaway).
  * @returns {{ campaigns: object[], databaseConfigured: boolean }}
  */
 export async function fetchCampaignsDirectoryFromApi() {
-  const r = await fetch("/api/campaigns");
-  if (!r.ok) throw new Error(`campaigns ${r.status}`);
-  const text = await r.text();
-  let data;
-  try {
-    data = JSON.parse(text);
-  } catch {
-    throw new Error("campaigns invalid json");
+  const all = [];
+  let cursor = null;
+  let databaseConfigured = true;
+  const pageSize = 50;
+  const maxPages = 40;
+
+  for (let page = 0; page < maxPages; page++) {
+    const u = new URL("/api/campaigns", window.location.origin);
+    u.searchParams.set("limit", String(pageSize));
+    if (cursor) u.searchParams.set("cursor", cursor);
+
+    const r = await fetch(u.toString());
+    if (!r.ok) throw new Error(`campaigns ${r.status}`);
+    const text = await r.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new Error("campaigns invalid json");
+    }
+    if (page === 0) {
+      databaseConfigured = data.databaseConfigured !== false;
+    }
+    const batch = Array.isArray(data.campaigns) ? data.campaigns : [];
+    all.push(...batch);
+    const next = data.nextCursor;
+    if (!next || batch.length === 0) break;
+    cursor = next;
   }
-  const campaigns = Array.isArray(data.campaigns) ? data.campaigns : [];
-  const databaseConfigured = data.databaseConfigured !== false;
-  return { campaigns, databaseConfigured };
+
+  return { campaigns: all, databaseConfigured };
 }
 
 /** @returns {boolean} whether a non-expired GIS credential JWT is in sessionStorage */
