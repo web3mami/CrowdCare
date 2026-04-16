@@ -80,7 +80,7 @@ export function formatCampaignCreatorLine(c) {
  * Coerce JSON/JSONB quirks (numeric strings) so shared campaigns from the API pass
  * `isValidCampaign` and show in directory/hub lists.
  */
-function normalizeCampaignForDisplay(c) {
+export function normalizeCampaignForDisplay(c) {
   if (!c || typeof c !== "object") return c;
   const n = { ...c };
 
@@ -120,6 +120,29 @@ function normalizeCampaignForDisplay(c) {
   }
 
   return n;
+}
+
+/**
+ * Percent split for the transparency panel. Coerces API/string quirks; defaults to 97/3 when missing or invalid.
+ * @returns {{ ben: number, oth: number }}
+ */
+export function campaignTransparencySplit(c) {
+  if (!c || typeof c !== "object") {
+    return { ben: 97, oth: 3 };
+  }
+  const x = normalizeCampaignForDisplay(c);
+  const b = Number(x.transparencyBeneficiaryPct);
+  const o = Number(x.transparencyOtherPct);
+  if (
+    Number.isFinite(b) &&
+    Number.isFinite(o) &&
+    b >= 0 &&
+    o >= 0 &&
+    Math.abs(b + o - 100) <= 0.001
+  ) {
+    return { ben: b, oth: o };
+  }
+  return { ben: 97, oth: 3 };
 }
 
 export function getExtraCampaigns() {

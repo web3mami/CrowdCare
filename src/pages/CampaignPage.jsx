@@ -7,8 +7,10 @@ import {
 } from "../lib/crowdcareApi.js";
 import { transactionExplorerUrl } from "../lib/solanaWallet.js";
 import {
+  campaignTransparencySplit,
   findCampaignById,
   formatCampaignAmt,
+  normalizeCampaignForDisplay,
 } from "../lib/crowdcareApp.js";
 import { xProfileUrlFromHandle } from "../lib/xUsername.js";
 
@@ -63,8 +65,9 @@ export function CampaignPage() {
     };
   }, [decoded]);
 
-  const c =
+  const cRaw =
     local || (remote && typeof remote === "object" ? remote : null);
+  const c = cRaw ? normalizeCampaignForDisplay(cRaw) : null;
   const loading = !local && remote === undefined;
 
   const { funding, goalToken: cur } = useMergedUsdcFunding(c);
@@ -155,10 +158,7 @@ export function CampaignPage() {
 
   const showProgress = funding && funding.pct != null && funding.goal;
 
-  const ben = c.transparencyBeneficiaryPct;
-  const oth = c.transparencyOtherPct;
-  const showTrans =
-    typeof ben === "number" && typeof oth === "number";
+  const { ben, oth } = campaignTransparencySplit(c);
 
   const xProfileUrl = c.creatorXUsername
     ? xProfileUrlFromHandle(c.creatorXUsername)
@@ -224,6 +224,29 @@ export function CampaignPage() {
         </div>
         <p className="goal" id="campaign-goal">
           <strong>Goal:</strong> {c.goalLabel}
+        </p>
+      </article>
+
+      <article className="content-shell ft-send-panel ft-send-panel--hero-adjacent">
+        <p className="ft-kicker">Receive address</p>
+        <p>
+          <strong>Send on Solana to:</strong>
+        </p>
+        <div className="address-row">
+          <p className="address" id="wallet-address">
+            {c.wallet}
+          </p>
+          <button
+            type="button"
+            id="copy-btn"
+            aria-label="Copy Solana address"
+            onClick={copyWallet}
+          >
+            {copyLabel}
+          </button>
+        </div>
+        <p className="note note--tight" id="campaign-note">
+          Use Phantom/Solflare. Double-check token + network before sending.
         </p>
       </article>
 
@@ -353,7 +376,6 @@ export function CampaignPage() {
       <section
         id="campaign-transparency"
         className="content-shell ft-panel ft-transparency-panel"
-        hidden={!showTrans}
       >
         <div className="ft-panel-head">
           <span className="ft-kicker">Transparency</span>
@@ -369,19 +391,19 @@ export function CampaignPage() {
             <div
               id="trans-bar-primary"
               className="ft-allocation-seg ft-allocation-seg--primary"
-              style={{ width: showTrans ? `${ben}%` : "0%" }}
+              style={{ width: `${ben}%` }}
             />
             <div
               id="trans-bar-other"
               className="ft-allocation-seg ft-allocation-seg--other"
-              style={{ width: showTrans ? `${oth}%` : "0%" }}
+              style={{ width: `${oth}%` }}
             />
           </div>
         </div>
         <ul className="ft-allocation-list">
           <li>
-            <span className="ft-allocation-pct" id="trans-pct-primary">
-              {showTrans ? ben : "—"}
+                       <span className="ft-allocation-pct" id="trans-pct-primary">
+              {ben}
             </span>
             <span className="ft-allocation-desc">
               Share meant for the stated cause (paid to the campaign wallet on
@@ -390,12 +412,10 @@ export function CampaignPage() {
           </li>
           <li>
             <span className="ft-allocation-pct" id="trans-pct-other">
-              {showTrans ? oth : "—"}
+              {oth}
             </span>
             <span className="ft-allocation-desc" id="trans-label-other">
-              {showTrans
-                ? c.transparencyOtherLabel || "Other (fees & reserves)"
-                : "—"}
+              {c.transparencyOtherLabel || "Other (fees & reserves)"}
             </span>
           </li>
         </ul>
@@ -407,29 +427,6 @@ export function CampaignPage() {
           {c.transparencyNote?.trim()}
         </p>
       </section>
-
-      <article className="content-shell ft-send-panel">
-        <p className="ft-kicker">Receive address</p>
-        <p>
-          <strong>Send on Solana to:</strong>
-        </p>
-        <div className="address-row">
-          <p className="address" id="wallet-address">
-            {c.wallet}
-          </p>
-          <button
-            type="button"
-            id="copy-btn"
-            aria-label="Copy Solana address"
-            onClick={copyWallet}
-          >
-            {copyLabel}
-          </button>
-        </div>
-        <p className="note note--tight" id="campaign-note">
-          Use Phantom/Solflare. Double-check token + network before sending.
-        </p>
-      </article>
     </>
   );
 }
