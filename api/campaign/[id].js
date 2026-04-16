@@ -43,7 +43,26 @@ export default async function handler(req, res) {
       const incRaw = Array.isArray(req.query?.includeActivity)
         ? req.query.includeActivity[0]
         : req.query?.includeActivity;
-      if (incRaw !== "1") {
+      let wantActivity =
+        incRaw === true ||
+        incRaw === 1 ||
+        String(incRaw ?? "").toLowerCase() === "1" ||
+        String(incRaw ?? "").toLowerCase() === "true";
+      if (
+        !wantActivity &&
+        typeof req.url === "string" &&
+        req.url.includes("includeActivity=")
+      ) {
+        try {
+          const u = new URL(req.url, "http://localhost");
+          const v = u.searchParams.get("includeActivity");
+          wantActivity =
+            v === "1" || (v != null && v.toLowerCase() === "true");
+        } catch {
+          /* ignore */
+        }
+      }
+      if (!wantActivity) {
         res.status(200).json({ campaign: enriched });
         return;
       }
