@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { fetchCampaignByIdFromApi } from "../lib/crowdcareApi.js";
+import { useMergedUsdcFunding } from "../hooks/useMergedUsdcFunding.js";
+import {
+  fetchCampaignActivityFromApi,
+  fetchCampaignByIdFromApi,
+} from "../lib/crowdcareApi.js";
+import { transactionExplorerUrl } from "../lib/solanaWallet.js";
 import {
   findCampaignById,
   formatCampaignAmt,
-  getCampaignFunding,
-  mergeCampaignFundingWithOnchain,
 } from "../lib/crowdcareApp.js";
-import { fetchWalletUsdcUi } from "../lib/onchainUsdcBalance.js";
-import { isValidSolanaAddress } from "../lib/solanaWallet.js";
 import { xProfileUrlFromHandle } from "../lib/xUsername.js";
 
 /** X (Twitter) logomark for creator line — path aligned with common brand SVG. */
@@ -66,35 +67,7 @@ export function CampaignPage() {
     local || (remote && typeof remote === "object" ? remote : null);
   const loading = !local && remote === undefined;
 
-  const goalTokenForChain =
-    c &&
-    (() => {
-      const f = getCampaignFunding(c);
-      return (
-        f.currency ||
-        (c.goalLabel.toUpperCase().indexOf("SOL") >= 0 ? "SOL" : "USDC")
-      );
-    })();
-
-  const [onChainUsdcUi, setOnChainUsdcUi] = useState(null);
-
-  useEffect(() => {
-    if (
-      !c?.wallet ||
-      goalTokenForChain !== "USDC" ||
-      !isValidSolanaAddress(c.wallet)
-    ) {
-      setOnChainUsdcUi(null);
-      return;
-    }
-    let cancelled = false;
-    fetchWalletUsdcUi(c.wallet).then((ui) => {
-      if (!cancelled) setOnChainUsdcUi(ui);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [decoded, c?.wallet, goalTokenForChain]);
+  const { funding, goalToken: cur } = useMergedUsdcFunding(c);
 
   useEffect(() => {
     if (c?.title) {
@@ -106,6 +79,28 @@ export function CampaignPage() {
   }, [c?.title]);
 
   const [copyLabel, setCopyLabel] = useState("Copy address");
+  const [activity, setActivity] = useState(
+    /** @type {{ signature: string, amountUi: string, blockTime: string|null, fromAddress: string|null }[]|null} */
+    (null)
+  );
+
+  useEffect(() => {
+    if (!c?.id || cur !== "USDC") {
+      setActivity(null);
+      return;
+    }
+    let cancelled = false;
+    fetchCampaignActivityFromApi(String(c.id), 30)
+      .then((rows) => {
+        if (!cancelled) setActivity(rows);
+      })
+      .catch(() => {
+        if (!cancelled) setActivity([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [c?.id, cur]);
 
   if (loading) {
     return (
@@ -129,15 +124,7 @@ export function CampaignPage() {
     );
   }
 
-  const fundingBase = getCampaignFunding(c);
-  const cur =
-    fundingBase.currency ||
-    (c.goalLabel.toUpperCase().indexOf("SOL") >= 0 ? "SOL" : "USDC");
-  const funding =
-    cur === "USDC"
-      ? mergeCampaignFundingWithOnchain(fundingBase, onChainUsdcUi)
-      : fundingBase;
-  const showProgress = funding.pct != null && funding.goal;
+  const showProgress = funding && funding.pct != null && funding.goal;
 
   const ben = c.transparencyBeneficiaryPct;
   const oth = c.transparencyOtherPct;
@@ -261,6 +248,43 @@ export function CampaignPage() {
           on a block explorer if needed.
         </p>
       </section>
+
+      {cur === "USDC" && activity && activity.length > 0 ? (
+        <section
+          id="campaign-activity"
+          className="content-shell ft-panel ft-activity-panel"
+        >
+          <div className="ft-panel-head">
+            <span className="ft-kicker">Activity</span>
+            <span className="ft-panel-title">Recent USDC inflows (indexed)</span>
+          </div>
+          <p className="ft-activity-lead">
+            CrowdCare records transfers detected on mainnet for this campaign
+            wallet. Rows appear after the scheduled sync runs (about every 15
+            minutes on the host).
+          </p>
+          <ul className="ft-activity-list">
+            {activity.map((row) => (
+              <li key={row.signature} className="ft-activity-item">
+                <span className="ft-activity-amt">+{row.amountUi} USDC</span>
+                <a
+                  className="ft-activity-tx"
+                  href={transactionExplorerUrl(row.signature)}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  View transaction
+                </a>
+                {row.blockTime ? (
+                  <span className="ft-activity-time">
+                    {new Date(row.blockTime).toLocaleString()}
+                  </span>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <section
         id="campaign-transparency"

@@ -1,4 +1,10 @@
 {
+  "crons": [
+    {
+      "path": "/api/cron/sync-ledger",
+      "schedule": "*/15 * * * *"
+    }
+  ],
   "rewrites": [
     {
       "source": "/((?!api/).*)",

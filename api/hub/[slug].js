@@ -1,3 +1,4 @@
+import { attachChainFundingToCampaigns } from "../_lib/chainFundingServer.js";
 import { getSql } from "../_lib/db.js";
 import { parsePayload } from "../_lib/parsePayload.js";
 
@@ -31,7 +32,8 @@ export default async function handler(req, res) {
       const c = parsePayload(row);
       if (c && typeof c.id === "string") campaigns.push(c);
     }
-    res.status(200).json({ campaigns });
+    const enriched = await attachChainFundingToCampaigns(campaigns);
+    res.status(200).json({ campaigns: enriched });
   } catch (e) {
     console.error("[api/hub]", e);
     res.status(500).json({ error: "Database error" });

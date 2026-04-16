@@ -3,9 +3,12 @@ import { Link } from "react-router-dom";
 import { useSession } from "../context/SessionContext.jsx";
 import { CampaignList } from "../components/CampaignList.jsx";
 import { fetchCampaignsDirectoryFromApi } from "../lib/crowdcareApi.js";
+import { useUsdcByWalletMap } from "../hooks/useUsdcByWalletMap.js";
 import {
+  directoryNeedsClientUsdcFetch,
   getAllCampaigns,
-  isCampaignPast,
+  getOnChainUsdcUiForCampaign,
+  isCampaignPastWithOnchain,
   mergeDirectoryCampaigns,
 } from "../lib/crowdcareApp.js";
 
@@ -34,11 +37,27 @@ export function DirectoryPastPage() {
     };
   }, []);
 
-  const camps = useMemo(() => {
+  const mergedFull = useMemo(() => {
     if (remote === undefined) return null;
-    const merged = mergeDirectoryCampaigns(remote, getAllCampaigns());
-    return merged.filter((c) => isCampaignPast(c));
+    return mergeDirectoryCampaigns(remote, getAllCampaigns());
   }, [remote]);
+
+  const { usdcByWallet, loadingUsdc } = useUsdcByWalletMap(mergedFull || []);
+  const waitForChain =
+    !!mergedFull &&
+    directoryNeedsClientUsdcFetch(mergedFull) &&
+    loadingUsdc;
+
+  const camps = useMemo(() => {
+    if (mergedFull === null) return null;
+    if (waitForChain) return null;
+    return mergedFull.filter((c) =>
+      isCampaignPastWithOnchain(
+        c,
+        getOnChainUsdcUiForCampaign(c, usdcByWallet)
+      )
+    );
+  }, [mergedFull, usdcByWallet, waitForChain]);
 
   const loading = camps === null;
   const empty = !loading && camps.length === 0;

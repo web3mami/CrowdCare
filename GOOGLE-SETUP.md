@@ -112,3 +112,9 @@ If you see “Admin is not configured”, the server is missing `ADMIN_PASSWORD`
 
 - **Production:** In a new tab, open `https://YOUR-DOMAIN/api/health`. You should see `{"ok":true,"service":"crowdcare-api"}`. If the page errors or shows HTML, API routes are not deployed with that URL (wrong host or static-only hosting).
 - **Local `npm run dev`:** By default, `vite.config.js` proxies **all `/api/*`** to the production URL (`crowd-care-ten.vercel.app`). To point elsewhere, set `VITE_DEV_API_PROXY` in `.env.local`. Or run `npm run dev:vercel` for a full local stack.
+
+---
+
+## 7. RPC, cron, SOL goals
+
+See **[DEPLOY.md](DEPLOY.md)** for `SOLANA_RPC_URL`, ledger activity (`CRON_SECRET` + Vercel Cron), and how **SOL** vs **USDC** progress behaves on-chain.

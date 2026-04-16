@@ -322,6 +322,82 @@ export function getCampaignFunding(c) {
   return { goal: goal || null, raised, pct, currency };
 }
 
+/** Goal token for progress: `goalCurrency` or inferred from `goalLabel` (SOL vs USDC). */
+export function campaignFundingGoalToken(c) {
+  if (!c || typeof c !== "object") return "";
+  const f = getCampaignFunding(c);
+  if (f.currency) return f.currency;
+  return String(c.goalLabel || "").toUpperCase().indexOf("SOL") >= 0
+    ? "SOL"
+    : "USDC";
+}
+
+/** Merged funding snapshot (USDC merges on-chain when provided). */
+export function deriveMergedFunding(c, onChainUsdcUi) {
+  const base = getCampaignFunding(c);
+  if (campaignFundingGoalToken(c) === "USDC") {
+    return mergeCampaignFundingWithOnchain(base, onChainUsdcUi);
+  }
+  return base;
+}
+
+/** Past directory rule from an already-merged funding object. */
+export function isCampaignPastFromFunding(funding) {
+  if (!funding || !funding.goal || !(funding.goal > 0)) return false;
+  if (funding.pct != null && funding.pct >= 100) return true;
+  if (typeof funding.raised === "number" && funding.raised >= funding.goal) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * @param {object} c
+ * @param {number|null|undefined} onChainUsdcUi — USDC balance for `c.wallet` when goal is USDC
+ */
+export function isCampaignPastWithOnchain(c, onChainUsdcUi) {
+  return isCampaignPastFromFunding(deriveMergedFunding(c, onChainUsdcUi));
+}
+
+/** Client trusts server `chainFunding` snapshots newer than this (ms). */
+export const CHAIN_FUNDING_TRUST_MS = 120_000;
+
+export function hasFreshServerChainFunding(c) {
+  const cf = c?.chainFunding;
+  if (!cf || typeof cf.usdcUi !== "number" || Number.isNaN(cf.usdcUi)) {
+    return false;
+  }
+  if (typeof cf.syncedAt !== "string") return false;
+  const age = Date.now() - Date.parse(cf.syncedAt);
+  return !Number.isNaN(age) && age >= 0 && age < CHAIN_FUNDING_TRUST_MS;
+}
+
+/**
+ * USDC UI for merged / past filters: fresh server snapshot, else value from `usdcByWallet` map.
+ * @param {object} c
+ * @param {Map<string, number|null>|undefined} usdcByWallet
+ */
+export function getOnChainUsdcUiForCampaign(c, usdcByWallet) {
+  if (campaignFundingGoalToken(c) !== "USDC") return null;
+  if (hasFreshServerChainFunding(c)) return c.chainFunding.usdcUi;
+  const w = c.wallet != null ? String(c.wallet).trim() : "";
+  if (!w || !(usdcByWallet instanceof Map)) return null;
+  return usdcByWallet.has(w) ? usdcByWallet.get(w) : null;
+}
+
+/** True if any USDC campaign may need a browser RPC balance (no fresh server snapshot). */
+export function directoryNeedsClientUsdcFetch(campaigns) {
+  if (!Array.isArray(campaigns)) return false;
+  for (const c of campaigns) {
+    if (campaignFundingGoalToken(c) !== "USDC") continue;
+    const w = c.wallet != null ? String(c.wallet).trim() : "";
+    if (!w) continue;
+    if (hasFreshServerChainFunding(c)) continue;
+    return true;
+  }
+  return false;
+}
+
 /**
  * Use the higher of saved `raisedAmount` and an on-chain balance (e.g. USDC in the campaign wallet).
  * @param {{ goal: number|null, raised: number, pct: number|null, currency: string }} funding
@@ -348,13 +424,9 @@ export function formatCampaignAmt(n, currency) {
   return currency ? s + " " + currency : s;
 }
 
-/** Goal reached or progress at 100% — “past” for directory views. */
+/** Goal reached or progress at 100% — “past” for directory views (stored raised only; use `isCampaignPastWithOnchain` when USDC chain data exists). */
 export function isCampaignPast(c) {
-  const f = getCampaignFunding(c);
-  if (!f.goal || !(f.goal > 0)) return false;
-  if (f.pct != null && f.pct >= 100) return true;
-  if (typeof c.raisedAmount === "number" && c.raisedAmount >= f.goal) return true;
-  return false;
+  return isCampaignPastWithOnchain(c, null);
 }
 
 export function getActiveCampaignsDirectory() {

@@ -3,6 +3,7 @@ import {
   ensureCrowdcareUsersTable,
   upsertCrowdcareUser,
 } from "../_lib/crowdcareUsers.js";
+import { attachChainFundingToCampaigns } from "../_lib/chainFundingServer.js";
 import { getSql } from "../_lib/db.js";
 import { parsePayload } from "../_lib/parsePayload.js";
 
@@ -34,7 +35,8 @@ export default async function handler(req, res) {
         res.status(404).json({ error: "Not found" });
         return;
       }
-      res.status(200).json({ campaign });
+      const [enriched] = await attachChainFundingToCampaigns([campaign]);
+      res.status(200).json({ campaign: enriched });
     } catch (e) {
       console.error("[api/campaign GET]", e);
       res.status(500).json({ error: "Database error" });

@@ -1924,6 +1924,68 @@ a.campaign-x-link--row:focus-visible .campaign-x-brand {
   line-height: 1.45;
 }
 
+.ft-activity-panel {
+  margin-top: 0.85rem;
+}
+
+.ft-activity-lead {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0 0 0.85rem;
+}
+
+.ft-activity-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.ft-activity-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 0.85rem;
+  font-size: 0.8125rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ft-activity-amt {
+  font-family: ui-monospace, monospace;
+  font-weight: 600;
+  color: var(--gold-bright);
+}
+
+.ft-activity-tx {
+  color: var(--accent-link);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.ft-activity-tx:hover {
+  color: var(--accent-link-hover);
+  text-decoration: underline;
+}
+
+.ft-activity-time {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+.cc-route-fallback {
+  min-height: 40vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .ft-transparency-panel {
   margin-top: 0.85rem;
 }

@@ -7,6 +7,7 @@ import {
   upsertCrowdcareUser,
 } from "./_lib/crowdcareUsers.js";
 import { getSql } from "./_lib/db.js";
+import { attachChainFundingToCampaigns } from "./_lib/chainFundingServer.js";
 import { parsePayload } from "./_lib/parsePayload.js";
 import { validateCampaignPayload } from "./_lib/validateCampaign.js";
 
@@ -27,7 +28,8 @@ export default async function handler(req, res) {
         const c = parsePayload(row);
         if (c && typeof c.id === "string") campaigns.push(c);
       }
-      res.status(200).json({ campaigns, databaseConfigured: true });
+      const enriched = await attachChainFundingToCampaigns(campaigns);
+      res.status(200).json({ campaigns: enriched, databaseConfigured: true });
     } catch (e) {
       console.error("[api/campaigns GET]", e);
       res.status(500).json({ error: "Database error" });
@@ -101,6 +103,7 @@ export default async function handler(req, res) {
   const sub = tokenUser.sub;
   const id = campaign.id;
   const shareSlug = campaign.creatorShareSlug;
+  const { chainFunding: _stripChain, ...campaignForStorage } = campaign;
 
   try {
     const existing = await sql`
@@ -113,7 +116,7 @@ export default async function handler(req, res) {
 
     await sql`
       INSERT INTO campaigns (id, creator_sub, share_slug, payload, updated_at)
-      VALUES (${id}, ${sub}, ${shareSlug}, ${JSON.stringify(campaign)}, NOW())
+      VALUES (${id}, ${sub}, ${shareSlug}, ${JSON.stringify(campaignForStorage)}, NOW())
       ON CONFLICT (id) DO UPDATE SET
         payload = EXCLUDED.payload,
         share_slug = EXCLUDED.share_slug,
