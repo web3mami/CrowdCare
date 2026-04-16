@@ -124,7 +124,6 @@ export async function fetchCampaignActivityFromApi(id, limit = 40) {
     `/api/campaign/${encodeURIComponent(id)}`,
     window.location.origin
   );
-  u.searchParams.set("includeActivity", "1");
   u.searchParams.set("activityLimit", String(limit));
   const r = await fetch(u.toString());
   if (!r.ok) throw new Error(`campaign activity ${r.status}`);

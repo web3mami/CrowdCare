@@ -11,17 +11,6 @@ import { attachChainFundingToCampaigns } from "../_lib/chainFundingServer.js";
 import { getSql } from "../_lib/db.js";
 import { parsePayload } from "../_lib/parsePayload.js";
 
-function searchParamsFromRequest(req) {
-  if (typeof req.url !== "string" || !req.url.includes("?")) {
-    return null;
-  }
-  try {
-    return new URL(req.url, "http://localhost").searchParams;
-  } catch {
-    return null;
-  }
-}
-
 export default async function handler(req, res) {
   const raw = req.query?.id;
   const id = Array.isArray(raw) ? raw[0] : raw;
@@ -51,40 +40,23 @@ export default async function handler(req, res) {
         return;
       }
       const [enriched] = await attachChainFundingToCampaigns([campaign]);
-      const sp = searchParamsFromRequest(req);
-      const incRaw =
-        sp?.get("includeActivity") ??
-        (Array.isArray(req.query?.includeActivity)
-          ? req.query.includeActivity[0]
-          : req.query?.includeActivity);
-      const wantActivity =
-        incRaw === true ||
-        incRaw === 1 ||
-        String(incRaw ?? "").toLowerCase() === "1" ||
-        String(incRaw ?? "").toLowerCase() === "true";
-      if (!wantActivity) {
-        res.status(200).json({ campaign: enriched });
-        return;
-      }
+
+      const payerRaw = Array.isArray(req.query?.includePayer)
+        ? req.query.includePayer[0]
+        : req.query?.includePayer;
+      const includePayer =
+        payerRaw === true ||
+        payerRaw === 1 ||
+        String(payerRaw ?? "") === "1" ||
+        String(payerRaw ?? "").toLowerCase() === "true";
+
+      const limRaw = Array.isArray(req.query?.activityLimit)
+        ? req.query.activityLimit[0]
+        : req.query?.activityLimit;
+
       try {
         await ensureCrowdcareLedgerTable(sql);
-        const limRaw =
-          sp?.get("activityLimit") ??
-          (Array.isArray(req.query?.activityLimit)
-            ? req.query.activityLimit[0]
-            : req.query?.activityLimit);
-        const lim = limRaw;
-        const payerRaw =
-          sp?.get("includePayer") ??
-          (Array.isArray(req.query?.includePayer)
-            ? req.query.includePayer[0]
-            : req.query?.includePayer);
-        const includePayer =
-          payerRaw === true ||
-          payerRaw === 1 ||
-          String(payerRaw ?? "") === "1" ||
-          String(payerRaw ?? "").toLowerCase() === "true";
-        const ledgerRows = await listLedgerForCampaign(sql, id, lim);
+        const ledgerRows = await listLedgerForCampaign(sql, id, limRaw);
         const activity = ledgerRows.map((r) => {
           const row = {
             signature: r.signature,
@@ -105,7 +77,11 @@ export default async function handler(req, res) {
         });
       } catch (ledgerErr) {
         console.error("[api/campaign GET] ledger", ledgerErr);
-        res.status(500).json({ error: "Database error" });
+        res.status(200).json({
+          campaign: enriched,
+          activity: [],
+          databaseConfigured: true,
+        });
       }
     } catch (e) {
       console.error("[api/campaign GET]", e);
