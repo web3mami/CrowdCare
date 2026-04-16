@@ -77,6 +77,17 @@ export function formatCampaignCreatorLine(c) {
 }
 
 /**
+ * Infer goal token from label when `goalCurrency` is missing or wrong.
+ * Labels like "100 USDC on Solana" must not be treated as SOL (substring "SOL" in "Solana").
+ */
+export function inferGoalCurrencyFromLabel(goalLabel) {
+  const s = String(goalLabel || "").toUpperCase();
+  if (s.includes("USDC")) return "USDC";
+  if (/\bSOL\b/.test(s)) return "SOL";
+  return "";
+}
+
+/**
  * Coerce JSON/JSONB quirks (numeric strings) so shared campaigns from the API pass
  * `isValidCampaign` and show in directory/hub lists.
  */
@@ -117,6 +128,17 @@ export function normalizeCampaignForDisplay(c) {
     let x = n.creatorXUsername.trim();
     if (x.startsWith("@")) x = x.slice(1).trim();
     n.creatorXUsername = x;
+  }
+
+  let gc =
+    typeof n.goalCurrency === "string" && n.goalCurrency.trim()
+      ? n.goalCurrency.trim().toUpperCase()
+      : "";
+  if (gc !== "USDC" && gc !== "SOL") {
+    gc = inferGoalCurrencyFromLabel(n.goalLabel);
+  }
+  if (gc === "USDC" || gc === "SOL") {
+    n.goalCurrency = gc;
   }
 
   return n;
@@ -349,10 +371,10 @@ export function getCampaignFunding(c) {
 export function campaignFundingGoalToken(c) {
   if (!c || typeof c !== "object") return "";
   const f = getCampaignFunding(c);
-  if (f.currency) return f.currency;
-  return String(c.goalLabel || "").toUpperCase().indexOf("SOL") >= 0
-    ? "SOL"
-    : "USDC";
+  if (f.currency === "USDC" || f.currency === "SOL") return f.currency;
+  const inferred = inferGoalCurrencyFromLabel(c.goalLabel);
+  if (inferred) return inferred;
+  return "USDC";
 }
 
 /** Merged funding snapshot (USDC merges on-chain when provided). */
