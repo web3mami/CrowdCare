@@ -311,7 +311,7 @@ export function CampaignPage() {
               ~15 minutes for the sync job to add rows (or check the wallet on
               Solscan). If nothing ever appears, confirm{" "}
               <strong>CRON_SECRET</strong> is set on the host so{" "}
-              <code className="ft-mono-inline">/api/cron/sync-ledger</code> can
+              <code className="ft-mono-inline">/api/sync-ledger</code> can
               run — see <code className="ft-mono-inline">DEPLOY.md</code>.
             </p>
           ) : (

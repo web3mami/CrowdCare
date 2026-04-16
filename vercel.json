@@ -1,7 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/cron/sync-ledger",
+      "path": "/api/sync-ledger",
       "schedule": "*/15 * * * *"
     }
   ],

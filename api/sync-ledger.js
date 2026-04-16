@@ -1,8 +1,8 @@
-import { goalTokenFromPayload } from "../_lib/campaignGoalToken.js";
-import { ensureCrowdcareLedgerTable } from "../_lib/crowdcareLedger.js";
-import { getSql } from "../_lib/db.js";
-import { syncUsdcDepositsForCampaign } from "../_lib/ledgerSyncUsdc.js";
-import { parsePayload } from "../_lib/parsePayload.js";
+import { goalTokenFromPayload } from "./_lib/campaignGoalToken.js";
+import { ensureCrowdcareLedgerTable } from "./_lib/crowdcareLedger.js";
+import { getSql } from "./_lib/db.js";
+import { syncUsdcDepositsForCampaign } from "./_lib/ledgerSyncUsdc.js";
+import { parsePayload } from "./_lib/parsePayload.js";
 
 function authorizeCron(req) {
   const secret = process.env.CRON_SECRET?.trim();
@@ -46,7 +46,7 @@ export default async function handler(req, res) {
       insertsAttempted,
     });
   } catch (e) {
-    console.error("[api/cron/sync-ledger]", e);
+    console.error("[api/sync-ledger]", e);
     res.status(500).json({ error: "Sync failed" });
   }
 }
