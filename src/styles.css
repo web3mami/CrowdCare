@@ -1917,11 +1917,27 @@ a.campaign-x-link--row:focus-visible .campaign-x-brand {
   box-shadow: 0 0 12px rgba(212, 180, 92, 0.22);
 }
 
+/* Tiny true % (e.g. 1.2%) is invisible without a floor; aria-valuenow stays accurate. */
+.ft-progress-fill[data-has-progress="true"] {
+  min-width: min(100%, max(2.75%, 10px));
+}
+
 .ft-progress-caption {
   font-size: 0.78rem;
   color: var(--text-muted);
   margin: 0.65rem 0 0;
   line-height: 1.45;
+}
+
+.ft-progress-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0.5rem 0 0;
+  line-height: 1.45;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(212, 180, 92, 0.2);
+  background: rgba(212, 180, 92, 0.06);
 }
 
 .ft-activity-panel {

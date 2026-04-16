@@ -81,7 +81,7 @@ export function CampaignPage() {
   const [copyLabel, setCopyLabel] = useState("Copy address");
   /** USDC activity panel: hidden when not USDC; otherwise loading → done with rows / messages. */
   const [activityPanel, setActivityPanel] = useState(() => ({
-    phase: /** @type {"hidden"|"loading"|"done"} */ ("hidden"),
+    phase: /** @type {"hidden"|"loading"|"done"} */ ("loading"),
     rows: /** @type {{ signature: string, amountUi: string, blockTime: string|null, fromAddress: string|null }[]} */ (
       []
     ),
@@ -265,6 +265,9 @@ export function CampaignPage() {
           <div
             id="progress-fill"
             className="ft-progress-fill"
+            data-has-progress={
+              showProgress && funding.pct > 0 ? "true" : undefined
+            }
             style={{
               width: showProgress ? `${funding.pct}%` : "0%",
             }}
@@ -278,7 +281,14 @@ export function CampaignPage() {
         </p>
       </section>
 
-      {cur === "USDC" && activityPanel.phase !== "hidden" ? (
+      {cur === "USDC" ? (
+        <p className="content-shell ft-progress-hint">
+          <strong>Activity</strong> (indexed USDC deposits) lives in the next
+          card — scroll down past Funding.
+        </p>
+      ) : null}
+
+      {cur === "USDC" && c?.id ? (
         <section
           id="campaign-activity"
           className="content-shell ft-panel ft-activity-panel"
@@ -292,7 +302,8 @@ export function CampaignPage() {
             wallet. Rows appear after the scheduled sync runs (about every 15
             minutes on the host).
           </p>
-          {activityPanel.phase === "loading" ? (
+          {activityPanel.phase === "loading" ||
+          activityPanel.phase === "hidden" ? (
             <p className="ft-activity-empty">Loading activity…</p>
           ) : activityPanel.loadError ? (
             <p className="ft-activity-empty">
