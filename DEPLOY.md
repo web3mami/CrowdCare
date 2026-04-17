@@ -31,7 +31,7 @@ Indexed **USDC inflows** per campaign:
 
 1. First deploy creates `crowdcare_ledger` on demand when the activity API or cron runs.
 2. Set **`CRON_SECRET`** in Vercel (Production). Vercel Cron calls `GET /api/campaigns?syncLedger=1` with `Authorization: Bearer <CRON_SECRET>` (see [Vercel cron docs](https://vercel.com/docs/cron-jobs)).
-3. Schedule is defined in [vercel.json](vercel.json) (default every 15 minutes).
+3. Schedule is defined in [vercel.json](vercel.json). **Vercel Hobby** only allows cron **once per day**; this repo uses **`0 10 * * *`** (10:00 UTC). On **Pro**, you can switch to a tighter schedule (e.g. every 15 minutes) if you want faster Activity updates.
 
 **`GET /api/campaign/<campaignId>`** always includes **`activity`** (ledger rows) and **`databaseConfigured`** in the JSON alongside **`campaign`**. Optional query **`activityLimit`** caps rows (server default applies if the host omits query params). Rows appear after a successful sync; parsing uses recent signatures for the campaign wallet (not a full historical indexer). By default **`fromAddress` is omitted** for privacy; add **`includePayer=1`** only if you need payer hints (e.g. internal tools).
 

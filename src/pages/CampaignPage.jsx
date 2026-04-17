@@ -322,8 +322,8 @@ export function CampaignPage() {
           </div>
           <p className="ft-activity-lead">
             CrowdCare records transfers detected on mainnet for this campaign
-            wallet. Rows appear after the scheduled sync runs (about every 15
-            minutes on the host).
+            wallet. Rows appear after the host’s ledger sync runs (on Hobby
+            Vercel that is typically once per day).
           </p>
           {activityPanel.phase === "loading" ||
           activityPanel.phase === "hidden" ? (
@@ -341,9 +341,10 @@ export function CampaignPage() {
             </p>
           ) : activityPanel.rows.length === 0 ? (
                        <p className="ft-activity-empty">
-              No indexed deposits yet. After someone sends USDC, allow up to
-              ~15 minutes for the sync job to add rows (or check the wallet on
-              Solscan). If nothing ever appears, confirm{" "}
+              No indexed deposits yet. After someone sends USDC, the host’s
+              ledger sync may run on a schedule (often once per day on free
+              Vercel); check the wallet on Solscan anytime. If nothing ever
+              appears, confirm{" "}
               <strong>CRON_SECRET</strong> is set on the host so{" "}
               <code className="ft-mono-inline">/api/campaigns?syncLedger=1</code> can
               run — see <code className="ft-mono-inline">DEPLOY.md</code>.
