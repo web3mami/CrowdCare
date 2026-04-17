@@ -45,10 +45,13 @@ export function MyCampaignsPage() {
       <p className="back">
         <Link to="/app">← Home</Link>
       </p>
-      <h1 className="site-title">My campaigns</h1>
-      <p className="lead lead--compact">
-        Campaigns you created — stored here and synced online when you save.
-      </p>
+      <div className="page-intro">
+        <p className="ft-kicker">Your space</p>
+        <h1 className="site-title">My campaigns</h1>
+        <p className="lead lead--compact">
+          Campaigns you created — stored here and synced online when you save.
+        </p>
+      </div>
       <p
         id="my-campaigns-empty"
         className="note note--tight"

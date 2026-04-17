@@ -50,18 +50,20 @@ function HubSlugView({ slug, user }) {
         <Link to="/app">← Home</Link>
       </p>
       <div className="content-shell ft-panel hub-panel">
-        <p className="ft-kicker">Creator hub</p>
-        <h1 className="site-title hub-title">
-          {loading
-            ? "Loading hub…"
-            : empty
-              ? "This hub is empty"
-              : "Campaigns on this hub"}
-        </h1>
-        <p className="lead hub-lead">
-          Published campaigns load from CrowdCare for everyone. This browser also
-          keeps a copy when you&apos;re the creator.
-        </p>
+        <div className="page-intro">
+          <p className="ft-kicker">Creator hub</p>
+          <h1 className="site-title hub-title">
+            {loading
+              ? "Loading hub…"
+              : empty
+                ? "This hub is empty"
+                : "Campaigns on this hub"}
+          </h1>
+          <p className="lead hub-lead">
+            Published campaigns load from CrowdCare for everyone. This browser also
+            keeps a copy when you&apos;re the creator.
+          </p>
+        </div>
         {loading ? null : <CampaignList campaigns={hubCampaigns} />}
         <p id="hub-empty" className="note note--tight" hidden={!empty || loading}>
           {viewingOwnHub ? (

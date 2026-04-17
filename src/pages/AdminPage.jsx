@@ -84,7 +84,10 @@ export function AdminPage() {
         <p className="admin-page-back">
           <Link to="/">← CrowdCare home</Link>
         </p>
-        <h1 className="site-title">Admin</h1>
+        <div className="page-intro">
+          <p className="ft-kicker">Operations</p>
+          <h1 className="site-title">Admin</h1>
+        </div>
 
         <form className="admin-page-form" onSubmit={onSubmit}>
           <div className="form-field">

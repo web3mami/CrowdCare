@@ -114,7 +114,10 @@ export function CreatePage() {
         <p className="back">
           <Link to="/app">← Home</Link>
         </p>
-        <h1 className="site-title">Create a campaign</h1>
+        <div className="page-intro">
+          <p className="ft-kicker">Create</p>
+          <h1 className="site-title">Create a campaign</h1>
+        </div>
         <p className="note note--tight banner-warn">
           Add your <strong>public display name</strong> and{" "}
           <strong>X (Twitter) username</strong> on Profile once (or finish your
@@ -291,11 +294,14 @@ export function CreatePage() {
       <p className="back">
         <Link to="/app">← Home</Link>
       </p>
-      <h1 className="site-title">Create a campaign</h1>
-      <p className="lead lead--compact">
-        Public page: story, goal, wallet. Pick <strong>USDC</strong> or{" "}
-        <strong>SOL</strong>. We create the campaign URL when you save.
-      </p>
+      <div className="page-intro">
+        <p className="ft-kicker">Create</p>
+        <h1 className="site-title">Create a campaign</h1>
+        <p className="lead lead--compact">
+          Public page: story, goal, wallet. Pick <strong>USDC</strong> or{" "}
+          <strong>SOL</strong>. We create the campaign URL when you save.
+        </p>
+      </div>
       <p id="form-error" className="form-error" hidden={!error}>
         {error}
       </p>

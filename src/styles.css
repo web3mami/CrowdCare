@@ -1,5 +1,5 @@
 /**
- * CrowdCare — dark fintech: ash neutrals, brass / gold accent, warm highlights
+ * CrowdCare — dark fintech: ash neutrals, brass / gold + cool verdigris, Fraunces display
  */
 :root {
   /* Layout & type rhythm */
@@ -7,6 +7,8 @@
   --layout-pad-x: clamp(1.25rem, 5vw, 4rem);
   --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto,
     sans-serif;
+  --font-display: "Fraunces", "Palatino Linotype", "Book Antiqua", Palatino, Georgia,
+    serif;
   --radius-sm: 10px;
   --radius-md: 14px;
   --radius-lg: 18px;
@@ -37,6 +39,11 @@
   --accent-link: #d4b45c;
   --accent-link-hover: #e8cf80;
   --accent-mint: #9a7b3a;
+  /* Secondary accent — patina / ledger green (use sparingly vs gold) */
+  --verdigris: #6da090;
+  --verdigris-muted: rgba(109, 160, 144, 0.45);
+  --verdigris-glow: rgba(109, 160, 144, 0.14);
+  --verdigris-faint: rgba(109, 160, 144, 0.08);
   --line-subtle: rgba(255, 255, 255, 0.06);
 
   --danger: #e07070;
@@ -337,7 +344,7 @@ body {
     ),
     radial-gradient(
       ellipse 45% 38% at 100% 100%,
-      rgba(120, 156, 220, 0.05),
+      var(--verdigris-glow),
       transparent 45%
     ),
     radial-gradient(
@@ -456,10 +463,26 @@ body.cc-motion-flow .brand:hover {
 }
 
 h1 {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
   font-size: 1.625rem;
   line-height: 1.2;
   font-weight: 600;
   letter-spacing: -0.02em;
+}
+
+.top-nav .brand-text,
+.gate-welcome-name,
+.signed-in-hero-title,
+.nav-drawer-title,
+.gate-veltra-title,
+.gate-connect-title,
+.gate-title,
+.gate-veltra-card-brand,
+.gate-preview-title,
+.gate-landing-footer-brand {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
 }
 
 .gate-welcome-kicker {
@@ -642,8 +665,10 @@ body.cc-motion-flow .gate-welcome-kicker {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--gold-bright);
-  box-shadow: 0 0 10px rgba(212, 180, 92, 0.45);
+  background: linear-gradient(145deg, var(--verdigris) 0%, var(--gold-bright) 100%);
+  box-shadow:
+    0 0 10px rgba(212, 180, 92, 0.4),
+    0 0 8px var(--verdigris-faint);
   flex-shrink: 0;
 }
 
@@ -1678,7 +1703,7 @@ body.cc-motion-flow .gate-auth-back:hover {
 #campaign-title {
   font-size: clamp(1.65rem, 4.2vw, 2.15rem);
   font-weight: 700;
-  letter-spacing: -0.032em;
+  letter-spacing: -0.035em;
   line-height: 1.12;
   margin: 0 0 0.65rem;
   color: var(--text);
@@ -1835,8 +1860,10 @@ a.campaign-x-link--row:focus-visible .campaign-x-brand {
   height: 6px;
   border-radius: 50%;
   flex-shrink: 0;
-  background: var(--gold-bright);
-  box-shadow: 0 0 10px rgba(212, 180, 92, 0.45);
+  background: linear-gradient(145deg, var(--verdigris) 0%, var(--gold-bright) 100%);
+  box-shadow:
+    0 0 10px rgba(212, 180, 92, 0.4),
+    0 0 6px var(--verdigris-faint);
 }
 
 .ft-panel-title {
@@ -2331,7 +2358,24 @@ button:focus-visible {
   font-weight: 700;
   margin: 0 0 0.4rem;
   color: var(--text);
-  letter-spacing: -0.025em;
+  letter-spacing: -0.03em;
+}
+
+/* Page intros: kicker + title + lead (directory, create, etc.) */
+.page-intro {
+  margin-bottom: 0.65rem;
+}
+
+.page-intro .ft-kicker {
+  margin-bottom: 0.35rem;
+}
+
+.page-intro .site-title {
+  margin-top: 0;
+}
+
+.page-intro .lead {
+  margin-top: 0;
 }
 
 /* In-app page titles (not the gate hero, not campaign story headings) */
@@ -2346,7 +2390,13 @@ h1.site-title:not(.gate-title)::after {
   height: 2px;
   margin-top: 0.55rem;
   border-radius: 1px;
-  background: linear-gradient(90deg, var(--gold-bright), var(--gold-deep), transparent);
+  background: linear-gradient(
+    90deg,
+    var(--gold-bright),
+    var(--verdigris-muted),
+    var(--gold-deep),
+    transparent
+  );
   opacity: 0.85;
 }
 
@@ -2648,9 +2698,9 @@ body.cc-motion-flow .campaign-list a:hover::after {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(212, 180, 92, 0.28),
-    rgba(212, 180, 92, 0.45),
-    rgba(212, 180, 92, 0.28),
+    var(--verdigris-muted),
+    rgba(212, 180, 92, 0.42),
+    var(--verdigris-muted),
     transparent
   );
   pointer-events: none;
@@ -3449,9 +3499,11 @@ button.secondary-btn:hover {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(212, 180, 92, 0.2),
+    var(--verdigris-muted),
+    rgba(212, 180, 92, 0.35),
     var(--gold-bright),
-    rgba(212, 180, 92, 0.2),
+    rgba(212, 180, 92, 0.35),
+    var(--verdigris-muted),
     transparent
   );
   pointer-events: none;
@@ -3772,7 +3824,11 @@ body.cc-motion-flow .bare:hover {
 }
 
 .hub-title {
-  margin-top: 0.25rem;
+  margin-top: 0.15rem;
+}
+
+.hub-view .page-intro .hub-lead {
+  margin-top: 0.35rem;
 }
 
 .hub-lead {

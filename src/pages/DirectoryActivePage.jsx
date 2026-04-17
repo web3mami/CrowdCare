@@ -68,11 +68,14 @@ export function DirectoryActivePage() {
       <p className="back">
         <Link to="/app">← Home</Link>
       </p>
-      <h1 className="site-title">Active campaigns</h1>
-      <p className="lead lead--compact">
-        Still raising (under 100% of goal). Includes campaigns synced to CrowdCare
-        by any creator, plus any only stored in this browser.
-      </p>
+      <div className="page-intro">
+        <p className="ft-kicker">Directory</p>
+        <h1 className="site-title">Active campaigns</h1>
+        <p className="lead lead--compact">
+          Still raising (under 100% of goal). Includes campaigns synced to CrowdCare
+          by any creator, plus any only stored in this browser.
+        </p>
+      </div>
       <div className="content-shell ft-panel campaigns-dir-panel">
         {!loading && !databaseConfigured ? (
           <p className="note note--tight banner-warn">

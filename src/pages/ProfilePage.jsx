@@ -353,7 +353,8 @@ export function ProfilePage() {
       </p>
 
       <div className="profile-layout">
-        <header className="profile-layout-head">
+        <header className="profile-layout-head page-intro">
+          <p className="ft-kicker">Your space</p>
           <h1 className="site-title">Profile</h1>
           <p className="lead lead--compact profile-layout-lead">
             Stored in this browser. Hub link lists your campaigns here only until

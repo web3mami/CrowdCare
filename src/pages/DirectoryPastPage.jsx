@@ -67,11 +67,14 @@ export function DirectoryPastPage() {
       <p className="back">
         <Link to="/app">← Home</Link>
       </p>
-      <h1 className="site-title">Past campaigns</h1>
-      <p className="lead lead--compact">
-        Reached goal (100% or raised ≥ target). Includes completed campaigns from
-        CrowdCare and this browser.
-      </p>
+      <div className="page-intro">
+        <p className="ft-kicker">Directory</p>
+        <h1 className="site-title">Past campaigns</h1>
+        <p className="lead lead--compact">
+          Reached goal (100% or raised ≥ target). Includes completed campaigns from
+          CrowdCare and this browser.
+        </p>
+      </div>
       <div className="content-shell ft-panel campaigns-dir-panel">
         {!loading && !databaseConfigured ? (
           <p className="note note--tight banner-warn">
