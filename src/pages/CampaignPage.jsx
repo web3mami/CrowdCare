@@ -93,7 +93,7 @@ export function CampaignPage() {
   }));
 
   useEffect(() => {
-    if (!c?.id || cur !== "USDC") {
+    if (!c?.id || (cur !== "USDC" && cur !== "SOL")) {
       setActivityPanel({
         phase: "hidden",
         rows: [],
@@ -300,32 +300,47 @@ export function CampaignPage() {
         </div>
         <p className="ft-progress-caption">
           <span id="progress-pct">{showProgress ? funding.pct : 0}</span>% of
-          goal — for USDC, the bar uses the higher of saved progress and this
-          wallet’s USDC balance (mainnet, standard deposit address). Confirm
-          on a block explorer if needed.
+          goal —
+          {cur === "USDC" ? (
+            <>
+              {" "}
+              for USDC, the bar uses the higher of saved progress and this
+              wallet’s USDC balance (mainnet, standard deposit address).
+            </>
+          ) : cur === "SOL" ? (
+            <>
+              {" "}
+              for SOL, raised follows the saved campaign amount (native wallet
+              balance isn’t auto-merged here).
+            </>
+          ) : null}{" "}
+          Confirm on a block explorer if needed.
         </p>
       </section>
 
-      {cur === "USDC" ? (
+      {cur === "USDC" || cur === "SOL" ? (
         <p className="content-shell ft-progress-hint">
-          <strong>Activity</strong> (indexed USDC deposits) lives in the next
+          <strong>Activity</strong> (indexed {cur} deposits) lives in the next
           card — scroll down past Funding.
         </p>
       ) : null}
 
-      {cur === "USDC" && c?.id ? (
+      {(cur === "USDC" || cur === "SOL") && c?.id ? (
         <section
           id="campaign-activity"
           className="content-shell ft-panel ft-activity-panel"
         >
           <div className="ft-panel-head">
             <span className="ft-kicker">Activity</span>
-            <span className="ft-panel-title">Recent USDC inflows (indexed)</span>
+            <span className="ft-panel-title">
+              Recent {cur} inflows (indexed)
+            </span>
           </div>
           <p className="ft-activity-lead">
-            CrowdCare records transfers detected on mainnet for this campaign
-            wallet. Rows appear after the host’s ledger sync runs (on Hobby
-            Vercel that is typically once per day).
+            CrowdCare records {cur} transfers detected on mainnet for this
+            campaign wallet (native SOL uses net lamport increases per tx).
+            Rows appear after the host’s ledger sync runs (on Hobby Vercel
+            that is typically once per day).
           </p>
           {activityPanel.phase === "loading" ||
           activityPanel.phase === "hidden" ? (
@@ -342,20 +357,22 @@ export function CampaignPage() {
               progress can still use on-chain balance; this list is separate.
             </p>
           ) : activityPanel.rows.length === 0 ? (
-                       <p className="ft-activity-empty">
-              No indexed deposits yet. After someone sends USDC, the host’s
+            <p className="ft-activity-empty">
+              No indexed deposits yet. After someone sends {cur}, the host’s
               ledger sync may run on a schedule (often once per day on free
               Vercel); check the wallet on Solscan anytime. If nothing ever
               appears, confirm{" "}
               <strong>CRON_SECRET</strong> is set on the host so{" "}
-              <code className="ft-mono-inline">/api/campaigns?syncLedger=1</code> can
-              run — see <code className="ft-mono-inline">DEPLOY.md</code>.
+              <code className="ft-mono-inline">/api/campaigns?syncLedger=1</code>{" "}
+              can run — see <code className="ft-mono-inline">DEPLOY.md</code>.
             </p>
           ) : (
             <ul className="ft-activity-list">
               {activityPanel.rows.map((row) => (
                 <li key={row.signature} className="ft-activity-item">
-                  <span className="ft-activity-amt">+{row.amountUi} USDC</span>
+                  <span className="ft-activity-amt">
+                    +{row.amountUi} {cur}
+                  </span>
                   <a
                     className="ft-activity-tx"
                     href={transactionExplorerUrl(row.signature)}

@@ -1,9 +1,10 @@
 import { goalTokenFromPayload } from "./campaignGoalToken.js";
 import { ensureCrowdcareLedgerTable } from "./crowdcareLedger.js";
+import { syncSolDepositsForCampaign } from "./ledgerSyncSol.js";
 import { syncUsdcDepositsForCampaign } from "./ledgerSyncUsdc.js";
 import { parsePayload } from "./parsePayload.js";
 
-/** Scan recent campaigns and ingest USDC deposit rows into crowdcare_ledger. */
+/** Scan recent campaigns and ingest USDC / native SOL deposit rows into crowdcare_ledger. */
 export async function runCrowdcareLedgerSync(sql) {
   await ensureCrowdcareLedgerTable(sql);
   const rows = await sql`
@@ -15,13 +16,13 @@ export async function runCrowdcareLedgerSync(sql) {
   for (const row of rows) {
     const c = parsePayload(row);
     if (!c || typeof c.id !== "string" || !c.wallet) continue;
-    if (goalTokenFromPayload(c) !== "USDC") continue;
-    const n = await syncUsdcDepositsForCampaign(
-      sql,
-      c.id,
-      String(c.wallet).trim()
-    );
-    insertsAttempted += n;
+    const token = goalTokenFromPayload(c);
+    const w = String(c.wallet).trim();
+    if (token === "USDC") {
+      insertsAttempted += await syncUsdcDepositsForCampaign(sql, c.id, w);
+    } else if (token === "SOL") {
+      insertsAttempted += await syncSolDepositsForCampaign(sql, c.id, w);
+    }
   }
   return { campaignsScanned: rows.length, insertsAttempted };
 }

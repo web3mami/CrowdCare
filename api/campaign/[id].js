@@ -1,8 +1,13 @@
 import { verifyGoogleIdToken } from "../_lib/auth.js";
+import { goalTokenFromPayload } from "../_lib/campaignGoalToken.js";
 import {
   ensureCrowdcareLedgerTable,
   listLedgerForCampaign,
 } from "../_lib/crowdcareLedger.js";
+import {
+  LEDGER_NATIVE_SOL_MINT,
+  LEDGER_USDC_MINT,
+} from "../_lib/ledgerMints.js";
 import {
   ensureCrowdcareUsersTable,
   upsertCrowdcareUser,
@@ -56,7 +61,15 @@ export default async function handler(req, res) {
 
       try {
         await ensureCrowdcareLedgerTable(sql);
-        const ledgerRows = await listLedgerForCampaign(sql, id, limRaw);
+        const goalTok = goalTokenFromPayload(enriched);
+        const ledgerMint =
+          goalTok === "SOL" ? LEDGER_NATIVE_SOL_MINT : LEDGER_USDC_MINT;
+        const ledgerRows = await listLedgerForCampaign(
+          sql,
+          id,
+          limRaw,
+          ledgerMint
+        );
         const activity = ledgerRows.map((r) => {
           const row = {
             signature: r.signature,

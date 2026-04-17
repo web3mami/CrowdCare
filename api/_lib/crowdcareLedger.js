@@ -9,9 +9,16 @@ export async function ensureCrowdcareLedgerTable(sql) {
       mint TEXT NOT NULL DEFAULT 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
       amount_ui NUMERIC(24, 10) NOT NULL,
       from_address TEXT,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      UNIQUE (campaign_id, signature)
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
+  `;
+  await sql`
+    ALTER TABLE crowdcare_ledger
+    DROP CONSTRAINT IF EXISTS crowdcare_ledger_campaign_id_signature_key
+  `;
+  await sql`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_crowdcare_ledger_campaign_sig_mint
+    ON crowdcare_ledger(campaign_id, signature, mint)
   `;
   await sql`
     CREATE INDEX IF NOT EXISTS idx_crowdcare_ledger_campaign_id
@@ -49,7 +56,7 @@ export async function insertLedgerRow(sql, row) {
       ${row.amount_ui},
       ${row.from_address}
     )
-    ON CONFLICT (campaign_id, signature) DO NOTHING
+    ON CONFLICT (campaign_id, signature, mint) DO NOTHING
   `;
 }
 
@@ -57,9 +64,19 @@ export async function insertLedgerRow(sql, row) {
  * @param {import('@neondatabase/serverless').NeonQueryFunction} sql
  * @param {string} campaignId
  * @param {string|number} [limit]
+ * @param {string|null} [mint] — e.g. USDC mint or `NATIVE_SOL`; omit for all rows
  */
-export async function listLedgerForCampaign(sql, campaignId, limit = 50) {
+export async function listLedgerForCampaign(sql, campaignId, limit = 50, mint = null) {
   const lim = Math.min(Math.max(1, Number(limit) || 50), 100);
+  if (mint != null && String(mint).length > 0) {
+    return sql`
+      SELECT signature, slot, block_time, mint, amount_ui, from_address, created_at
+      FROM crowdcare_ledger
+      WHERE campaign_id = ${campaignId} AND mint = ${String(mint)}
+      ORDER BY COALESCE(block_time, created_at) DESC NULLS LAST
+      LIMIT ${lim}
+    `;
+  }
   return sql`
     SELECT signature, slot, block_time, mint, amount_ui, from_address, created_at
     FROM crowdcare_ledger
