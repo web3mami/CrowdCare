@@ -5,8 +5,48 @@ import { parseUsdcDepositUi } from "./solanaUsdcDepositParse.js";
 
 const USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
 
+const SIG_PAGE = 100;
+const SIG_MAX_DEFAULT = 1000;
+const SIG_MAX_HARD = 5000;
+
+function ledgerSyncMaxSignatures() {
+  const raw = process.env.LEDGER_SYNC_MAX_SIGNATURES?.trim();
+  const n = raw ? parseInt(raw, 10) : SIG_MAX_DEFAULT;
+  if (!Number.isFinite(n) || n < 25) return SIG_MAX_DEFAULT;
+  return Math.min(n, SIG_MAX_HARD);
+}
+
 /**
- * Scan recent signatures for the campaign wallet; record USDC inflows to Neon.
+ * Newest-first signature list, paginated (so deposits older than the first page still appear).
+ */
+async function fetchSignaturesForAddressPaged(conn, pk) {
+  const cap = ledgerSyncMaxSignatures();
+  const out = [];
+  let before = undefined;
+  try {
+    while (out.length < cap) {
+      const want = Math.min(SIG_PAGE, cap - out.length);
+      const batch = await conn.getSignaturesForAddress(pk, {
+        limit: want,
+        before,
+      });
+      if (!batch.length) break;
+      for (const row of batch) {
+        out.push(row);
+      }
+      if (batch.length < want) break;
+      before = batch[batch.length - 1].signature;
+    }
+  } catch (e) {
+    console.error("[ledgerSync] getSignaturesForAddress paged", e);
+    return out.length ? out : [];
+  }
+  return out;
+}
+
+/**
+ * Scan signatures for the campaign wallet (paginated); record USDC inflows to Neon.
+ * Re-running is safe (unique campaign_id + signature). Redeploy does not erase rows.
  * @param {import('@neondatabase/serverless').NeonQueryFunction} sql
  * @param {string} campaignId
  * @param {string} walletBase58
@@ -15,11 +55,8 @@ const USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
 export async function syncUsdcDepositsForCampaign(sql, campaignId, walletBase58) {
   const conn = new Connection(getSolanaRpcUrlForServer(), "confirmed");
   const pk = new PublicKey(String(walletBase58).trim());
-  let sigs;
-  try {
-    sigs = await conn.getSignaturesForAddress(pk, { limit: 25 });
-  } catch (e) {
-    console.error("[ledgerSync] getSignaturesForAddress", campaignId, e);
+  const sigs = await fetchSignaturesForAddressPaged(conn, pk);
+  if (!sigs.length) {
     return 0;
   }
   let attempted = 0;

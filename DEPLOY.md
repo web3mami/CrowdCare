@@ -29,11 +29,12 @@ The browser still uses **`/api/solana-rpc`** (or `VITE_SOLANA_RPC_URL` when set)
 
 Indexed **USDC inflows** per campaign:
 
-1. First deploy creates `crowdcare_ledger` on demand when the activity API or cron runs.
-2. Set **`CRON_SECRET`** in Vercel (Production). Vercel Cron calls `GET /api/campaigns?syncLedger=1` with `Authorization: Bearer <CRON_SECRET>` (see [Vercel cron docs](https://vercel.com/docs/cron-jobs)).
+1. First deploy creates `crowdcare_ledger` on demand when the activity API or cron runs. **Redeploying the app does not delete ledger rows** (they live in Postgres).
+2. Set **`CRON_SECRET`** in Vercel (Production). Vercel Cron calls `GET /api/campaigns?syncLedger=1` with `Authorization: Bearer <CRON_SECRET>` (see [Vercel cron docs](https://vercel.com/docs/cron-jobs)). You can trigger the same URL manually (e.g. curl) after a deposit to refresh Activity without waiting for cron.
 3. Schedule is defined in [vercel.json](vercel.json). **Vercel Hobby** only allows cron **once per day**; this repo uses **`0 10 * * *`** (10:00 UTC). On **Pro**, you can switch to a tighter schedule (e.g. every 15 minutes) if you want faster Activity updates.
+4. **`LEDGER_SYNC_MAX_SIGNATURES`** (optional, default **1000**, max **5000**): how many newest signatures per wallet the indexer walks per sync. Raise it if Activity is missing older USDC transfers (busy wallets need a higher cap). Heavy values mean more RPC work per cron run.
 
-**`GET /api/campaign/<campaignId>`** always includes **`activity`** (ledger rows) and **`databaseConfigured`** in the JSON alongside **`campaign`**. Optional query **`activityLimit`** caps rows (server default applies if the host omits query params). Rows appear after a successful sync; parsing uses recent signatures for the campaign wallet (not a full historical indexer). By default **`fromAddress` is omitted** for privacy; add **`includePayer=1`** only if you need payer hints (e.g. internal tools).
+**`GET /api/campaign/<campaignId>`** always includes **`activity`** (ledger rows) and **`databaseConfigured`** in the JSON alongside **`campaign`**. Optional query **`activityLimit`** caps rows returned to the client. Rows appear after a successful sync; the indexer walks up to **`LEDGER_SYNC_MAX_SIGNATURES`** newest signatures per wallet per run (not infinite history—use a block explorer for full audit). By default **`fromAddress` is omitted** for privacy; add **`includePayer=1`** only if you need payer hints (e.g. internal tools).
 
 ## Security
 
