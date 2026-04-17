@@ -232,20 +232,22 @@ export function CampaignPage() {
         <p>
           <strong>Send on Solana to:</strong>
         </p>
-        <div className="address-row">
-          <p className="address" id="wallet-address">
-            {c.wallet}
-          </p>
-          <button
-            type="button"
-            id="copy-btn"
-            aria-label="Copy Solana address"
-            onClick={copyWallet}
-          >
-            {copyLabel}
-          </button>
+        <div className="ft-send-address-wrap">
+          <div className="address-row">
+            <p className="address" id="wallet-address">
+              {c.wallet}
+            </p>
+            <button
+              type="button"
+              id="copy-btn"
+              aria-label="Copy Solana address"
+              onClick={copyWallet}
+            >
+              {copyLabel}
+            </button>
+          </div>
         </div>
-        <p className="note note--tight" id="campaign-note">
+        <p className="note note--tight ft-send-panel-note" id="campaign-note">
           Use Phantom/Solflare. Double-check token + network before sending.
         </p>
       </article>
