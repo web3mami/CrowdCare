@@ -6,6 +6,8 @@
  *
  * Only methods used by @solana/web3.js in this app are allowed (relay hardening).
  */
+import { rateLimitRpc } from "./_lib/rateLimit.js";
+
 const UPSTREAM =
   process.env.SOLANA_RPC_URL || "https://api.mainnet-beta.solana.com";
 
@@ -53,6 +55,8 @@ export default async function handler(req, res) {
       .json({ error: "Method not allowed" });
     return;
   }
+
+  if (!rateLimitRpc(req, res)) return;
 
   let rawLen = 0;
   let body = req.body;

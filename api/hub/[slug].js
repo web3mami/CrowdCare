@@ -1,12 +1,15 @@
 import { attachChainFundingToCampaigns } from "../_lib/chainFundingServer.js";
 import { getSql } from "../_lib/db.js";
 import { parsePayload } from "../_lib/parsePayload.js";
+import { rateLimitHubGet } from "../_lib/rateLimit.js";
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
     res.status(405).setHeader("Allow", "GET").json({ error: "Method not allowed" });
     return;
   }
+
+  if (!rateLimitHubGet(req, res)) return;
 
   const sql = getSql();
   if (!sql) {

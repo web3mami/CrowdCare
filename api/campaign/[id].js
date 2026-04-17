@@ -15,6 +15,7 @@ import {
 import { attachChainFundingToCampaigns } from "../_lib/chainFundingServer.js";
 import { getSql } from "../_lib/db.js";
 import { parsePayload } from "../_lib/parsePayload.js";
+import { rateLimitCampaignDetailGet } from "../_lib/rateLimit.js";
 
 export default async function handler(req, res) {
   const raw = req.query?.id;
@@ -27,6 +28,7 @@ export default async function handler(req, res) {
   const sql = getSql();
 
   if (req.method === "GET") {
+    if (!rateLimitCampaignDetailGet(req, res)) return;
     if (!sql) {
       res.status(404).json({ error: "Not found" });
       return;

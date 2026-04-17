@@ -16,6 +16,10 @@ import {
   selectCampaignsPage,
 } from "./_lib/campaignsPagination.js";
 import { runCrowdcareLedgerSync } from "./_lib/runLedgerSync.js";
+import {
+  rateLimitCampaignsGet,
+  rateLimitCampaignsPost,
+} from "./_lib/rateLimit.js";
 import { validateCampaignPayload } from "./_lib/validateCampaign.js";
 
 export default async function handler(req, res) {
@@ -82,6 +86,8 @@ export default async function handler(req, res) {
       .json({ error: "Method not allowed" });
     return;
   }
+
+  if (!rateLimitCampaignsPost(req, res)) return;
 
   if (!sql) {
     res.status(503).json({ error: "Database not configured" });

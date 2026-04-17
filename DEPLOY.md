@@ -1,5 +1,23 @@
 # CrowdCare deployment notes
 
+## How funding and Activity work
+
+**USDC campaigns**
+
+- **Progress / “raised”** can combine what the creator saved in the campaign with **on-chain USDC** in the wallet’s canonical ATA (see app logic and `chainFunding` on list APIs). That gives a more honest picture when the saved number lags.
+- **Activity** (if the ledger is enabled) lists **recent USDC inflows** the indexer saw for that wallet’s mint. It is **not** a complete accounting of all history.
+
+**SOL campaigns**
+
+- **Progress** uses the **saved** goal and raised values. Native SOL in the wallet is **not** auto-merged with “raised” (rent, fees, and SOL that was already there would skew the story). A future product rule could add something like a baseline lamports field.
+- **Activity** uses **native SOL balance deltas** per transaction where possible. That can include noise; explorers remain the source of truth for audits.
+
+**Activity limits (all types)**
+
+- Rows appear only after a successful **ledger sync** (cron and/or manual `syncLedger`).
+- Each sync walks at most **`LEDGER_SYNC_MAX_SIGNATURES`** recent signatures per wallet — very busy wallets may not show old transfers in Activity.
+- **`fromAddress`** is omitted by default; use `includePayer=1` only for internal tooling.
+
 ## Database (Neon)
 
 Set `DATABASE_URL` on Vercel (or your host). Campaign payloads and optional ledger rows live in Postgres.
@@ -44,6 +62,35 @@ The `crowdcare_ledger` table uses **`UNIQUE (campaign_id, signature, mint)`** so
 - Do not expose `CRON_SECRET` or `ADMIN_PASSWORD` in the client.
 - Ledger and activity endpoints are **read-only** for the public; only the cron route requires the bearer secret.
 - **`POST /api/campaigns`** persists only an **allowlisted** set of `campaign` keys; unknown keys return **400**.
+
+### Rate limits (API abuse)
+
+Public routes use a **sliding-window limit per client IP** (from `x-forwarded-for` / `x-real-ip`) in addition to existing auth and RPC method allowlists:
+
+| Area | Env override (requests / minute) | Default |
+|------|-------------------------------------|--------|
+| `POST /api/solana-rpc` | `RATE_LIMIT_RPC_PER_MINUTE` | 90 |
+| `GET /api/campaigns` (directory; not cron) | `RATE_LIMIT_CAMPAIGNS_GET_PER_MINUTE` | 100 |
+| `POST /api/campaigns` | `RATE_LIMIT_CAMPAIGNS_POST_PER_MINUTE` | 40 |
+| `GET /api/hub/...` | `RATE_LIMIT_HUB_GET_PER_MINUTE` | 80 |
+| `GET /api/campaign/...` | `RATE_LIMIT_CAMPAIGN_DETAIL_PER_MINUTE` | 120 |
+
+- **`429`** responses include **`Retry-After`** (seconds).
+- **`GET /api/campaigns?syncLedger=1`** is **not** limited when the request passes **`CRON_SECRET`** (same as before).
+- Limits are enforced **per serverless instance** (in-memory). For **fleet-wide** throttling, add [Vercel Firewall](https://vercel.com/docs/security/vercel-firewall) rules or a shared store (e.g. Upstash).
+- Local / debugging: set **`RATE_LIMIT_DISABLED=1`** in the environment (do not use in production).
+
+## Deploy smoke (runbook)
+
+After each production deploy:
+
+1. Open **`/api/health`** — expect JSON with `"ok": true` (or your health contract).
+2. Load the **gate** and **app home**; open **one campaign** (USDC if you use merged funding).
+3. **`GET /api/campaigns?limit=5`** — expect `campaigns` array and pagination fields.
+4. If you use Activity: trigger **`GET /api/campaigns?syncLedger=1`** with `Authorization: Bearer <CRON_SECRET>` or wait for cron; reload a campaign and confirm **`activity`** in **`GET /api/campaign/<id>`**.
+5. Optional: **`POST /api/admin/stats`** with HTTP Basic auth.
+
+If Activity is empty but deposits exist: check **`SOLANA_RPC_URL`**, cron auth, and raise **`LEDGER_SYNC_MAX_SIGNATURES`** for noisy wallets.
 
 ## npm audit (Solana stack)
 
