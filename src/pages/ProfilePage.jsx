@@ -14,7 +14,6 @@ import {
   deleteExtraCampaignById,
   getCampaignsByCreatorSub,
 } from "../lib/crowdcareApp.js";
-import { demoSecretKeyBase58 } from "../lib/keypair.js";
 import {
   SOL_TRANSFER_FEE_BUFFER_LAMPORTS,
   fetchWalletBalanceLamports,
@@ -40,13 +39,6 @@ export function ProfilePage() {
   const [placeholderHidden, setPlaceholderHidden] = useState(false);
   const [pendingAvatarDataUrl, setPendingAvatarDataUrl] = useState(null);
   const [avatarRemoved, setAvatarRemoved] = useState(false);
-
-  const [exportAck, setExportAck] = useState(false);
-  const [exportSecret, setExportSecret] = useState("");
-  const [exportShown, setExportShown] = useState(false);
-  const [exportLoading, setExportLoading] = useState(false);
-  const [exportError, setExportError] = useState("");
-  const [copyKeyLabel, setCopyKeyLabel] = useState("Copy key");
 
   const [balanceLamports, setBalanceLamports] = useState(null);
   const [balanceLoading, setBalanceLoading] = useState(false);
@@ -230,30 +222,6 @@ export function ProfilePage() {
     setAvatarRemoved(false);
   }
 
-  async function revealDemoKey() {
-    setExportError("");
-    if (!exportAck) {
-      setExportError("Confirm the box above first.");
-      return;
-    }
-    setExportLoading(true);
-    try {
-      const b58 = await demoSecretKeyBase58(user.sub);
-      setExportSecret(b58);
-      setExportShown(true);
-    } catch {
-      setExportError("Could not derive key. Check the network and try again.");
-    } finally {
-      setExportLoading(false);
-    }
-  }
-
-  function hideKey() {
-    setExportSecret("");
-    setExportShown(false);
-    setExportAck(false);
-  }
-
   function parseWithdrawLamports() {
     const t = String(withdrawAmountSol).trim().replace(/,/g, "");
     const n = Number(t);
@@ -299,7 +267,7 @@ export function ProfilePage() {
     }
     if (lamports + SOL_TRANSFER_FEE_BUFFER_LAMPORTS > balanceLamports) {
       setWithdrawError(
-        "Not enough SOL for this amount plus network fees. Try Max or a smaller amount."
+        "Not enough SOL for this amount. Try Max or a smaller amount."
       );
       return;
     }
@@ -314,27 +282,11 @@ export function ProfilePage() {
       console.error("[CrowdCare] Withdraw failed:", err);
       setWithdrawError(
         err?.message?.includes("insufficient")
-          ? "Insufficient funds (fees or amount)."
+          ? "Insufficient SOL for this transfer."
           : "Transfer failed. Check the address, amount, and console."
       );
     } finally {
       setWithdrawBusy(false);
-    }
-  }
-
-  function copyKey() {
-    const t = exportSecret;
-    if (!t) return;
-    function done() {
-      setCopyKeyLabel("Copied");
-      setTimeout(() => setCopyKeyLabel("Copy key"), 2000);
-    }
-    if (navigator.clipboard?.writeText) {
-      navigator.clipboard.writeText(t).then(done).catch(() => {
-        window.prompt("Copy:", t);
-      });
-    } else {
-      window.prompt("Copy:", t);
     }
   }
 
@@ -357,8 +309,8 @@ export function ProfilePage() {
           <p className="ft-kicker">Your space</p>
           <h1 className="site-title">Profile</h1>
           <p className="lead lead--compact profile-layout-lead">
-            Stored in this browser. Hub link lists your campaigns here only until
-            you add a server.
+            Profile and preferences are saved on this device. Campaigns you sync
+            also appear on your public hub link so supporters can find them.
           </p>
         </header>
 
@@ -379,10 +331,7 @@ export function ProfilePage() {
                 ) : null}
               </p>
               <p className="profile-balance-meta">
-                Via <span className="mono">{rpcHost}</span>
-                {balanceLamports != null
-                  ? ` · ~${lamportsToSolDisplay(SOL_TRANSFER_FEE_BUFFER_LAMPORTS)} SOL reserved for fees when withdrawing`
-                  : null}
+                Balance from <span className="mono">{rpcHost}</span>
               </p>
             </div>
             <div className="profile-wallet-actions">
@@ -539,88 +488,6 @@ export function ProfilePage() {
           </div>
 
           <div className="profile-layout-col">
-            <div
-              id="wallet-export-panel"
-              className="content-shell ft-panel wallet-export-panel"
-            >
-              <p className="ft-kicker">Export</p>
-              <p className="ft-panel-title">Use in Phantom / Solflare</p>
-
-              <p className="wallet-export-lead note--tight">
-                Your Solana address is <strong>derived in this browser</strong>{" "}
-                from your Google account id (demo-style seed). Anyone with the
-                private key controls funds.
-              </p>
-              <ol className="wallet-export-steps">
-                <li>Reveal and copy the key below.</li>
-                <li>
-                  Phantom: Settings → Add / Connect wallet → Import private key.
-                  (Solflare: similar.)
-                </li>
-                <li>Paste the key. Hide it again when done.</li>
-              </ol>
-              <label className="wallet-export-ack-label">
-                <input
-                  type="checkbox"
-                  id="wallet-export-ack"
-                  checked={exportAck}
-                  onChange={(e) => setExportAck(e.target.checked)}
-                />
-                I understand exposing this key can drain the wallet.
-              </label>
-              <p
-                id="wallet-export-error"
-                className="form-error"
-                hidden={!exportError}
-              >
-                {exportError}
-              </p>
-              <div className="wallet-export-actions">
-                {!exportShown ? (
-                  <button
-                    type="button"
-                    className="secondary-btn"
-                    id="wallet-export-reveal"
-                    disabled={exportLoading}
-                    onClick={revealDemoKey}
-                  >
-                    {exportLoading ? "Loading…" : "Show private key"}
-                  </button>
-                ) : null}
-                {exportShown ? (
-                  <>
-                    <button
-                      type="button"
-                      className="secondary-btn"
-                      id="wallet-export-copy"
-                      onClick={copyKey}
-                    >
-                      {copyKeyLabel}
-                    </button>
-                    <button
-                      type="button"
-                      className="secondary-btn"
-                      id="wallet-export-hide"
-                      onClick={hideKey}
-                    >
-                      Hide
-                    </button>
-                  </>
-                ) : null}
-              </div>
-              <textarea
-                id="wallet-export-secret"
-                className="wallet-export-secret"
-                readOnly
-                hidden={!exportShown}
-                rows={3}
-                autoComplete="off"
-                aria-label="Exported private key"
-                value={exportSecret}
-                onChange={() => {}}
-              />
-            </div>
-
             <div className="content-shell ft-panel profile-account-panel">
               <p id="profile-error" className="form-error" hidden={!error}>
                 {error}

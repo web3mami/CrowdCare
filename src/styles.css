@@ -7,6 +7,8 @@
   --layout-pad-x: clamp(1.25rem, 5vw, 4rem);
   --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto,
     sans-serif;
+  /* Neutral UI face for dense settings-style pages */
+  --font-ui: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-display: "Fraunces", "Palatino Linotype", "Book Antiqua", Palatino, Georgia,
     serif;
   --radius-sm: 10px;
@@ -3738,6 +3740,11 @@ button.bare:focus-visible {
   max-width: 36rem;
 }
 
+body.profile-page {
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+}
+
 body.profile-page .layout-content {
   align-items: stretch;
 }
@@ -3757,25 +3764,91 @@ body.profile-page .layout-content > .profile-page-wrap {
 .profile-layout {
   display: flex;
   flex-direction: column;
-  gap: 1.35rem;
+  gap: 1.75rem;
   width: 100%;
   flex: 1 1 auto;
 }
 
+.profile-layout-head .ft-kicker {
+  margin-bottom: 0.5rem;
+}
+
 .profile-layout-head .site-title {
-  font-size: clamp(1.85rem, 4.2vw, 2.35rem);
-  margin: 0 0 0.35rem;
-  letter-spacing: -0.02em;
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-size: clamp(2rem, 4.5vw, 2.6rem);
+  margin: 0 0 0.65rem;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
 }
 
 .profile-layout-lead {
   margin: 0;
-  max-width: 44rem;
-  font-size: 1.02rem;
+  max-width: 40rem;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: rgba(186, 192, 204, 0.95);
+  font-weight: 400;
+}
+
+body.profile-page .content-shell .ft-panel-title {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.022em;
+  line-height: 1.25;
+  color: var(--text);
+  margin: 0 0 0.5rem;
+}
+
+body.profile-page .content-shell .ft-kicker {
+  margin-bottom: 0.45rem;
+}
+
+body.profile-page .section-heading {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  margin: 0 0 1rem;
+  color: var(--gold);
+}
+
+body.profile-page .profile-form label,
+body.profile-page .profile-withdraw-form label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: rgba(236, 238, 242, 0.92);
+}
+
+body.profile-page .form-hint,
+body.profile-page .note {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+body.profile-page .profile-readonly-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+body.profile-page .profile-readonly-value {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+body.profile-page .share-link-explainer {
+  font-size: 1rem;
+  line-height: 1.55;
+  margin-bottom: 0.65rem;
 }
 
 .profile-wallet-panel {
-  padding: 1.5rem 1.5rem 1.55rem;
+  padding: 1.65rem 1.65rem 1.7rem;
 }
 
 .profile-wallet-top {
@@ -3816,10 +3889,10 @@ body.profile-page .layout-content > .profile-page-wrap {
 }
 
 .profile-balance-meta {
-  margin: 0.5rem 0 0;
-  font-size: 0.78rem;
-  line-height: 1.45;
-  color: var(--text-muted);
+  margin: 0.65rem 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: rgba(154, 163, 178, 0.92);
 }
 
 .profile-balance-error {
@@ -3856,6 +3929,9 @@ button.profile-withdraw-toggle:hover {
 .profile-withdraw-lead {
   margin: 0 0 1rem;
   max-width: 52ch;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: rgba(186, 192, 204, 0.95);
 }
 
 .profile-withdraw-form .profile-withdraw-submit {
@@ -4445,52 +4521,6 @@ body.cc-motion-flow .bare:hover {
   margin-bottom: 1rem;
 }
 
-.wallet-export-lead {
-  margin: 0 0 0.65rem;
-}
-
-.wallet-export-steps {
-  margin: 0 0 0.85rem;
-  padding-left: 1.1rem;
-  font-size: 0.8125rem;
-  color: var(--text-muted);
-  line-height: 1.5;
-}
-
-.wallet-export-steps li {
-  margin-bottom: 0.35rem;
-}
-
-.wallet-export-ack-label {
-  display: flex;
-  gap: 0.5rem;
-  align-items: flex-start;
-  font-size: 0.8125rem;
-  color: var(--text-muted);
-  margin: 0 0 0.85rem;
-  cursor: pointer;
-}
-
-.wallet-export-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 0.65rem;
-}
-
-.wallet-export-secret {
-  width: 100%;
-  box-sizing: border-box;
-  font: 0.72rem ui-monospace, monospace;
-  padding: 0.5rem;
-  border-radius: 8px;
-  border: 1px solid var(--gold-border);
-  background: var(--ash-deep);
-  color: var(--text);
-  resize: vertical;
-  min-height: 4rem;
-}
-
 @media (max-width: 600px) {
   .layout-content {
     padding: 0.85rem 1rem 1.75rem;
@@ -4622,11 +4652,6 @@ body.cc-motion-flow .bare:hover {
 
   .share-link-row .secondary-btn {
     width: 100%;
-  }
-
-  .wallet-export-actions .secondary-btn {
-    flex: 1 1 auto;
-    min-width: 0;
   }
 
   .profile-avatar-row {
