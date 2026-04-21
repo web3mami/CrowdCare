@@ -187,34 +187,50 @@ export function CampaignPage() {
 
       <article id="campaign-article" className="content-shell ft-campaign-hero">
         <h1 id="campaign-title">{c.title}</h1>
-        {c.creatorDisplayName || xProfileUrl ? (
+        {c.creatorDisplayName || xProfileUrl || c.creatorAvatarDataUrl ? (
           <div className="campaign-creator-bar" id="campaign-creator-meta">
-            {c.creatorDisplayName ? (
-              <p className="campaign-creator-line">
-                <span className="campaign-creator-label">Organizer</span>{" "}
-                <span className="campaign-creator-name">{c.creatorDisplayName}</span>
-              </p>
-            ) : null}
-            {c.creatorXUsername && xProfileUrl ? (
-              <p className="campaign-creator-line campaign-creator-line--x">
-                <a
-                  className="campaign-x-link campaign-x-link--row"
-                  href={xProfileUrl}
-                  aria-label={`View @${String(c.creatorXUsername).replace(
-                    /^@/,
-                    ""
-                  )} on X`}
-                >
-                  <span className="campaign-x-brand" aria-hidden="true">
-                    <XLogoMark className="campaign-x-icon" />
-                  </span>
-                  <span className="campaign-x-handle">
-                    @
-                    {String(c.creatorXUsername).replace(/^@/, "")}
-                  </span>
-                </a>
-              </p>
-            ) : null}
+            <div className="campaign-creator-bar-inner">
+              {c.creatorAvatarDataUrl ? (
+                <img
+                  className="campaign-creator-avatar"
+                  src={c.creatorAvatarDataUrl}
+                  alt=""
+                  width={48}
+                  height={48}
+                  decoding="async"
+                />
+              ) : null}
+              <div className="campaign-creator-bar-text">
+                {c.creatorDisplayName ? (
+                  <p className="campaign-creator-line">
+                    <span className="campaign-creator-label">Organizer</span>{" "}
+                    <span className="campaign-creator-name">
+                      {c.creatorDisplayName}
+                    </span>
+                  </p>
+                ) : null}
+                {c.creatorXUsername && xProfileUrl ? (
+                  <p className="campaign-creator-line campaign-creator-line--x">
+                    <a
+                      className="campaign-x-link campaign-x-link--row"
+                      href={xProfileUrl}
+                      aria-label={`View @${String(c.creatorXUsername).replace(
+                        /^@/,
+                        ""
+                      )} on X`}
+                    >
+                      <span className="campaign-x-brand" aria-hidden="true">
+                        <XLogoMark className="campaign-x-icon" />
+                      </span>
+                      <span className="campaign-x-handle">
+                        @
+                        {String(c.creatorXUsername).replace(/^@/, "")}
+                      </span>
+                    </a>
+                  </p>
+                ) : null}
+              </div>
+            </div>
           </div>
         ) : null}
         <div id="campaign-story">

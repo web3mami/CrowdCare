@@ -2432,6 +2432,27 @@ body.cc-motion-flow .gate-auth-back:hover {
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+.campaign-creator-bar-inner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.campaign-creator-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid rgba(212, 180, 92, 0.35);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.campaign-creator-bar-text {
+  flex: 1;
+  min-width: 0;
+}
+
 .campaign-creator-line {
   margin: 0.15rem 0;
   font-size: 0.92rem;
@@ -3280,11 +3301,21 @@ body.cc-motion-flow .campaign-list a:hover::after {
 .campaign-list__creator-head-inner {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   gap: 0.35rem 0.5rem;
   font-size: 0.8125rem;
   line-height: 1.35;
   color: var(--muted);
+}
+
+.campaign-list__creator-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid rgba(212, 180, 92, 0.35);
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .campaign-list__creator-title {

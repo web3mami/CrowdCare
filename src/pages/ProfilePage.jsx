@@ -123,6 +123,16 @@ export function ProfilePage() {
     setXUsername(
       identity?.xUsername != null ? String(identity.xUsername).trim() : ""
     );
+    /** Don’t clobber a file the user just picked (not saved yet). */
+    if (pendingAvatarDataUrl != null) {
+      setPlaceholderHidden(true);
+      return;
+    }
+    if (avatarRemoved) {
+      setPreviewUrl(null);
+      setPlaceholderHidden(false);
+      return;
+    }
     if (identity?.avatarDataUrl) {
       setPreviewUrl(identity.avatarDataUrl);
       setPlaceholderHidden(true);
@@ -130,14 +140,14 @@ export function ProfilePage() {
       setPreviewUrl(null);
       setPlaceholderHidden(false);
     }
-    setPendingAvatarDataUrl(null);
-    setAvatarRemoved(false);
   }, [
     user?.sub,
     user?.username,
     user?.xUsername,
     user?.avatarDataUrl,
     location.pathname,
+    pendingAvatarDataUrl,
+    avatarRemoved,
   ]);
 
   if (!user || !user.publicKey) {

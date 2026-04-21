@@ -15,6 +15,7 @@ import {
 } from "../lib/googleGis.js";
 import {
   addExtraCampaign,
+  clipCreatorAvatarDataUrlForCampaign,
   findCampaignById,
   getCreatorPublicMetaFromLatestCampaign,
   idTaken,
@@ -302,6 +303,10 @@ export function CreatePage() {
       return;
     }
 
+    const creatorAvatarDataUrl = clipCreatorAvatarDataUrlForCampaign(
+      fresh?.avatarDataUrl
+    );
+
     const ok = addExtraCampaign({
       id: slug,
       title: title.trim(),
@@ -319,6 +324,7 @@ export function CreatePage() {
       creatorShareSlug: hubSlug,
       creatorDisplayName,
       creatorXUsername,
+      ...(creatorAvatarDataUrl ? { creatorAvatarDataUrl } : {}),
     });
 
     if (!ok) {

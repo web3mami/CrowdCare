@@ -19,6 +19,7 @@ const ALLOWED_CAMPAIGN_KEYS = new Set([
   "creatorShareSlug",
   "creatorDisplayName",
   "creatorXUsername",
+  "creatorAvatarDataUrl",
 ]);
 
 /**

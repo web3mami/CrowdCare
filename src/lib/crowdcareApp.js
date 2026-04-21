@@ -3,6 +3,20 @@ import { isValidXUsername, normalizeXUsernameInput } from "./xUsername.js";
 
 const STORAGE_KEY = "crowdcare_extra";
 
+/** Max stored length for `creatorAvatarDataUrl` on campaigns (API + local JSON). */
+export const CREATOR_AVATAR_DATA_URL_MAX_CHARS = 220_000;
+
+/**
+ * @param {unknown} url
+ * @returns {string|undefined}
+ */
+export function clipCreatorAvatarDataUrlForCampaign(url) {
+  if (typeof url !== "string" || !url.startsWith("data:image/")) return undefined;
+  if (url.length > CREATOR_AVATAR_DATA_URL_MAX_CHARS) return undefined;
+  if (!/^data:image\/(jpeg|png|webp|gif);base64,/i.test(url)) return undefined;
+  return url;
+}
+
 export function parseGoalFromLabel(goalLabel) {
   if (!goalLabel) return null;
   const m = String(goalLabel)
@@ -128,6 +142,11 @@ export function normalizeCampaignForDisplay(c) {
     let x = n.creatorXUsername.trim();
     if (x.startsWith("@")) x = x.slice(1).trim();
     n.creatorXUsername = x;
+  }
+  if (n.creatorAvatarDataUrl != null) {
+    const clipped = clipCreatorAvatarDataUrlForCampaign(n.creatorAvatarDataUrl);
+    if (clipped) n.creatorAvatarDataUrl = clipped;
+    else delete n.creatorAvatarDataUrl;
   }
 
   let gc =

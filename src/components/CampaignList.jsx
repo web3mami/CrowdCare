@@ -91,6 +91,16 @@ export function CampaignList({
               }}
             >
               <div className="campaign-list__creator-head-inner">
+                {c.creatorAvatarDataUrl ? (
+                  <img
+                    className="campaign-list__creator-avatar"
+                    src={c.creatorAvatarDataUrl}
+                    alt=""
+                    width={36}
+                    height={36}
+                    decoding="async"
+                  />
+                ) : null}
                 {isYours ? (
                   <span className="campaign-list__yours-badge">
                     Your campaign

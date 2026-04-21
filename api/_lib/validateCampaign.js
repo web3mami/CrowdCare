@@ -48,5 +48,17 @@ export function validateCampaignPayload(c) {
   if (!xu || xu.length > 20 || !/^[A-Za-z0-9_]+$/.test(xu)) {
     return { ok: false, error: "Valid X username is required" };
   }
+  if (c.creatorAvatarDataUrl != null) {
+    if (typeof c.creatorAvatarDataUrl !== "string") {
+      return { ok: false, error: "Invalid creator avatar" };
+    }
+    const s = c.creatorAvatarDataUrl;
+    if (s.length > 220_000) {
+      return { ok: false, error: "Creator avatar is too large" };
+    }
+    if (!/^data:image\/(jpeg|png|webp|gif);base64,/i.test(s)) {
+      return { ok: false, error: "Invalid creator avatar format" };
+    }
+  }
   return { ok: true };
 }
