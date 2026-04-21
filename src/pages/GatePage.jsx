@@ -219,52 +219,61 @@ export function GatePage() {
               <div className="gate-welcome-card gate-landing-card gate-landing-card--hero">
                 <div className="gate-veltra-hero">
                   <div className="gate-veltra-left">
-                    <div className="gate-veltra-badge">
-                      <span className="gate-veltra-badge-dot" aria-hidden="true" />
-                      <span>Solana hub · Live demo</span>
-                    </div>
+                    <div className="gate-hero-primary-card">
+                      <div className="gate-brand-lockup">
+                        <p className="gate-brand-name">CrowdCare</p>
+                        <p className="gate-brand-tagline">
+                          Non-custodial fundraising on Solana.
+                        </p>
+                      </div>
 
-                    <h1 className="gate-veltra-title">
-                      <span className="gate-veltra-title-line">
-                        Crowdfunding on Solana
-                      </span>
-                      <span className="gate-veltra-title-accent">
-                        at hub speed
-                      </span>
-                    </h1>
+                      <div className="gate-veltra-badge">
+                        <span className="gate-veltra-badge-dot" aria-hidden="true" />
+                        <span>On-chain payouts · Your wallet</span>
+                      </div>
 
-                    <p className="gate-veltra-lead">
-                      One hub link lists every campaign you run. Supporters send to{" "}
-                      <strong>your wallet</strong>—nothing is custodied here. This build is a
-                      browser demo; add a server when you go live. Always verify on-chain
-                      yourself.
-                    </p>
+                      <h1 className="gate-veltra-title">
+                        <span className="gate-veltra-title-line">
+                          Crowdfunding on Solana
+                        </span>
+                        <span className="gate-veltra-title-accent">
+                          at hub speed
+                        </span>
+                      </h1>
 
-                    <div className="gate-veltra-actions">
-                      <button
-                        type="button"
-                        className="gate-start-btn"
-                        id="gate-start-btn"
-                        onClick={startGate}
-                      >
-                        Start CrowdCare
-                      </button>
-                      <button
-                        type="button"
-                        className="gate-hero-outline-btn"
-                        id="browse-skip-welcome"
-                        onClick={() => goBrowse()}
-                      >
-                        Browse campaigns
-                      </button>
-                    </div>
+                      <p className="gate-veltra-lead">
+                        One hub link for every campaign you publish. Supporters send
+                        USDC or SOL <strong>straight to your wallet</strong>
+                        —CrowdCare never holds funds. Confirm every transaction on the
+                        chain you trust.
+                      </p>
 
-                    <div className="gate-veltra-tags" aria-label="Stack">
-                      <span className="gate-veltra-pill">Solana</span>
-                      <span className="gate-veltra-pill">USDC</span>
-                      <span className="gate-veltra-pill">SOL</span>
-                      <span className="gate-veltra-pill">Google sign-in</span>
-                      <span className="gate-veltra-pill">Shareable hub</span>
+                      <div className="gate-veltra-actions">
+                        <button
+                          type="button"
+                          className="gate-start-btn"
+                          id="gate-start-btn"
+                          onClick={startGate}
+                        >
+                          Get started
+                        </button>
+                        <button
+                          type="button"
+                          className="gate-hero-outline-btn"
+                          id="browse-skip-welcome"
+                          onClick={() => goBrowse()}
+                        >
+                          Browse campaigns
+                        </button>
+                      </div>
+
+                      <div className="gate-veltra-tags" aria-label="Stack">
+                        <span className="gate-veltra-pill">Solana</span>
+                        <span className="gate-veltra-pill">USDC</span>
+                        <span className="gate-veltra-pill">SOL</span>
+                        <span className="gate-veltra-pill">Google sign-in</span>
+                        <span className="gate-veltra-pill">Shareable hub</span>
+                      </div>
                     </div>
                   </div>
 
@@ -329,14 +338,136 @@ export function GatePage() {
                   </button>
                 </p>
               </div>
+
+              <div className="gate-landing-below">
+                <section
+                  className="gate-land-section"
+                  aria-labelledby="gate-how-heading"
+                >
+                  <p className="gate-land-kicker">How it works</p>
+                  <h2 id="gate-how-heading" className="gate-land-title">
+                    From sign-in to a live campaign page
+                  </h2>
+                  <p className="gate-land-sub">
+                    CrowdCare gives you a single link for your hub. Each campaign gets
+                    its own page, goal, and receive address.
+                  </p>
+                  <ul className="gate-land-step-list">
+                    <li className="gate-land-step">
+                      <span className="gate-land-step-num" aria-hidden="true">
+                        1
+                      </span>
+                      <div className="gate-land-step-body">
+                        <p className="gate-land-step-title">Sign in with Google</p>
+                        <p className="gate-land-step-text">
+                          We derive a Solana wallet from your Google account so you
+                          don&apos;t manage seed phrases in the app.
+                        </p>
+                      </div>
+                    </li>
+                    <li className="gate-land-step">
+                      <span className="gate-land-step-num" aria-hidden="true">
+                        2
+                      </span>
+                      <div className="gate-land-step-body">
+                        <p className="gate-land-step-title">Create your campaign</p>
+                        <p className="gate-land-step-text">
+                          Set story, goal, USDC or SOL, and transparency splits. Your
+                          hub URL lists everything you publish.
+                        </p>
+                      </div>
+                    </li>
+                    <li className="gate-land-step">
+                      <span className="gate-land-step-num" aria-hidden="true">
+                        3
+                      </span>
+                      <div className="gate-land-step-body">
+                        <p className="gate-land-step-title">Share and receive</p>
+                        <p className="gate-land-step-text">
+                          Supporters send to the wallet on the page. Progress and
+                          activity stay visible; you verify balances on-chain anytime.
+                        </p>
+                      </div>
+                    </li>
+                  </ul>
+                </section>
+
+                <section className="gate-land-section" aria-labelledby="gate-features-heading">
+                  <p className="gate-land-kicker">Features</p>
+                  <h2 id="gate-features-heading" className="gate-land-title">
+                    Built for clarity and speed
+                  </h2>
+                  <div className="gate-land-card-grid">
+                    <article className="gate-land-card">
+                      <h3 className="gate-land-card-title">One hub, many campaigns</h3>
+                      <p className="gate-land-card-text">
+                        A stable link for your creator presence. Backers bookmark one
+                        place to see what you&apos;re running.
+                      </p>
+                    </article>
+                    <article className="gate-land-card">
+                      <h3 className="gate-land-card-title">Non-custodial by design</h3>
+                      <p className="gate-land-card-text">
+                        Funds go to the Solana address on the campaign page—not a pooled
+                        account. You stay in control of keys and timing.
+                      </p>
+                    </article>
+                    <article className="gate-land-card">
+                      <h3 className="gate-land-card-title">USDC &amp; SOL goals</h3>
+                      <p className="gate-land-card-text">
+                        Choose the asset that matches your campaign. Progress and
+                        optional activity views follow the goal you set.
+                      </p>
+                    </article>
+                    <article className="gate-land-card">
+                      <h3 className="gate-land-card-title">Transparency block</h3>
+                      <p className="gate-land-card-text">
+                        Show how funds break down—beneficiary share, fees, notes—so
+                        supporters know what they&apos;re funding.
+                      </p>
+                    </article>
+                  </div>
+                </section>
+
+                <section className="gate-land-section" aria-labelledby="gate-usecases-heading">
+                  <p className="gate-land-kicker">Use cases</p>
+                  <h2 id="gate-usecases-heading" className="gate-land-title">
+                    Who CrowdCare is for
+                  </h2>
+                  <div className="gate-land-card-grid gate-land-card-grid--duo">
+                    <article className="gate-land-card gate-land-card--accent">
+                      <h3 className="gate-land-card-title">Creators &amp; communities</h3>
+                      <p className="gate-land-card-text">
+                        Tuition, medical, travel, creative projects—anything where a
+                        public goal and a clear receive address help people contribute.
+                      </p>
+                    </article>
+                    <article className="gate-land-card gate-land-card--accent">
+                      <h3 className="gate-land-card-title">Builders &amp; small teams</h3>
+                      <p className="gate-land-card-text">
+                        Ship a grants round, a hackathon prize pool, or a product
+                        preorder without wiring a custom checkout first.
+                      </p>
+                    </article>
+                    <article className="gate-land-card gate-land-card--accent">
+                      <h3 className="gate-land-card-title">Anyone already on Solana</h3>
+                      <p className="gate-land-card-text">
+                        If your audience is comfortable with wallets and explorers,
+                        CrowdCare keeps the story and the link simple.
+                      </p>
+                    </article>
+                  </div>
+                </section>
+              </div>
+
               <footer className="gate-landing-footer">
                 <span className="gate-landing-footer-brand">CrowdCare</span>
                 <span className="gate-landing-footer-sep" aria-hidden>
                   ·
                 </span>
                 <span className="gate-landing-footer-meta">
-                  Demo — hub campaigns sync online for sharing; profile &amp; wallet
-                  stay in this browser. Not financial advice.
+                  Hub campaigns sync for discovery. Profile and wallet data stay in
+                  your browser unless you self-host. Not financial advice.
                 </span>
               </footer>
             </div>

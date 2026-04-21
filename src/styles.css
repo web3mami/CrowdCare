@@ -329,30 +329,37 @@ body {
   background-color: var(--ash-void);
   background-image:
     linear-gradient(
-      rgba(255, 255, 255, 0.022) 1px,
+      rgba(255, 255, 255, 0.018) 1px,
       transparent 1px
     ),
     linear-gradient(
       90deg,
-      rgba(255, 255, 255, 0.022) 1px,
+      rgba(255, 255, 255, 0.018) 1px,
       transparent 1px
     ),
     radial-gradient(
-      ellipse 110% 55% at 50% -15%,
-      rgba(212, 180, 92, 0.08),
-      transparent 52%
+      ellipse 140% 70% at 50% -20%,
+      rgba(212, 180, 92, 0.07) 0%,
+      rgba(212, 180, 92, 0.02) 38%,
+      transparent 62%
     ),
     radial-gradient(
-      ellipse 45% 38% at 100% 100%,
-      var(--verdigris-glow),
-      transparent 45%
+      ellipse 70% 55% at 92% 88%,
+      var(--verdigris-glow) 0%,
+      transparent 58%
     ),
     radial-gradient(
-      ellipse 50% 40% at 100% 100%,
-      rgba(184, 146, 58, 0.05),
-      transparent 42%
+      ellipse 55% 45% at 8% 72%,
+      rgba(184, 146, 58, 0.04) 0%,
+      transparent 55%
     ),
-    linear-gradient(180deg, #0e1118 0%, var(--ash-void) 48%, #06070a 100%);
+    linear-gradient(
+      180deg,
+      #0b0d12 0%,
+      var(--ash-void) 38%,
+      #090b10 72%,
+      #06070a 100%
+    );
   background-size:
     56px 56px,
     56px 56px,
@@ -568,9 +575,9 @@ body.cc-motion-flow .gate-welcome-kicker {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   width: 100%;
-  padding: 1rem 0.75rem 2rem;
+  padding: 1rem 0.75rem 2.5rem;
   box-sizing: border-box;
 }
 
@@ -624,7 +631,8 @@ body.cc-motion-flow .gate-welcome-kicker {
 
 .gate-landing-card--hero {
   max-width: min(72rem, 100%);
-  padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 4vw, 3rem) 1.5rem;
+  padding: clamp(1.35rem, 3.5vw, 2.5rem) clamp(1rem, 3.5vw, 2.75rem) 1.35rem;
+  text-align: center;
 }
 
 /* Split landing hero (layout only; colors follow CrowdCare gold / ash theme) */
@@ -643,6 +651,82 @@ body.cc-motion-flow .gate-welcome-kicker {
 
 .gate-veltra-left {
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Product lockup + primary story (feature-style panel) */
+.gate-hero-primary-card {
+  width: 100%;
+  max-width: 36.5rem;
+  margin-inline: auto;
+  padding: clamp(1.35rem, 3.5vw, 2rem) clamp(1.15rem, 3vw, 1.85rem)
+    clamp(1.5rem, 3vw, 2.1rem);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  box-sizing: border-box;
+  background: linear-gradient(
+    165deg,
+    rgba(40, 44, 56, 0.55) 0%,
+    rgba(22, 25, 32, 0.72) 45%,
+    rgba(14, 16, 22, 0.82) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 28px 56px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(0, 0, 0, 0.25) inset,
+    0 0 48px rgba(212, 180, 92, 0.06);
+}
+
+.gate-hero-primary-card::before {
+  content: "";
+  display: block;
+  width: 3.25rem;
+  height: 3px;
+  margin: 0 auto 1.15rem;
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--verdigris-muted),
+    var(--gold-bright),
+    var(--verdigris-muted),
+    transparent
+  );
+  opacity: 0.9;
+}
+
+.gate-brand-lockup {
+  margin: 0 0 1.1rem;
+}
+
+.gate-brand-name {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-size: clamp(2rem, 5vw, 2.75rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  color: var(--text);
+}
+
+.gate-brand-tagline {
+  margin: 0;
+  font-size: clamp(0.98rem, 2.2vw, 1.125rem);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.45;
+  color: rgba(154, 163, 178, 0.95);
+  max-width: 28ch;
+  margin-inline: auto;
+}
+
+.gate-hero-primary-card .gate-veltra-badge {
+  margin-bottom: 1.15rem;
 }
 
 .gate-veltra-badge {
@@ -672,12 +756,16 @@ body.cc-motion-flow .gate-welcome-kicker {
   flex-shrink: 0;
 }
 
+.gate-hero-primary-card .gate-veltra-title {
+  margin: 0 0 1rem;
+}
+
 .gate-veltra-title {
   margin: 0 0 1rem;
-  font-size: clamp(2.25rem, 5.5vw, 3.35rem);
+  font-size: clamp(1.85rem, 4.5vw, 2.85rem);
   font-weight: 700;
-  letter-spacing: -0.035em;
-  line-height: 1.08;
+  letter-spacing: -0.038em;
+  line-height: 1.1;
 }
 
 .gate-veltra-title-line {
@@ -692,11 +780,11 @@ body.cc-motion-flow .gate-welcome-kicker {
 }
 
 .gate-veltra-lead {
-  margin: 0 0 1.5rem;
-  font-size: 1.02rem;
+  margin: 0 auto 1.5rem;
+  font-size: 1.0625rem;
   line-height: 1.65;
-  color: var(--text-muted);
-  max-width: 42ch;
+  color: rgba(186, 192, 204, 0.92);
+  max-width: 44ch;
 }
 
 .gate-veltra-lead strong {
@@ -710,6 +798,7 @@ body.cc-motion-flow .gate-welcome-kicker {
   gap: 0.75rem 1rem;
   margin-bottom: 1.35rem;
   align-items: center;
+  justify-content: center;
 }
 
 .gate-veltra-actions .gate-start-btn {
@@ -746,6 +835,7 @@ button.gate-hero-outline-btn:focus-visible {
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
+  justify-content: center;
 }
 
 .gate-veltra-pill {
@@ -761,7 +851,7 @@ button.gate-hero-outline-btn:focus-visible {
 
 .gate-veltra-skip {
   margin: 1.35rem 0 0;
-  text-align: left;
+  text-align: center;
 }
 
 .gate-veltra-right {
@@ -773,7 +863,7 @@ button.gate-hero-outline-btn:focus-visible {
 
 @media (min-width: 900px) {
   .gate-veltra-right {
-    justify-content: flex-end;
+    justify-content: center;
   }
 }
 
@@ -962,31 +1052,188 @@ button.gate-hero-outline-btn:focus-visible {
 }
 
 .gate-welcome-outer:has(.gate-landing-card--hero) {
-  padding-top: clamp(1.25rem, 4vw, 2.5rem);
+  padding-top: clamp(1.25rem, 4vw, 2.25rem);
+}
+
+/* Depth below the fold */
+.gate-landing-below {
+  width: 100%;
+  max-width: min(72rem, 100%);
+  margin-top: clamp(2rem, 5vw, 3rem);
+  padding: 0 0.25rem;
+  box-sizing: border-box;
+}
+
+.gate-land-section {
+  margin-bottom: clamp(2.25rem, 5vw, 3.25rem);
+}
+
+.gate-land-section:last-of-type {
+  margin-bottom: 0;
+}
+
+.gate-land-kicker {
+  margin: 0 0 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-align: center;
+}
+
+.gate-land-title {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-size: clamp(1.45rem, 3.2vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: var(--text);
+  text-align: center;
+  max-width: 40ch;
+  margin-inline: auto;
+}
+
+.gate-land-sub {
+  margin: 0 auto 1.5rem;
+  max-width: 48ch;
+  text-align: center;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.gate-land-step-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.85rem;
+}
+
+@media (min-width: 768px) {
+  .gate-land-step-list {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+}
+
+.gate-land-step {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  text-align: left;
+  padding: 1.1rem 1.15rem;
+  border-radius: var(--radius-md);
+  background: linear-gradient(
+    165deg,
+    rgba(36, 40, 50, 0.85) 0%,
+    rgba(18, 20, 26, 0.92) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.28);
+}
+
+.gate-land-step-num {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--ash-void);
+  background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 100%);
+  border-radius: 50%;
+  line-height: 1;
+}
+
+.gate-land-step-body {
+  min-width: 0;
+}
+
+.gate-land-step-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.gate-land-step-text {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: rgba(186, 192, 204, 0.9);
+}
+
+.gate-land-card-grid {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .gate-land-card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .gate-land-card-grid:not(.gate-land-card-grid--duo) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.gate-land-card-grid--duo {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .gate-land-card-grid--duo {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.gate-land-card {
+  padding: 1.15rem 1.2rem 1.2rem;
+  border-radius: var(--radius-md);
+  background: linear-gradient(
+    160deg,
+    rgba(34, 38, 48, 0.88) 0%,
+    rgba(16, 18, 24, 0.94) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+}
+
+.gate-land-card--accent {
+  border-color: rgba(212, 180, 92, 0.18);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.3),
+    0 0 36px rgba(212, 180, 92, 0.05);
+}
+
+.gate-land-card-title {
+  margin: 0 0 0.45rem;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.gate-land-card-text {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--text-muted);
 }
 
 @media (max-width: 899px) {
-  .gate-veltra-skip {
-    text-align: center;
-  }
-
-  .gate-veltra-actions {
-    justify-content: center;
-  }
-
-  .gate-veltra-tags {
-    justify-content: center;
-  }
-
-  .gate-veltra-left {
-    text-align: center;
-  }
-
-  .gate-veltra-lead {
-    margin-left: auto;
-    margin-right: auto;
-  }
-
   .gate-veltra-badge {
     margin-left: auto;
     margin-right: auto;
@@ -1232,9 +1479,9 @@ button.gate-hero-outline-btn:focus-visible {
 }
 
 .gate-landing-footer {
-  margin-top: 1.15rem;
+  margin-top: clamp(1.75rem, 4vw, 2.5rem);
   padding: 0 0.35rem;
-  max-width: min(44rem, 100%);
+  max-width: min(52rem, 100%);
   width: 100%;
   box-sizing: border-box;
   display: flex;
