@@ -57,13 +57,13 @@ export function Layout() {
     <>
       <div className="layout-backdrop" aria-hidden="true" />
       <div className="layout-content">
-        <nav className="top-nav">
+        <nav className="top-nav" aria-label="Main">
           <Link className="brand" to="/app">
             <img
               className="brand-mark"
               src="/assets/logo-mark.svg"
-              width="32"
-              height="32"
+              width="36"
+              height="36"
               alt=""
               decoding="async"
             />
@@ -72,6 +72,52 @@ export function Layout() {
               <span className="brand-desc">Solana crowdfunding</span>
             </span>
           </Link>
+
+          <div className="top-nav-rail">
+            <div className="top-nav-anchors">
+              <NavLink
+                to="/campaigns/active"
+                className={({ isActive }) =>
+                  `top-nav-anchor${isActive ? " is-active" : ""}`
+                }
+              >
+                Active campaigns
+              </NavLink>
+              <NavLink
+                to="/campaigns/past"
+                className={({ isActive }) =>
+                  `top-nav-anchor${isActive ? " is-active" : ""}`
+                }
+              >
+                Past campaigns
+              </NavLink>
+              {signedIn ? (
+                <NavLink
+                  to="/profile"
+                  className={({ isActive }) =>
+                    `top-nav-anchor top-nav-anchor--quiet${isActive ? " is-active" : ""}`
+                  }
+                >
+                  Profile
+                </NavLink>
+              ) : null}
+            </div>
+            {signedIn ? (
+              <div className="top-nav-cta-row">
+                <Link to="/create" className="top-nav-cta top-nav-cta--primary">
+                  Create campaign
+                </Link>
+                <Link to="/my-campaigns" className="top-nav-cta top-nav-cta--secondary">
+                  My campaigns
+                </Link>
+              </div>
+            ) : (
+              <Link to="/?signin=1" className="top-nav-cta top-nav-cta--secondary">
+                Sign in
+              </Link>
+            )}
+          </div>
+
           <button
             type="button"
             className="nav-menu-toggle"
@@ -202,13 +248,80 @@ export function Layout() {
 
         <Outlet />
         <footer className="app-footer">
-          <span className="app-footer-brand">CrowdCare</span>
-          <span className="app-footer-sep" aria-hidden>
-            ·
-          </span>
-          <span className="app-footer-meta">
-            Demo — shared hubs use online storage; verify anything on-chain yourself.
-          </span>
+          <div className="app-footer-grid">
+            <div className="app-footer-col app-footer-col--brand">
+              <span className="app-footer-brand">CrowdCare</span>
+              <p className="app-footer-tagline">
+                Non-custodial campaigns on Solana. One hub link for everything you
+                publish.
+              </p>
+            </div>
+            <div className="app-footer-col">
+              <h2 className="app-footer-heading">Discover</h2>
+              <ul className="app-footer-links">
+                <li>
+                  <Link to="/campaigns/active">Active campaigns</Link>
+                </li>
+                <li>
+                  <Link to="/campaigns/past">Past campaigns</Link>
+                </li>
+                <li>
+                  <Link to="/app">App home</Link>
+                </li>
+              </ul>
+            </div>
+            <div className="app-footer-col">
+              <h2 className="app-footer-heading">Your account</h2>
+              <ul className="app-footer-links">
+                {signedIn ? (
+                  <>
+                    <li>
+                      <Link to="/create">Create a campaign</Link>
+                    </li>
+                    <li>
+                      <Link to="/my-campaigns">My campaigns</Link>
+                    </li>
+                    <li>
+                      <Link to="/profile">Profile</Link>
+                    </li>
+                    <li>
+                      <a href="#" onClick={onAuthClick}>
+                        Sign out
+                      </a>
+                    </li>
+                  </>
+                ) : (
+                  <li>
+                    <Link to="/?signin=1">Sign in</Link>
+                  </li>
+                )}
+              </ul>
+            </div>
+            <div className="app-footer-col">
+              <h2 className="app-footer-heading">Product</h2>
+              <ul className="app-footer-links">
+                <li>
+                  <Link to="/">Welcome</Link>
+                </li>
+                <li>
+                  <a
+                    href="https://github.com/web3mami/CrowdCare"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Source on GitHub
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div className="app-footer-bottom">
+            <p className="app-footer-legal">
+              Hub data syncs for sharing across devices that use the service.
+              Wallet and profile details stay in your browser unless you
+              self-host. Always verify balances on-chain. Not financial advice.
+            </p>
+          </div>
         </footer>
       </div>
     </>
