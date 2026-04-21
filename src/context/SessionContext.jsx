@@ -85,8 +85,9 @@ export function SessionProvider({ children }) {
 
   const updateProfile = useCallback(
     (updates) => {
-      sessionUpdateProfile(updates);
-      refresh();
+      const ok = sessionUpdateProfile(updates);
+      if (ok) refresh();
+      return ok;
     },
     [refresh]
   );
