@@ -50,6 +50,7 @@ export function ProfilePage() {
   const [withdrawError, setWithdrawError] = useState("");
   const [withdrawSig, setWithdrawSig] = useState("");
   const [campaignListTick, setCampaignListTick] = useState(0);
+  const [copyAddressLabel, setCopyAddressLabel] = useState("Copy");
 
   const mine = useMemo(
     () => (user?.sub ? getCampaignsByCreatorSub(user.sub) : []),
@@ -136,6 +137,22 @@ export function ProfilePage() {
     hubUrl = new URL(hubRel, window.location.href).href;
   } catch {
     /* keep relative */
+  }
+
+  function copyPublicAddress() {
+    const addr = user?.publicKey;
+    if (!addr) return;
+    function done() {
+      setCopyAddressLabel("Copied");
+      setTimeout(() => setCopyAddressLabel("Copy"), 2000);
+    }
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(addr).then(done).catch(() => {
+        window.prompt("Copy this address:", addr);
+      });
+    } else {
+      window.prompt("Copy this address:", addr);
+    }
   }
 
   function copyHub() {
@@ -592,14 +609,28 @@ export function ProfilePage() {
                     {user.email || "—"}
                   </p>
                 </div>
-                <div className="profile-readonly-block">
+                <div className="profile-readonly-block profile-readonly-block--address">
                   <p className="profile-readonly-label">Solana address</p>
-                  <p
-                    id="profile-address"
-                    className="profile-readonly-value mono profile-address-wrap"
-                  >
-                    {user.publicKey}
+                  <p className="form-hint profile-address-hint">
+                    Your <strong>public</strong> receive address—the same one shown on
+                    your campaigns. Safe to share; not a private key.
                   </p>
+                  <div className="profile-address-row">
+                    <p
+                      id="profile-address"
+                      className="profile-readonly-value mono profile-address-wrap"
+                    >
+                      {user.publicKey}
+                    </p>
+                    <button
+                      type="button"
+                      className="secondary-btn profile-copy-address-btn"
+                      id="profile-copy-address"
+                      onClick={copyPublicAddress}
+                    >
+                      {copyAddressLabel}
+                    </button>
+                  </div>
                 </div>
 
                 <button type="submit">Save</button>

@@ -4517,6 +4517,23 @@ body.cc-motion-flow .bare:hover {
   word-break: break-word;
 }
 
+.profile-readonly-block--address .profile-address-hint {
+  margin: 0 0 0.65rem;
+  max-width: 42rem;
+}
+
+.profile-address-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.65rem 0.75rem;
+}
+
+.profile-copy-address-btn {
+  margin-top: 0;
+  flex-shrink: 0;
+}
+
 .profile-campaigns-panel {
   margin-bottom: 1rem;
 }
