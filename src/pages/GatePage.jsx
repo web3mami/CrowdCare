@@ -487,52 +487,63 @@ export function GatePage() {
                   ← Back
                 </button>
               </div>
-              <img
-                className="gate-welcome-logo"
-                src="/assets/logo-mark.svg"
-                width="48"
-                height="48"
-                alt=""
-                decoding="async"
-              />
-              <p className="gate-welcome-name">CrowdCare</p>
 
-              <h1 id="gate-connect-heading" className="gate-connect-title">
-                Sign in with Google
-              </h1>
-
-              <div
-                id="gate-client-setup"
-                className="banner-warn gate-modal-banner"
-                hidden={!missingClient}
-              >
-                <strong>Setup:</strong> add{" "}
-                <code>VITE_GOOGLE_CLIENT_ID</code> to <code>.env</code> (see{" "}
-                <code>GOOGLE-SETUP.md</code>). Use a Web application OAuth client
-                ID from Google Cloud Console.
+              <div className="gate-signin-brand-block">
+                <img
+                  className="gate-welcome-logo gate-signin-logo"
+                  src="/assets/logo-mark.svg"
+                  width="72"
+                  height="72"
+                  alt=""
+                  decoding="async"
+                />
+                <p className="gate-signin-eyebrow">CrowdCare</p>
               </div>
 
-              {gisError ? (
-                <p className="form-error" role="alert">
-                  {gisError}
+              <div className="gate-signin-focus">
+                <h1 id="gate-connect-heading" className="gate-connect-title">
+                  Sign in with Google
+                </h1>
+                <p className="gate-connect-subtitle">
+                  Continue with your Google account. We derive your Solana address
+                  from it—no seed phrase to paste here.
                 </p>
-              ) : null}
 
-              {signInBusy ? (
-                <p className="lead lead--compact">Signing you in…</p>
-              ) : (
-                <div className="gate-google-row gate-google-row--modal">
-                  {!missingClient && gisReady ? (
-                    <div
-                      ref={buttonHostRef}
-                      className="gate-gis-button-host"
-                      id="gate-gis-button-host"
-                    />
-                  ) : !missingClient ? (
-                    <p className="lead lead--compact">Loading Google…</p>
-                  ) : null}
+                <div
+                  id="gate-client-setup"
+                  className="banner-warn gate-modal-banner"
+                  hidden={!missingClient}
+                >
+                  <strong>Setup:</strong> add{" "}
+                  <code>VITE_GOOGLE_CLIENT_ID</code> to <code>.env</code> (see{" "}
+                  <code>GOOGLE-SETUP.md</code>). Use a Web application OAuth client
+                  ID from Google Cloud Console.
                 </div>
-              )}
+
+                {gisError ? (
+                  <p className="form-error" role="alert">
+                    {gisError}
+                  </p>
+                ) : null}
+
+                {signInBusy ? (
+                  <p className="gate-signin-busy">Signing you in…</p>
+                ) : (
+                  <div className="gate-google-panel">
+                    <div className="gate-google-row gate-google-row--modal">
+                      {!missingClient && gisReady ? (
+                        <div
+                          ref={buttonHostRef}
+                          className="gate-gis-button-host"
+                          id="gate-gis-button-host"
+                        />
+                      ) : !missingClient ? (
+                        <p className="gate-signin-busy">Loading Google…</p>
+                      ) : null}
+                    </div>
+                  </div>
+                )}
+              </div>
 
               <p className="gate-welcome-skip gate-skip-centered">
                 <button

@@ -319,7 +319,7 @@ body {
   }
 }
 
-/* Fixed full-viewport layer: background + future logo/watermarks */
+/* Fixed full-viewport layer: subtle grid + soft vignette (supports UI, not noise) */
 .layout-backdrop {
   position: fixed;
   inset: 0;
@@ -329,37 +329,30 @@ body {
   background-color: var(--ash-void);
   background-image:
     linear-gradient(
-      rgba(255, 255, 255, 0.018) 1px,
+      rgba(255, 255, 255, 0.011) 1px,
       transparent 1px
     ),
     linear-gradient(
       90deg,
-      rgba(255, 255, 255, 0.018) 1px,
+      rgba(255, 255, 255, 0.011) 1px,
       transparent 1px
     ),
     radial-gradient(
-      ellipse 140% 70% at 50% -20%,
-      rgba(212, 180, 92, 0.07) 0%,
-      rgba(212, 180, 92, 0.02) 38%,
-      transparent 62%
-    ),
-    radial-gradient(
-      ellipse 70% 55% at 92% 88%,
-      var(--verdigris-glow) 0%,
+      ellipse 130% 65% at 50% -25%,
+      rgba(212, 180, 92, 0.038) 0%,
       transparent 58%
     ),
     radial-gradient(
-      ellipse 55% 45% at 8% 72%,
-      rgba(184, 146, 58, 0.04) 0%,
+      ellipse 85% 60% at 100% 100%,
+      rgba(109, 160, 144, 0.06) 0%,
       transparent 55%
     ),
-    linear-gradient(
-      180deg,
-      #0b0d12 0%,
-      var(--ash-void) 38%,
-      #090b10 72%,
-      #06070a 100%
-    );
+    radial-gradient(
+      ellipse 70% 50% at 0% 85%,
+      rgba(184, 146, 58, 0.025) 0%,
+      transparent 50%
+    ),
+    linear-gradient(180deg, #0a0b10 0%, var(--ash-void) 42%, #090a0f 100%);
   background-size:
     56px 56px,
     56px 56px,
@@ -377,7 +370,7 @@ body {
   pointer-events: none;
   background-image: url("assets/watermark-tile.svg");
   background-size: 72px 72px;
-  opacity: 0.045;
+  opacity: 0.03;
 }
 
 /* Large centered mark (very faint) */
@@ -391,7 +384,7 @@ body {
   height: min(72vmin, 440px);
   pointer-events: none;
   background: url("assets/logo-mark.svg") center / contain no-repeat;
-  opacity: 0.038;
+  opacity: 0.028;
 }
 
 @media (max-width: 600px) {
@@ -520,47 +513,124 @@ body.cc-motion-flow .gate-welcome-kicker {
   overflow-y: auto;
 }
 
-/* Sign-in panel (after “Start CrowdCare”) — compact card, no vertical stretch */
+/* Sign-in panel — layout only; padding lives on .gate-auth-modal.content-shell.gate-signin-first */
 .gate-signin-first {
   flex: 0 1 auto;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   justify-content: flex-start;
   width: 100%;
-  max-width: 22rem;
+  max-width: min(32rem, 100%);
   margin: 0 auto;
-  padding: 1.1rem 1.15rem 1.2rem;
   box-sizing: border-box;
   align-self: center;
+  text-align: center;
 }
 
-.gate-signin-first .gate-welcome-logo {
-  margin-bottom: 0;
-  width: 48px;
-  height: auto;
+.gate-signin-brand-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  margin: 0 0 1.75rem;
+  padding-bottom: 1.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.gate-signin-logo {
+  width: 72px !important;
+  height: auto !important;
+  margin: 0;
+}
+
+.gate-signin-eyebrow {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  opacity: 0.9;
+}
+
+.gate-signin-focus {
+  width: 100%;
+  max-width: 26rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.gate-signin-first .gate-connect-title {
+  margin: 0 0 0.85rem;
+  font-size: clamp(2rem, 5.5vw, 2.85rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+  color: var(--text);
+  max-width: 16ch;
+}
+
+.gate-connect-subtitle {
+  margin: 0 0 1.75rem;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: rgba(154, 163, 178, 0.95);
+  max-width: 34ch;
+}
+
+.gate-signin-busy {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.gate-google-panel {
+  width: 100%;
+  padding: 1.35rem 1.25rem 1.4rem;
+  border-radius: var(--radius-md);
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(212, 180, 92, 0.2);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+.gate-signin-first .gate-google-row--modal {
+  margin: 0;
+  width: 100%;
+}
+
+.gate-signin-first .gate-gis-button-host {
+  min-height: 52px;
+  min-width: min(100%, 300px);
+  align-items: center;
+}
+
+.gate-signin-first .gate-modal-banner {
+  margin-bottom: 1rem;
+  text-align: left;
+  width: 100%;
+  max-width: 26rem;
+}
+
+.gate-signin-first .form-error {
+  width: 100%;
+  max-width: 26rem;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.gate-signin-first .gate-welcome-skip {
+  margin-top: 1.75rem;
 }
 
 .gate-signin-tagline {
   margin-bottom: 1.25rem !important;
-}
-
-.gate-signin-first .gate-welcome-name {
-  margin: 0.35rem 0 0.1rem;
-  font-size: clamp(1.45rem, 4vw, 1.75rem);
-}
-
-.gate-signin-first .gate-connect-title {
-  margin-top: 0.35rem;
-  margin-bottom: 0.65rem;
-}
-
-.gate-signin-first .gate-google-row--modal {
-  margin-bottom: 0.15rem;
-}
-
-.gate-signin-first .gate-welcome-skip {
-  margin-top: 0.65rem;
 }
 
 .gate-signin-primary {
@@ -1663,13 +1733,18 @@ body.cc-motion-flow .gate-welcome-skip {
   margin-top: 0;
 }
 
-/* Narrower than generic modal max-width (same element carries both classes) */
+/* Sign-in card: dominant width + depth */
 .gate-auth-modal.content-shell.gate-signin-first {
-  max-width: 22rem;
+  max-width: min(32rem, 100%);
   position: relative;
   overflow: hidden;
+  border-radius: var(--radius-xl);
+  padding: clamp(1.75rem, 4vw, 2.75rem) clamp(1.35rem, 4vw, 2.5rem)
+    clamp(2rem, 4vw, 2.75rem);
   box-shadow:
-    var(--shadow-glow-gold),
+    0 32px 80px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(212, 180, 92, 0.12),
+    0 0 64px rgba(212, 180, 92, 0.07),
     var(--shadow-panel);
 }
 
@@ -1694,7 +1769,9 @@ body.cc-motion-flow .gate-welcome-skip {
 }
 
 .gate-auth-modal-head {
-  margin: -0.1rem 0 0.35rem;
+  align-self: stretch;
+  margin: -0.25rem 0 0.5rem;
+  text-align: left;
 }
 
 .gate-auth-back {
@@ -1707,6 +1784,8 @@ body.cc-motion-flow .gate-welcome-skip {
 }
 
 .gate-connect-title {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
   font-size: clamp(1.35rem, 4vw, 1.65rem);
   font-weight: 700;
   color: var(--text);
@@ -1850,7 +1929,7 @@ body.cc-motion-flow .gate-auth-back:hover {
 
 .gate-google-row--modal {
   justify-content: center;
-  margin: 0 0 0.35rem;
+  margin: 0;
   width: 100%;
 }
 
@@ -4285,7 +4364,7 @@ body.cc-motion-flow .bare:hover {
   }
 
   .gate-auth-modal.content-shell.gate-signin-first {
-    padding: 1rem 0.95rem 1.05rem;
+    padding: 1.35rem 1.1rem 1.65rem;
   }
 
   .share-link-row {
