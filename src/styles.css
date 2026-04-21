@@ -294,6 +294,65 @@ body {
   }
 }
 
+@keyframes gate-cinema-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  40% {
+    transform: translate3d(2%, -1.5%, 0) scale(1.04);
+  }
+  70% {
+    transform: translate3d(-1.5%, 2%, 0) scale(0.98);
+  }
+}
+
+@keyframes gate-cinema-sheen {
+  0%,
+  100% {
+    opacity: 0.22;
+  }
+  50% {
+    opacity: 0.42;
+  }
+}
+
+@keyframes cc-cinema-blur-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 1.1rem, 0);
+    filter: blur(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    filter: blur(0);
+  }
+}
+
+@keyframes cc-cinema-scroll-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    opacity: 0.85;
+    transform: translate3d(0, 6px, 0);
+  }
+}
+
+@keyframes cc-land-section-view {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 2rem, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
 @keyframes cc-nav-descend {
   from {
     opacity: 0;
@@ -673,6 +732,126 @@ body.cc-motion-flow .gate-welcome-kicker {
   box-sizing: border-box;
 }
 
+.gate-welcome-outer:has(.gate-cinema-atmosphere) {
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+}
+
+/* Full-bleed mood layer behind the landing hero (gold / patina pools + soft sheen) */
+.gate-cinema-atmosphere {
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  top: -12%;
+  width: min(140vw, 92rem);
+  height: min(125vh, 64rem);
+  transform: translateX(-50%);
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.gate-cinema-atmosphere::before {
+  content: "";
+  position: absolute;
+  inset: -15%;
+  background:
+    radial-gradient(
+      ellipse 72% 48% at 18% 22%,
+      rgba(212, 180, 92, 0.2) 0%,
+      transparent 52%
+    ),
+    radial-gradient(
+      ellipse 55% 42% at 88% 28%,
+      rgba(109, 160, 144, 0.14) 0%,
+      transparent 48%
+    ),
+    radial-gradient(
+      ellipse 45% 38% at 52% 88%,
+      rgba(184, 146, 58, 0.1) 0%,
+      transparent 45%
+    ),
+    radial-gradient(ellipse 120% 80% at 50% 50%, rgba(9, 11, 16, 0) 0%, var(--ash-void) 72%);
+  animation: gate-cinema-drift 32s ease-in-out infinite;
+  will-change: transform;
+}
+
+.gate-cinema-atmosphere::after {
+  content: "";
+  position: absolute;
+  left: -35%;
+  top: -5%;
+  width: 170%;
+  height: 62%;
+  transform: rotate(-11deg);
+  background: linear-gradient(
+    108deg,
+    transparent 0%,
+    rgba(255, 252, 240, 0.045) 42%,
+    rgba(212, 180, 92, 0.06) 50%,
+    transparent 68%
+  );
+  animation: gate-cinema-sheen 14s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gate-cinema-atmosphere::before,
+  .gate-cinema-atmosphere::after {
+    animation: none;
+  }
+
+  .gate-cinema-atmosphere::before {
+    transform: none;
+  }
+}
+
+.gate-cinema-scroll-hint {
+  position: relative;
+  z-index: 1;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.35rem 0 0;
+  padding-bottom: 0.25rem;
+  user-select: none;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) and (min-height: 560px) {
+  .gate-cinema-scroll-hint {
+    display: flex;
+  }
+}
+
+.gate-cinema-scroll-hint-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(154, 163, 178, 0.65);
+}
+
+.gate-cinema-scroll-hint-line {
+  display: block;
+  width: 1px;
+  height: 2.25rem;
+  border-radius: 1px;
+  background: linear-gradient(
+    180deg,
+    rgba(212, 180, 92, 0.55),
+    rgba(212, 180, 92, 0.05)
+  );
+  animation: cc-cinema-scroll-pulse 2.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gate-cinema-scroll-hint {
+    display: none;
+  }
+}
+
 .gate-welcome-card {
   width: 100%;
   max-width: 26.5rem;
@@ -722,9 +901,60 @@ body.cc-motion-flow .gate-welcome-kicker {
 }
 
 .gate-landing-card--hero {
+  position: relative;
+  z-index: 1;
   max-width: min(72rem, 100%);
   padding: clamp(1.35rem, 3.5vw, 2.5rem) clamp(1rem, 3.5vw, 2.75rem) 1.35rem;
   text-align: center;
+  border-radius: clamp(var(--radius-xl), 2.5vw, 2rem);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow:
+    var(--shadow-glow-gold),
+    0 36px 80px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09);
+  isolation: isolate;
+}
+
+.gate-landing-card--hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0.055;
+  background-image: repeating-radial-gradient(
+    circle at 17% 35%,
+    rgba(255, 255, 255, 0.09) 0 0.5px,
+    transparent 0.5px 3px
+  );
+  mix-blend-mode: overlay;
+}
+
+.gate-landing-card--hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 900px) {
+  .gate-landing-card--hero {
+    min-height: min(88vh, 56rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-bottom: clamp(1.5rem, 3vw, 2.25rem);
+  }
+
+  .gate-landing-card--hero .gate-veltra-hero {
+    flex: 0 0 auto;
+  }
+}
+
+.gate-landing-below,
+.gate-landing-footer {
+  position: relative;
+  z-index: 1;
 }
 
 /* Split landing hero (layout only; colors follow CrowdCare gold / ash theme) */
@@ -806,6 +1036,12 @@ body.cc-motion-flow .gate-welcome-kicker {
   color: var(--text);
 }
 
+.gate-landing-card--hero .gate-brand-name {
+  font-size: clamp(2.2rem, 5.5vw, 3.05rem);
+  letter-spacing: -0.045em;
+  text-shadow: 0 0 48px rgba(212, 180, 92, 0.08);
+}
+
 .gate-brand-tagline {
   margin: 0;
   font-size: clamp(0.98rem, 2.2vw, 1.125rem);
@@ -869,6 +1105,114 @@ body.cc-motion-flow .gate-welcome-kicker {
   display: block;
   color: var(--gold-bright);
   margin-top: 0.12em;
+}
+
+.gate-landing-card--hero .gate-veltra-title-line {
+  background: linear-gradient(
+    182deg,
+    #faf6ec 0%,
+    #ebe2cc 38%,
+    #c9a85a 72%,
+    #8f7438 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 24px rgba(212, 180, 92, 0.12));
+}
+
+.gate-landing-card--hero .gate-veltra-title-accent {
+  background: linear-gradient(
+    120deg,
+    var(--gold-bright) 0%,
+    #f0dfa8 45%,
+    var(--gold) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 36px rgba(212, 180, 92, 0.35));
+}
+
+.gate-landing-card--hero .gate-veltra-title {
+  font-size: clamp(2.05rem, 5vw, 3.35rem);
+  font-weight: 700;
+  letter-spacing: -0.042em;
+  line-height: 1.06;
+}
+
+.gate-landing-card--hero .gate-veltra-float-scene::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: 118%;
+  height: 72%;
+  transform: translate(-50%, -50%);
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(212, 180, 92, 0.18) 0%,
+    rgba(109, 160, 144, 0.06) 38%,
+    transparent 68%
+  );
+}
+
+body.cc-motion-flow .gate-hero-primary-card .gate-brand-lockup {
+  animation: cc-rise-cinema 0.92s var(--ease-cinematic-out) both;
+}
+
+body.cc-motion-flow .gate-hero-primary-card .gate-veltra-badge {
+  animation: cc-rise-cinema 0.92s var(--ease-cinematic-out) 0.08s both;
+}
+
+body.cc-motion-flow .gate-hero-primary-card .gate-veltra-title {
+  animation: cc-cinema-blur-in 1.08s var(--ease-cinematic-out) 0.14s both;
+}
+
+body.cc-motion-flow .gate-hero-primary-card .gate-veltra-lead {
+  animation: cc-rise-cinema 1s var(--ease-cinematic-out) 0.22s both;
+}
+
+body.cc-motion-flow .gate-hero-primary-card .gate-veltra-tags {
+  animation: cc-rise-cinema 0.95s var(--ease-cinematic-out) 0.36s both;
+}
+
+body.cc-motion-flow .gate-landing-card--hero .gate-veltra-right {
+  animation: cc-rise-cinema 1.12s var(--ease-cinematic-out) 0.18s both;
+}
+
+body.cc-motion-flow .gate-landing-card--hero .gate-veltra-skip {
+  animation: cc-rise-cinema 0.9s var(--ease-cinematic-out) 0.42s both;
+}
+
+body.cc-motion-flow .gate-landing-card--hero .gate-hero-outline-btn {
+  animation: cc-rise-cinema 0.92s var(--ease-cinematic-out) 0.34s both;
+}
+
+body.cc-motion-flow .gate-landing-card--hero .gate-start-btn {
+  animation:
+    cc-rise-cinema 0.92s var(--ease-cinematic-out) 0.3s both,
+    cc-hero-cta-pulse 5s ease-in-out infinite 1.4s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.cc-motion-flow .gate-hero-primary-card .gate-brand-lockup,
+  body.cc-motion-flow .gate-hero-primary-card .gate-veltra-badge,
+  body.cc-motion-flow .gate-hero-primary-card .gate-veltra-title,
+  body.cc-motion-flow .gate-hero-primary-card .gate-veltra-lead,
+  body.cc-motion-flow .gate-hero-primary-card .gate-veltra-tags,
+  body.cc-motion-flow .gate-landing-card--hero .gate-veltra-right,
+  body.cc-motion-flow .gate-landing-card--hero .gate-veltra-skip,
+  body.cc-motion-flow .gate-landing-card--hero .gate-hero-outline-btn,
+  body.cc-motion-flow .gate-landing-card--hero .gate-start-btn {
+    animation: none;
+  }
+
+  body.cc-motion-flow .gate-hero-primary-card .gate-veltra-title {
+    filter: none;
+  }
 }
 
 .gate-veltra-lead {
@@ -1162,6 +1506,16 @@ button.gate-hero-outline-btn:focus-visible {
 
 .gate-land-section:last-of-type {
   margin-bottom: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .gate-landing-below .gate-land-section {
+      animation: cc-land-section-view linear both;
+      animation-timeline: view();
+      animation-range: entry 8% cover 42%;
+    }
+  }
 }
 
 .gate-land-kicker {
@@ -3888,13 +4242,6 @@ body.profile-page .share-link-explainer {
   letter-spacing: 0;
 }
 
-.profile-balance-meta {
-  margin: 0.65rem 0 0;
-  font-size: 0.9375rem;
-  line-height: 1.5;
-  color: rgba(154, 163, 178, 0.92);
-}
-
 .profile-balance-error {
   margin: 0.85rem 0 0;
 }
@@ -3967,6 +4314,10 @@ button.profile-withdraw-max {
   width: 100%;
 }
 
+.profile-layout-columns:has(> .profile-layout-col:only-child) {
+  grid-template-columns: 1fr;
+}
+
 .profile-layout-col {
   display: flex;
   flex-direction: column;
@@ -3976,6 +4327,17 @@ button.profile-withdraw-max {
 
 .profile-account-panel .profile-form {
   margin-top: 0;
+}
+
+.profile-locked-note,
+.profile-locked-submit-hint {
+  margin: 0 0 0.85rem;
+  max-width: 48ch;
+}
+
+.profile-locked-submit-hint {
+  margin-top: 1rem;
+  margin-bottom: 0;
 }
 
 .mono {

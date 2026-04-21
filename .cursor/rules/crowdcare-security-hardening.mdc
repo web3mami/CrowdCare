@@ -1,0 +1,31 @@
+---
+description: Secure CrowdCare API and RPC without breaking Vite dev, GIS sync, or public reads
+globs: api/**/*
+alwaysApply: false
+---
+
+# CrowdCare — security hardening (keep workflow)
+
+When editing **`api/`**, Solana proxy, or auth-adjacent server code:
+
+## Must preserve
+
+- **Local dev:** `npm run dev` — browser calls **same-origin** `/api/*` (Vite proxy). Do not remove the client’s path to RPC without an equivalent same-origin route.
+- **Public reads:** Hub (`/api/hub/...`), single campaign GET, directory data — remain usable **without** Google sign-in unless the product explicitly adds a gated mode and the UI is updated in the same change.
+- **Creator sync:** `POST /api/campaigns`, `POST /api/users/ping`, `DELETE /api/campaign/[id]` keep **`Authorization: Bearer` + Google ID token** verification and `creatorSub` checks.
+- **Admin:** `GET /api/admin/stats` stays **HTTP Basic** (user `Mami`, `ADMIN_PASSWORD`).
+- **Cron:** `GET|POST /api/sync-ledger` stays **`Authorization: Bearer CRON_SECRET`**.
+
+## Harden in small steps
+
+1. **`api/solana-rpc.js`:** Allowlist JSON-RPC **`method`** values needed by the app (e.g. `getTokenAccountBalance`, `getBalance`, `getLatestBlockhash`, `getAccountInfo`, `sendRawTransaction` only if the client truly sends txs through this proxy). Return **400** for anything else. Enforce a **small max body size** when practical.
+2. **`POST /api/campaigns`:** **Allowlist** keys on `campaign` before persisting (in addition to stripping `chainFunding`). Reject unknown keys with **400** or strip silently—prefer **documented** allowlist + reject to catch client bugs early.
+3. **`GET /api/campaigns`:** Add **pagination** (`limit`, optional cursor) with **safe defaults** (e.g. default cap 50). If shrinking payload, add **optional** `fields=` or keep backward compatibility for one release (query flag) so nothing breaks silently.
+4. **`GET /api/campaignActivity`:** Add privacy-preserving defaults (e.g. omit **`fromAddress`** unless `?includePayer=1` for trusted use). Document in **DEPLOY.md**.
+5. **Never** log **tokens**, **CRON_SECRET**, or **ADMIN_PASSWORD**. Prefer generic client error messages.
+
+## Anti-patterns
+
+- Requiring cookies or API keys for **`/api/solana-rpc`** without updating **`solanaWallet.js`** and verifying Phantom/flows still work.
+- Removing **server chain enrichment** (`attachChainFundingToCampaigns`) without **client** fallback or **cache**, which would regress list/detail funding.
+- One-shot breaking changes to **public JSON shapes** with no migration path for **`crowdcareApi.js`** and directory/hub pages.

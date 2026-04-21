@@ -6,10 +6,13 @@ import {
   useState,
 } from "react";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useLocation } from "react-router-dom";
 import { useSession } from "../context/SessionContext.jsx";
 import { CampaignList } from "../components/CampaignList.jsx";
-import { deleteCampaignFromApi } from "../lib/crowdcareApi.js";
+import {
+  deleteCampaignFromApi,
+  saveUserProfileToApi,
+} from "../lib/crowdcareApi.js";
 import {
   deleteExtraCampaignById,
   getCampaignsByCreatorSub,
@@ -17,7 +20,6 @@ import {
 import {
   SOL_TRANSFER_FEE_BUFFER_LAMPORTS,
   fetchWalletBalanceLamports,
-  getSolanaRpcUrl,
   isValidSolanaAddress,
   lamportsToSolDisplay,
   transactionExplorerUrl,
@@ -27,8 +29,10 @@ import {
   isValidXUsername,
   normalizeXUsernameInput,
 } from "../lib/xUsername.js";
+import { getIdentityUser, getUser } from "../lib/session.js";
 
 export function ProfilePage() {
+  const location = useLocation();
   const { user, ensureShareSlug, updateProfile } = useSession();
 
   const [username, setUsername] = useState("");
@@ -106,17 +110,21 @@ export function ProfilePage() {
     void loadBalance();
   }, [user?.publicKey, loadBalance]);
 
-  useEffect(() => {
-    if (user?.username != null) {
-      setUsername(String(user.username).trim());
-    }
-    if (user?.xUsername != null) {
-      setXUsername(String(user.xUsername).trim());
-    } else {
-      setXUsername("");
-    }
-    if (user?.avatarDataUrl) {
-      setPreviewUrl(user.avatarDataUrl);
+  useLayoutEffect(() => {
+    if (!user?.sub) return;
+    const stored = getUser();
+    const identity =
+      stored && String(stored.sub) === String(user.sub)
+        ? stored
+        : getIdentityUser(user);
+    setUsername(
+      identity?.username != null ? String(identity.username).trim() : ""
+    );
+    setXUsername(
+      identity?.xUsername != null ? String(identity.xUsername).trim() : ""
+    );
+    if (identity?.avatarDataUrl) {
+      setPreviewUrl(identity.avatarDataUrl);
       setPlaceholderHidden(true);
     } else {
       setPreviewUrl(null);
@@ -124,7 +132,13 @@ export function ProfilePage() {
     }
     setPendingAvatarDataUrl(null);
     setAvatarRemoved(false);
-  }, [user?.sub, user?.avatarDataUrl, user?.username, user?.xUsername]);
+  }, [
+    user?.sub,
+    user?.username,
+    user?.xUsername,
+    user?.avatarDataUrl,
+    location.pathname,
+  ]);
 
   if (!user || !user.publicKey) {
     return <Navigate to="/?signin=1&next=%2Fprofile" replace />;
@@ -209,7 +223,7 @@ export function ProfilePage() {
     setError("");
   }
 
-  function onSubmit(e) {
+  async function onSubmit(e) {
     e.preventDefault();
     setError("");
     setSaved(false);
@@ -227,13 +241,46 @@ export function ProfilePage() {
       );
       return;
     }
-    const updates = { username: name, xUsername: xNorm };
+    const updates = { username: name, xUsername: xNorm, profileLocked: false };
     if (avatarRemoved) {
       updates.avatarDataUrl = "";
     } else if (pendingAvatarDataUrl) {
       updates.avatarDataUrl = pendingAvatarDataUrl;
     }
-    updateProfile(updates);
+    const ok = updateProfile(updates);
+    if (!ok) {
+      setError("Could not save profile. Try again.");
+      return;
+    }
+    ensureShareSlug();
+    const fresh = getUser();
+    if (
+      fresh?.shareSlug &&
+      String(fresh.username ?? "").trim() &&
+      isValidXUsername(normalizeXUsernameInput(fresh.xUsername))
+    ) {
+      const r = await saveUserProfileToApi({
+        username: fresh.username,
+        xUsername: normalizeXUsernameInput(fresh.xUsername),
+        shareSlug: fresh.shareSlug,
+        profileLocked: false,
+      });
+      if (!r.ok) {
+        if (r.error === "no_id_token" || r.error === "id_token_expired") {
+          setError(
+            "Saved on this device. Your Google sign-in proof for the server is missing or expired — use the menu → Sign out, then sign in again, then tap Save once here so your name and X handle copy to the server."
+          );
+        } else {
+          setError(
+            `Saved on this device. Could not copy profile online (${r.error}). You can try Save again.`
+          );
+        }
+        setSaved(true);
+        setPendingAvatarDataUrl(null);
+        setAvatarRemoved(false);
+        return;
+      }
+    }
     setSaved(true);
     setPendingAvatarDataUrl(null);
     setAvatarRemoved(false);
@@ -307,14 +354,6 @@ export function ProfilePage() {
     }
   }
 
-  const rpcHost = (() => {
-    try {
-      return new URL(getSolanaRpcUrl()).host;
-    } catch {
-      return "RPC";
-    }
-  })();
-
   return (
     <div className="profile-page-wrap">
       <p className="back">
@@ -331,6 +370,136 @@ export function ProfilePage() {
           </p>
         </header>
 
+        <div className="content-shell ft-panel profile-account-panel">
+          <p className="ft-kicker">Account</p>
+          <p className="ft-panel-title">Your details</p>
+          <p id="profile-error" className="form-error" hidden={!error}>
+            {error}
+          </p>
+          <p id="profile-saved" className="form-success" hidden={!saved}>
+            Saved.
+          </p>
+
+          <form
+            id="profile-form"
+            className="profile-form"
+            noValidate
+            onSubmit={onSubmit}
+          >
+            <h2 className="section-heading section-heading--inline visually-hidden">
+              Account
+            </h2>
+            <div className="profile-avatar-row">
+              <div className="profile-avatar-preview-wrap">
+                {previewUrl ? (
+                  <img
+                    id="profile-avatar-preview"
+                    className="profile-avatar-preview"
+                    src={previewUrl}
+                    alt=""
+                    width="120"
+                    height="120"
+                  />
+                ) : null}
+                <div
+                  id="profile-avatar-placeholder"
+                  className="profile-avatar-placeholder"
+                  hidden={placeholderHidden}
+                >
+                  No photo
+                </div>
+              </div>
+              <div className="profile-avatar-actions">
+                <div className="form-field">
+                  <label htmlFor="profile-avatar">Photo</label>
+                  <input
+                    id="profile-avatar"
+                    name="avatar"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    onChange={onAvatarChange}
+                  />
+                  <p className="form-hint">Max ~750 KB.</p>
+                </div>
+                <button
+                  type="button"
+                  className="secondary-btn"
+                  id="profile-remove-avatar"
+                  onClick={removeAvatar}
+                >
+                  Remove photo
+                </button>
+              </div>
+            </div>
+
+            <div className="form-field">
+              <label htmlFor="profile-username">Display name</label>
+              <input
+                id="profile-username"
+                name="username"
+                type="text"
+                required
+                maxLength={40}
+                autoComplete="nickname"
+                placeholder="How your name appears on campaigns"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+              <p className="form-hint">
+                Required to publish campaigns — shown in Active / Past lists and on your
+                hub.
+              </p>
+            </div>
+
+            <div className="form-field">
+              <label htmlFor="profile-x-username">X (Twitter) username</label>
+              <input
+                id="profile-x-username"
+                name="xUsername"
+                type="text"
+                required
+                maxLength={20}
+                autoComplete="username"
+                placeholder="yourhandle"
+                value={xUsername}
+                onChange={(e) => setXUsername(e.target.value)}
+              />
+            </div>
+
+            <div className="profile-readonly-block">
+              <p className="profile-readonly-label">Email</p>
+              <p id="profile-email" className="profile-readonly-value">
+                {user.email || "—"}
+              </p>
+            </div>
+            <div className="profile-readonly-block profile-readonly-block--address">
+              <p className="profile-readonly-label">Solana address</p>
+              <p className="form-hint profile-address-hint">
+                Your <strong>public</strong> receive address—the same one shown on
+                your campaigns. Safe to share; not a private key.
+              </p>
+              <div className="profile-address-row">
+                <p
+                  id="profile-address"
+                  className="profile-readonly-value mono profile-address-wrap"
+                >
+                  {user.publicKey}
+                </p>
+                <button
+                  type="button"
+                  className="secondary-btn profile-copy-address-btn"
+                  id="profile-copy-address"
+                  onClick={copyPublicAddress}
+                >
+                  {copyAddressLabel}
+                </button>
+              </div>
+            </div>
+
+            <button type="submit">Save</button>
+          </form>
+        </div>
+
         <section className="content-shell ft-panel profile-wallet-panel">
           <p className="ft-kicker">On-chain</p>
           <p className="ft-panel-title">Balance</p>
@@ -346,9 +515,6 @@ export function ProfilePage() {
                 {balanceLamports != null ? (
                   <span className="profile-balance-unit"> SOL</span>
                 ) : null}
-              </p>
-              <p className="profile-balance-meta">
-                Balance from <span className="mono">{rpcHost}</span>
               </p>
             </div>
             <div className="profile-wallet-actions">
@@ -502,140 +668,6 @@ export function ProfilePage() {
                 onDelete={handleDeleteCampaign}
               />
             </section>
-          </div>
-
-          <div className="profile-layout-col">
-            <div className="content-shell ft-panel profile-account-panel">
-              <p id="profile-error" className="form-error" hidden={!error}>
-                {error}
-              </p>
-              <p id="profile-saved" className="form-success" hidden={!saved}>
-                Saved.
-              </p>
-
-              <form
-                id="profile-form"
-                className="profile-form"
-                noValidate
-                onSubmit={onSubmit}
-              >
-                <h2 className="section-heading section-heading--inline">
-                  Account
-                </h2>
-                <div className="profile-avatar-row">
-                  <div className="profile-avatar-preview-wrap">
-                    {previewUrl ? (
-                      <img
-                        id="profile-avatar-preview"
-                        className="profile-avatar-preview"
-                        src={previewUrl}
-                        alt=""
-                        width="120"
-                        height="120"
-                      />
-                    ) : null}
-                    <div
-                      id="profile-avatar-placeholder"
-                      className="profile-avatar-placeholder"
-                      hidden={placeholderHidden}
-                    >
-                      No photo
-                    </div>
-                  </div>
-                  <div className="profile-avatar-actions">
-                    <div className="form-field">
-                      <label htmlFor="profile-avatar">Photo</label>
-                      <input
-                        id="profile-avatar"
-                        name="avatar"
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp,image/gif"
-                        onChange={onAvatarChange}
-                      />
-                      <p className="form-hint">Max ~750 KB.</p>
-                    </div>
-                    <button
-                      type="button"
-                      className="secondary-btn"
-                      id="profile-remove-avatar"
-                      onClick={removeAvatar}
-                    >
-                      Remove photo
-                    </button>
-                  </div>
-                </div>
-
-                <div className="form-field">
-                  <label htmlFor="profile-username">Display name</label>
-                  <input
-                    id="profile-username"
-                    name="username"
-                    type="text"
-                    required
-                    maxLength={40}
-                    autoComplete="nickname"
-                    placeholder="How your name appears on campaigns"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                  />
-                  <p className="form-hint">
-                    Required to publish campaigns — shown in Active / Past lists and on
-                    your hub.
-                  </p>
-                </div>
-
-                <div className="form-field">
-                  <label htmlFor="profile-x-username">X (Twitter) username</label>
-                  <input
-                    id="profile-x-username"
-                    name="xUsername"
-                    type="text"
-                    required
-                    maxLength={22}
-                    autoComplete="username"
-                    placeholder="yourhandle"
-                    value={xUsername}
-                    onChange={(e) => setXUsername(e.target.value)}
-                  />
-                  <p className="form-hint">
-                    Required. Shown on every campaign page with a link to your profile on
-                    X. Letters, numbers, and underscore only (max 20 after removing @).
-                  </p>
-                </div>
-
-                <div className="profile-readonly-block">
-                  <p className="profile-readonly-label">Email</p>
-                  <p id="profile-email" className="profile-readonly-value">
-                    {user.email || "—"}
-                  </p>
-                </div>
-                <div className="profile-readonly-block profile-readonly-block--address">
-                  <p className="profile-readonly-label">Solana address</p>
-                  <p className="form-hint profile-address-hint">
-                    Your <strong>public</strong> receive address—the same one shown on
-                    your campaigns. Safe to share; not a private key.
-                  </p>
-                  <div className="profile-address-row">
-                    <p
-                      id="profile-address"
-                      className="profile-readonly-value mono profile-address-wrap"
-                    >
-                      {user.publicKey}
-                    </p>
-                    <button
-                      type="button"
-                      className="secondary-btn profile-copy-address-btn"
-                      id="profile-copy-address"
-                      onClick={copyPublicAddress}
-                    >
-                      {copyAddressLabel}
-                    </button>
-                  </div>
-                </div>
-
-                <button type="submit">Save</button>
-              </form>
-            </div>
           </div>
         </div>
       </div>

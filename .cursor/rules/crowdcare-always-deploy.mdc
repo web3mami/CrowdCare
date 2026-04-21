@@ -1,0 +1,15 @@
+---
+description: After code changes, ship CrowdCare to Vercel production (crowdcare.fund)
+globs: "**/*.{js,jsx,ts,tsx,json,css,html,md}"
+alwaysApply: true
+---
+
+# CrowdCare — always deploy
+
+When you change **CrowdCare** app or API code in this repo (anything that affects production behavior or docs the team relies on):
+
+1. Run **`npm run build`** from the repo root and fix failures.
+2. Run **`npx vercel deploy --prod --yes`** from the repo root (same machine that has the linked Vercel project).
+3. Confirm the deployment finished and **https://crowdcare.fund** is aliased to the new production deployment.
+
+Do this **in the same session** as the edits unless deploy is impossible (no CLI, auth failure—then say so clearly). Do not end the task with “you can deploy” without running deploy when the environment allows it.

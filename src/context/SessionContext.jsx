@@ -2,6 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -16,6 +17,9 @@ import {
   getUser,
   signOut as clearLocalUser,
   ensureShareSlug as sessionEnsureShareSlug,
+  ensureProfileLockMigrated,
+  reconcileUserProfileFromLatestCampaign,
+  repairStaleProfileLock,
   updateProfile as sessionUpdateProfile,
 } from "../lib/session.js";
 
@@ -29,12 +33,25 @@ export function SessionProvider({ children }) {
     setUserState(getUser());
   }, []);
 
-  useLayoutEffect(() => {
-    if (!user?.publicKey) return;
-    if (sessionEnsureShareSlug()) {
+  /** Another tab updated `crowdcare_user` — keep React state in sync (listener lives here so `refresh` is always in scope). */
+  useEffect(() => {
+    function onStorage(e) {
+      if (e.key !== "crowdcare_user") return;
       refresh();
     }
-  }, [user?.publicKey, user?.shareSlug, refresh]);
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [refresh]);
+
+  useLayoutEffect(() => {
+    if (!user?.sub) return;
+    let changed = false;
+    if (reconcileUserProfileFromLatestCampaign()) changed = true;
+    if (repairStaleProfileLock()) changed = true;
+    if (ensureProfileLockMigrated()) changed = true;
+    if (user?.publicKey && sessionEnsureShareSlug()) changed = true;
+    if (changed) refresh();
+  }, [user?.publicKey, user?.sub, user?.shareSlug, refresh]);
 
   /** Count signed-in Google accounts on the server (Neon) — once per sub when a GIS token exists. */
   useLayoutEffect(() => {

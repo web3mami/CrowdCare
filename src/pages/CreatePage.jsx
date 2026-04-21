@@ -4,18 +4,22 @@ import { PublicKey } from "@solana/web3.js";
 import { useSession } from "../context/SessionContext.jsx";
 import {
   formatCampaignSyncError,
+  getGoogleIdToken,
   hasFreshGoogleIdTokenForSync,
   setGoogleIdToken,
   syncCampaignToApi,
 } from "../lib/crowdcareApi.js";
-import { requestGoogleCredentialOneTap } from "../lib/googleGis.js";
+import {
+  getGoogleCredentialSub,
+  requestGoogleCredentialOneTap,
+} from "../lib/googleGis.js";
 import {
   addExtraCampaign,
   findCampaignById,
   getCreatorPublicMetaFromLatestCampaign,
   idTaken,
 } from "../lib/crowdcareApp.js";
-import { getUser } from "../lib/session.js";
+import { getIdentityUser, getUser } from "../lib/session.js";
 import {
   isValidXUsername,
   normalizeXUsernameInput,
@@ -97,11 +101,12 @@ export function CreatePage() {
     return <Navigate to="/?signin=1" replace />;
   }
 
+  const identity = getIdentityUser(user);
   const reusePub =
     user?.sub != null ? getCreatorPublicMetaFromLatestCampaign(user.sub) : null;
   const publicDisplayName =
-    user.username != null ? String(user.username).trim() : "";
-  const publicX = normalizeXUsernameInput(user.xUsername);
+    identity?.username != null ? String(identity.username).trim() : "";
+  const publicX = normalizeXUsernameInput(identity?.xUsername);
   const effectiveDisplayName = (publicDisplayName || reusePub?.displayName || "")
     .trim()
     .slice(0, 80);
@@ -133,12 +138,49 @@ export function CreatePage() {
     );
   }
 
-  /** Proactively refresh GIS token, then POST; on 401 retry One Tap once. */
+  /**
+   * Ensure the ID token in sessionStorage is for the same Google `sub` as the
+   * campaign / CrowdCare user. One Tap can otherwise return a different account
+   * and the server responds 403 (creatorSub mismatch).
+   */
   async function syncCampaignAfterSave(saved) {
-    if (!hasFreshGoogleIdTokenForSync() && googleWebClientId) {
-      const cred = await requestGoogleCredentialOneTap(googleWebClientId);
-      if (cred) setGoogleIdToken(cred);
+    const expectedSub = saved?.creatorSub || user?.sub;
+    if (!expectedSub) {
+      return { ok: false, error: "no_creator_sub", status: 400 };
     }
+
+    const loginHint =
+      (getIdentityUser(user)?.email || user?.email || "").trim() || undefined;
+
+    function credentialMatchesProfile(credential) {
+      return getGoogleCredentialSub(credential) === expectedSub;
+    }
+
+    let token = getGoogleIdToken();
+    if (token && !credentialMatchesProfile(token)) {
+      setGoogleIdToken(null);
+      token = "";
+    }
+
+    if (
+      (!token || !hasFreshGoogleIdTokenForSync()) &&
+      googleWebClientId
+    ) {
+      const cred = await requestGoogleCredentialOneTap(googleWebClientId, {
+        loginHint,
+      });
+      if (cred) {
+        if (!credentialMatchesProfile(cred)) {
+          return {
+            ok: false,
+            error: "google_account_mismatch",
+            status: 403,
+          };
+        }
+        setGoogleIdToken(cred);
+      }
+    }
+
     let sync = await syncCampaignToApi(saved);
     if (
       !sync.ok &&
@@ -147,8 +189,17 @@ export function CreatePage() {
         sync.error === "no_id_token" ||
         sync.error === "id_token_expired")
     ) {
-      const cred = await requestGoogleCredentialOneTap(googleWebClientId);
+      const cred = await requestGoogleCredentialOneTap(googleWebClientId, {
+        loginHint,
+      });
       if (cred) {
+        if (!credentialMatchesProfile(cred)) {
+          return {
+            ok: false,
+            error: "google_account_mismatch",
+            status: 403,
+          };
+        }
         setGoogleIdToken(cred);
         sync = await syncCampaignToApi(saved);
       }

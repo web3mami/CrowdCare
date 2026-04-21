@@ -31,12 +31,18 @@ export function loadGisScript() {
  * Ask Google for a fresh ID token (One Tap / returning user). Use when sessionStorage
  * token is missing, expired, or the server returned 401 on sync.
  * @param {string} clientId Web client ID (same as VITE_GOOGLE_CLIENT_ID)
+ * @param {{ loginHint?: string }} [opts] Pass the CrowdCare user email so Google biases One Tap to the same account as `crowdcare_user`.
  * @returns {Promise<string|null>} credential JWT or null if not obtained
  */
-export function requestGoogleCredentialOneTap(clientId) {
+export function requestGoogleCredentialOneTap(clientId, opts = {}) {
   if (!clientId || typeof window === "undefined") {
     return Promise.resolve(null);
   }
+  const loginHint =
+    opts.loginHint && String(opts.loginHint).trim()
+      ? String(opts.loginHint).trim()
+      : undefined;
+
   return loadGisScript().then(
     () =>
       new Promise((resolve) => {
@@ -59,6 +65,7 @@ export function requestGoogleCredentialOneTap(clientId) {
           },
           auto_select: true,
           cancel_on_tap_outside: true,
+          ...(loginHint ? { login_hint: loginHint } : {}),
         });
 
         id.prompt((notification) => {
@@ -70,6 +77,17 @@ export function requestGoogleCredentialOneTap(clientId) {
         });
       })
   );
+}
+
+/** Returns Google `sub` from a credential JWT, or null if invalid. */
+export function getGoogleCredentialSub(credential) {
+  if (!credential || typeof credential !== "string") return null;
+  try {
+    const p = decodeGoogleCredentialJwt(credential);
+    return typeof p.sub === "string" ? p.sub : null;
+  } catch {
+    return null;
+  }
 }
 
 /** Decode JWT payload from GIS credential (middle segment). */

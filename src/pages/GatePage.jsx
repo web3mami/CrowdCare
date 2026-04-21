@@ -7,8 +7,19 @@ import {
   loadGisScript,
 } from "../lib/googleGis.js";
 import { deriveDemoKeypair } from "../lib/keypair.js";
-import { setGoogleIdToken } from "../lib/crowdcareApi.js";
-import { getUser, newShareSlug, setUser } from "../lib/session.js";
+import {
+  fetchUserProfileFromApi,
+  saveUserProfileToApi,
+  setGoogleIdToken,
+} from "../lib/crowdcareApi.js";
+import {
+  getUser,
+  isProfileIdentityComplete,
+  newShareSlug,
+  readPersistedIdentity,
+  setUser,
+} from "../lib/session.js";
+import { normalizeXUsernameInput } from "../lib/xUsername.js";
 
 const BROWSE_KEY = "crowdcare_browse_only";
 const NEXT_KEY = "crowdcare_next";
@@ -88,7 +99,15 @@ export function GatePage() {
       const publicKey = kp.publicKey.toBase58();
 
       const prev = getUser();
+      const stash = readPersistedIdentity(sub);
+      const sameGoogleAccount =
+        prev != null && String(prev.sub) === String(sub);
+      /**
+       * `setUser` replaces the whole blob. Merge either the in-memory session
+       * (re-auth same tab) or the per-sub stash (after sign-out cleared session).
+       */
       const next = {
+        ...(sameGoogleAccount ? prev : stash || {}),
         sub,
         email,
         publicKey,
@@ -96,16 +115,52 @@ export function GatePage() {
         at: Date.now(),
         authProvider: "google",
       };
-      if (prev && prev.sub === sub) {
-        if (prev.username) next.username = prev.username;
-        if (prev.xUsername) next.xUsername = prev.xUsername;
-        if (prev.avatarDataUrl) next.avatarDataUrl = prev.avatarDataUrl;
-        if (prev.shareSlug) next.shareSlug = prev.shareSlug;
-      }
       if (!next.shareSlug) next.shareSlug = newShareSlug();
+      delete next.profileLocked;
+
+      try {
+        const { profile: remote } = await fetchUserProfileFromApi(
+          response.credential
+        );
+        if (remote) {
+          const hasId =
+            typeof remote.username === "string" &&
+            remote.username.trim() &&
+            typeof remote.xUsername === "string" &&
+            remote.xUsername.trim();
+          if (hasId) {
+            next.username = remote.username.trim().slice(0, 80);
+            next.xUsername = remote.xUsername.trim().slice(0, 40);
+            if (
+              typeof remote.shareSlug === "string" &&
+              /^[a-z0-9]{10}$/.test(remote.shareSlug)
+            ) {
+              next.shareSlug = remote.shareSlug;
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("[CrowdCare] profile from API on sign-in", e);
+      }
 
       setUser(next);
       setGoogleIdToken(response.credential);
+      try {
+        if (
+          isProfileIdentityComplete(next) &&
+          typeof next.shareSlug === "string" &&
+          /^[a-z0-9]{10}$/.test(next.shareSlug)
+        ) {
+          void saveUserProfileToApi({
+            username: String(next.username ?? "").trim(),
+            xUsername: normalizeXUsernameInput(next.xUsername),
+            shareSlug: next.shareSlug,
+            profileLocked: !!next.profileLocked,
+          });
+        }
+      } catch (e) {
+        console.warn("[CrowdCare] profile push after sign-in", e);
+      }
       refresh();
       sessionStorage.removeItem(BROWSE_KEY);
       const storedNext = safeInternalPath(
@@ -216,6 +271,7 @@ export function GatePage() {
         <div id="gate" className="gate-screen">
           {!gateStarted ? (
             <div className="gate-welcome-outer gate-welcome--pop-in">
+              <div className="gate-cinema-atmosphere" aria-hidden="true" />
               <div className="gate-welcome-card gate-landing-card gate-landing-card--hero">
                 <div className="gate-veltra-hero">
                   <div className="gate-veltra-left">
@@ -339,6 +395,11 @@ export function GatePage() {
                 </p>
               </div>
 
+              <div className="gate-cinema-scroll-hint" aria-hidden="true">
+                <span className="gate-cinema-scroll-hint-label">Scroll</span>
+                <span className="gate-cinema-scroll-hint-line" />
+              </div>
+
               <div className="gate-landing-below">
                 <section
                   className="gate-land-section"
@@ -360,8 +421,8 @@ export function GatePage() {
                       <div className="gate-land-step-body">
                         <p className="gate-land-step-title">Sign in with Google</p>
                         <p className="gate-land-step-text">
-                          We derive a Solana wallet from your Google account so you
-                          don&apos;t manage seed phrases in the app.
+                          Your campaigns show a Solana receive address linked to that
+                          Google sign-in.
                         </p>
                       </div>
                     </li>
@@ -505,8 +566,7 @@ export function GatePage() {
                   Sign in with Google
                 </h1>
                 <p className="gate-connect-subtitle">
-                  Continue with your Google account. We derive your Solana address
-                  from it—no seed phrase to paste here.
+                  Continue with the Google account you want to use on CrowdCare.
                 </p>
 
                 <div

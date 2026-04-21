@@ -1,25 +1,69 @@
 import { decodeGoogleCredentialJwt } from "./googleGis.js";
 
-/** GIS credential JWT — used to authorize POST /api/campaigns (same aud as Web client ID). */
+/**
+ * GIS credential JWT — authorizes POST /api/campaigns and /api/users/profile.
+ * Stored in localStorage (not sessionStorage) so it survives browser restarts and
+ * is shared across tabs. Without it, the UI can still show a signed-in user from
+ * `crowdcare_user` while every server write returns no_id_token.
+ */
 const ID_TOKEN_KEY = "crowdcare_google_id_token";
 
 export function setGoogleIdToken(token) {
-  if (typeof sessionStorage === "undefined") return;
-  if (token && typeof token === "string") {
-    sessionStorage.setItem(ID_TOKEN_KEY, token);
-  } else {
-    sessionStorage.removeItem(ID_TOKEN_KEY);
+  if (typeof localStorage === "undefined") return;
+  try {
+    if (token && typeof token === "string") {
+      localStorage.setItem(ID_TOKEN_KEY, token);
+    } else {
+      localStorage.removeItem(ID_TOKEN_KEY);
+    }
+  } catch {
+    /* ignore quota / blocked storage */
+  }
+  try {
+    if (typeof sessionStorage !== "undefined") {
+      sessionStorage.removeItem(ID_TOKEN_KEY);
+    }
+  } catch {
+    /* ignore */
   }
 }
 
 export function getGoogleIdToken() {
-  if (typeof sessionStorage === "undefined") return "";
-  return sessionStorage.getItem(ID_TOKEN_KEY) || "";
+  if (typeof localStorage === "undefined") return "";
+  try {
+    let t = localStorage.getItem(ID_TOKEN_KEY) || "";
+    if (!t && typeof sessionStorage !== "undefined") {
+      t = sessionStorage.getItem(ID_TOKEN_KEY) || "";
+      if (t) {
+        try {
+          localStorage.setItem(ID_TOKEN_KEY, t);
+          sessionStorage.removeItem(ID_TOKEN_KEY);
+        } catch {
+          /* ignore */
+        }
+      }
+    }
+    return t;
+  } catch {
+    return "";
+  }
 }
 
 export function clearGoogleIdToken() {
-  if (typeof sessionStorage === "undefined") return;
-  sessionStorage.removeItem(ID_TOKEN_KEY);
+  try {
+    if (typeof localStorage !== "undefined") {
+      localStorage.removeItem(ID_TOKEN_KEY);
+    }
+  } catch {
+    /* ignore */
+  }
+  try {
+    if (typeof sessionStorage !== "undefined") {
+      sessionStorage.removeItem(ID_TOKEN_KEY);
+    }
+  } catch {
+    /* ignore */
+  }
 }
 
 /**
@@ -94,8 +138,16 @@ export function formatCampaignSyncError(result) {
   if (status === 401 || /invalid or expired token/i.test(err)) {
     return "After you click Save, CrowdCare asks Google to prove it’s still you so the server can store the campaign for others. That check failed (token expired, wrong tab, or the site’s server Google client ID doesn’t match the app). Use Sign in again for sync, then Retry online sync. Your campaign is already saved in this browser.";
   }
+  if (
+    err === "google_account_mismatch" ||
+    (status === 403 &&
+      (/creatorSub does not match/i.test(err) ||
+        /belongs to another account/i.test(err)))
+  ) {
+    return "The Google proof in this tab doesn’t match your CrowdCare profile (One Tap or another tab signed you in with a different Google account). Open the menu → Sign out, then sign in again with the same Google account as this profile, and try saving once more.";
+  }
   if (status === 403) {
-    return "Server rejected this save (account mismatch). Sign out, sign in with the same Google account you used to create this profile, then try again.";
+    return "Server rejected this save (403). Sign out, sign in with the same Google account as this profile, then try again.";
   }
   if (/public display name|display name is required/i.test(err)) {
     return "The server requires a public display name. Set it on Profile, then try Retry online sync or create the campaign again.";
@@ -223,4 +275,92 @@ export async function pingUserSeenToApi() {
   } catch (e) {
     console.warn("[CrowdCare] users/ping", e);
   }
+}
+
+/**
+ * Load server-stored profile (display name, X handle, hub slug, lock) for this Google account.
+ * @param {string} [idToken] GIS credential JWT; defaults to session token.
+ * @returns {Promise<{ profile: { username: string, xUsername: string, shareSlug: string, profileLocked: boolean } | null, databaseConfigured: boolean }>}
+ */
+export async function fetchUserProfileFromApi(idToken) {
+  const token =
+    idToken && typeof idToken === "string" ? idToken : getGoogleIdToken();
+  if (!token) {
+    return { profile: null, databaseConfigured: true };
+  }
+  try {
+    const r = await fetch("/api/users/profile", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const text = await r.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      return { profile: null, databaseConfigured: true };
+    }
+    if (r.status === 200 && data && typeof data === "object") {
+      return {
+        profile:
+          data.profile && typeof data.profile === "object"
+            ? data.profile
+            : null,
+        databaseConfigured: data.databaseConfigured !== false,
+      };
+    }
+    if (r.status === 401) {
+      console.warn(
+        "[CrowdCare] /api/users/profile: Google token rejected (401). Check server GOOGLE_CLIENT_ID matches VITE_GOOGLE_CLIENT_ID."
+      );
+    } else if (r.status >= 400) {
+      console.warn("[CrowdCare] /api/users/profile GET failed:", r.status);
+    }
+    return { profile: null, databaseConfigured: true };
+  } catch (e) {
+    console.warn("[CrowdCare] users/profile GET", e);
+    return { profile: null, databaseConfigured: true };
+  }
+}
+
+/**
+ * Persist profile fields to Neon (same validation as Profile form). Fire-and-forget friendly.
+ * @returns {{ ok: boolean, error?: string, status?: number }}
+ */
+export async function saveUserProfileToApi(profile) {
+  const token = getGoogleIdToken();
+  if (!token) {
+    return { ok: false, error: "no_id_token" };
+  }
+  try {
+    const payload = decodeGoogleCredentialJwt(token);
+    const exp = payload.exp;
+    if (typeof exp === "number" && exp * 1000 <= Date.now() + 30_000) {
+      return { ok: false, error: "id_token_expired" };
+    }
+  } catch {
+    return { ok: false, error: "no_id_token" };
+  }
+  const body = {
+    username: profile?.username,
+    xUsername: profile?.xUsername,
+    shareSlug: profile?.shareSlug,
+    profileLocked: !!profile?.profileLocked,
+  };
+  const r = await fetch("/api/users/profile", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(body),
+  });
+  if (r.ok) return { ok: true };
+  let msg = `HTTP ${r.status}`;
+  try {
+    const j = await r.json();
+    if (j?.error) msg = j.error;
+  } catch {
+    /* ignore */
+  }
+  return { ok: false, error: msg, status: r.status };
 }
